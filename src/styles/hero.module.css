@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   Hero Module — Teal UI & Very Light Blue Theme (#f0f8ff / #028090)
-   Solid Black Text (#000000) & Playfair Display Highlights
+   Hero Module — Teal Theme & White Text on Action Buttons
 ═══════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
@@ -75,7 +74,7 @@
   font-family: 'Poppins', sans-serif;
   border: none;
   background-color: #028090;
-  color: #000000;
+  color: #ffffff; /* White font on Search Buses button */
   cursor: pointer;
   border-radius: 14px;
   transition: transform 0.25s ease, background-color 0.25s ease;
@@ -89,6 +88,7 @@
 .buttons button:hover {
   transform: translateY(-2px);
   background-color: #00a896;
+  color: #ffffff;
 }
 
 .transportIcons {
@@ -120,7 +120,7 @@
   font-family: 'Poppins', sans-serif;
   border: none;
   background-color: #028090;
-  color: #000000;
+  color: #ffffff; /* White font on Seat Booking button */
   cursor: pointer;
   border-radius: 14px;
   transition: transform 0.25s ease, background-color 0.25s ease;
@@ -134,6 +134,7 @@
 .seatBooking button:hover {
   transform: translateY(-2px);
   background-color: #00a896;
+  color: #ffffff;
 }
 
 .heroImage {

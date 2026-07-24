@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   Home / Routes Module — Teal UI & Very Light Blue Page Theme
-   Black Font & Playfair Display Highlights
+   Home / Routes Module — Unified Theme & White Button Typography
 ═══════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
@@ -23,9 +22,9 @@
 
 .heroBadge {
   display: inline-block;
-  background: #ffffff;
-  border: 1.5px solid #00a896;
-  color: #000000;
+  background: #028090;
+  border: 1.5px solid #028090;
+  color: #ffffff; /* White font on hero badge */
   font-family: 'Playfair Display', serif;
   font-size: 0.8rem;
   font-weight: 800;
@@ -34,7 +33,7 @@
   border-radius: 20px;
   padding: 0.35rem 1.2rem;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 10px rgba(2, 128, 144, 0.08);
+  box-shadow: 0 4px 10px rgba(2, 128, 144, 0.15);
 }
 
 .heroHeading {
@@ -123,19 +122,19 @@
   width: 44px; height: 44px;
   border-radius: 50%;
   border: 1.5px solid #00a896;
-  background: #e6f2ff;
+  background: #028090;
   font-size: 1.2rem;
   cursor: pointer;
-  color: #000000;
+  color: #ffffff; /* White font on swap icon button */
   transition: all 0.3s ease;
   display: flex; align-items: center; justify-content: center;
   align-self: flex-end;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .swapBtn:hover {
   background: #00a896;
-  color: #000000;
+  color: #ffffff;
   transform: rotate(180deg);
 }
 
@@ -209,15 +208,15 @@
 .stepBtn {
   width: 44px; height: 100%;
   border: none;
-  background: #e6f2ff;
+  background: #028090;
   font-size: 1.2rem;
   font-weight: 800;
   cursor: pointer;
-  color: #000000;
+  color: #ffffff; /* White font on stepper buttons */
   transition: background 0.15s;
 }
 
-.stepBtn:hover:not(:disabled) { background: #00a896; color: #000000; }
+.stepBtn:hover:not(:disabled) { background: #00a896; color: #ffffff; }
 
 .stepVal {
   flex: 1;
@@ -231,7 +230,7 @@
   width: 100%;
   padding: 1.05rem;
   background: #028090;
-  color: #000000;
+  color: #ffffff; /* White font on Search Available Buses button */
   border: none;
   border-radius: 16px;
   font-size: 1.05rem;
@@ -240,12 +239,12 @@
   cursor: pointer;
   letter-spacing: 0.5px;
   transition: transform 0.2s, background 0.2s;
-  box-shadow: 0 6px 18px rgba(2, 128, 144, 0.2);
+  box-shadow: 0 6px 18px rgba(2, 128, 144, 0.25);
 }
 
 .searchBtn:hover {
   background: #00a896;
-  color: #000000;
+  color: #ffffff;
   transform: translateY(-2px);
 }
 
@@ -291,8 +290,8 @@
 
 .trackNowSubmitBtn {
   padding: 0.85rem 1.8rem;
-  background: #00a896;
-  color: #000000;
+  background: #028090;
+  color: #ffffff; /* White font on Track Now button */
   border: none;
   border-radius: 12px;
   font-size: 0.9rem;
@@ -301,10 +300,12 @@
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.2);
 }
 
 .trackNowSubmitBtn:hover {
-  background: #028090;
+  background: #00a896;
+  color: #ffffff;
   transform: translateY(-1px);
 }
 
@@ -320,20 +321,21 @@
   flex: 1;
   min-width: 140px;
   padding: 0.75rem 1rem;
-  background: #ffffff;
-  border: 1.5px solid #00a896;
+  background: #028090;
+  border: 1.5px solid #028090;
   border-radius: 12px;
   font-size: 0.85rem;
   font-weight: 800;
-  color: #000000;
+  color: #ffffff; /* White font on quick nav buttons */
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
   transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(2, 128, 144, 0.15);
 }
 
 .quickNavBtn:hover {
   background: #00a896;
-  color: #000000;
+  color: #ffffff;
   transform: translateY(-2px);
 }
 
@@ -416,7 +418,7 @@
 .tagFilterActive, .tagFilter:hover {
   background: #028090;
   border-color: #028090;
-  color: #000000;
+  color: #ffffff;
 }
 
 /* Route Grid Cards */
@@ -448,7 +450,7 @@
   border-radius: 20px;
   font-size: 0.7rem;
   font-weight: 800;
-  color: #000000;
+  color: #ffffff;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   margin-bottom: 1rem;
@@ -501,7 +503,7 @@
   border-radius: 12px;
   font-size: 0.85rem;
   font-weight: 800;
-  color: #000000;
+  color: #ffffff; /* White font on Book Now button */
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
   transition: all 0.2s ease;
@@ -509,7 +511,7 @@
 
 .bookRouteBtn:hover {
   background: #00a896;
-  color: #000000;
+  color: #ffffff;
 }
 
 .detailsBtn {
@@ -572,10 +574,16 @@
   color: #444444;
 }
 
+.ctaBtnRow {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
 .ctaBtn {
   padding: 0.95rem 2rem;
-  background: #00a896;
-  color: #000000;
+  background: #028090;
+  color: #ffffff; /* White font on CTA buttons */
   border: none;
   border-radius: 14px;
   font-size: 0.95rem;
@@ -586,9 +594,20 @@
 }
 
 .ctaBtn:hover {
-  background: #028090;
-  color: #000000;
+  background: #00a896;
+  color: #ffffff;
   transform: translateY(-2px);
+}
+
+.ctaOutlineBtn {
+  background: transparent;
+  border: 1.5.px solid #028090;
+  color: #000000;
+}
+
+.ctaOutlineBtn:hover {
+  background: #028090;
+  color: #ffffff;
 }
 
 .footer {
