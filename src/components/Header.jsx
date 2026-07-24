@@ -4,12 +4,12 @@ import AuthModal from './AuthModal';
 import styles from '../styles/header.module.css';
 
 const NAV_ITEMS = [
-  { to: '/',             icon: '🏠',  label: 'HOME',        exact: true },
-  { to: '/livetracking', icon: '📍',  label: 'BUS TRACK' },
-  { to: '/home',         icon: '🗺️',  label: 'ROUTES' },
-  { to: '/eticket',      icon: '🎫',  label: 'E-TICKET' },
-  { to: '/seatbooking',  icon: '📋',  label: 'BOOKINGS' },
-  { to: '/contact',      icon: '📞',  label: 'CONTACT' },
+  { to: '/',             label: 'HOME',        exact: true },
+  { to: '/livetracking', label: 'BUS TRACK' },
+  { to: '/home',         label: 'ROUTES' },
+  { to: '/eticket',      label: 'E-TICKET' },
+  { to: '/seatbooking',  label: 'BOOKINGS' },
+  { to: '/contact',      label: 'CONTACT' },
 ];
 
 const Header = () => {
@@ -27,13 +27,12 @@ const Header = () => {
     if (name) {
       setUserName(name);
     } else if (!autoDismissed) {
-      // Show login modal after a short delay so the page loads first
       const timer = setTimeout(() => setShowAuth(true), 800);
       return () => clearTimeout(timer);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* Re-check userName after modal closes (in case user just logged in) */
+  /* Re-check userName after modal closes */
   const handleCloseAuth = () => {
     setShowAuth(false);
     setAutoDismissed(true);
@@ -85,7 +84,7 @@ const Header = () => {
                     }}
                     className={`${styles.navLink} ${isActive(item.to, item.exact) ? styles.navLinkActive : ''}`}
                   >
-                    {item.icon} {item.label}
+                    {item.label}
                   </Link>
                 </li>
               );
@@ -96,7 +95,7 @@ const Header = () => {
               {userName ? (
                 <div className={styles.userSection}>
                   <span className={styles.navLink}>
-                    👤 Hi, {userName.split(' ')[0]}
+                    Hi, {userName.split(' ')[0]}
                   </span>
                   <button onClick={handleLogout} className={styles.logoutBtn}>
                     Logout
@@ -111,7 +110,7 @@ const Header = () => {
                   onKeyDown={(e) => e.key === 'Enter' && setShowAuth(true)}
                   style={{ cursor: 'pointer' }}
                 >
-                  👤 LOGIN
+                  LOGIN
                 </span>
               )}
             </li>
@@ -138,7 +137,6 @@ const Header = () => {
             to={item.to}
             className={`${styles.mobileNavLink} ${isActive(item.to, item.exact) ? styles.mobileNavLinkActive : ''}`}
           >
-            <span className={styles.mobileNavIcon}>{item.icon}</span>
             {item.label}
           </Link>
         ))}
@@ -146,12 +144,12 @@ const Header = () => {
         <div className={styles.mobileDivider} />
 
         <Link to="/seatbooking" className={styles.mobileBookBtn}>
-          🚌 &nbsp; Book a Ticket
+          Book a Ticket
         </Link>
 
         {userName ? (
           <div className={styles.mobileNavLink} style={{ justifyContent: 'space-between' }}>
-            <span>👤 {userName}</span>
+            <span>{userName}</span>
             <button onClick={handleLogout} className={styles.logoutBtn}>Logout</button>
           </div>
         ) : (
@@ -159,13 +157,13 @@ const Header = () => {
             onClick={() => { setMobileOpen(false); setShowAuth(true); }}
             className={styles.mobileNavLink}
           >
-            <span className={styles.mobileNavIcon}>👤</span>
             LOGIN / SIGNUP
           </button>
         )}
       </div>
 
-      {showAuth && <AuthModal onClose={handleCloseAuth} bookingRequired={!userName} />}
+      {/* Auth Modal */}
+      {showAuth && <AuthModal onClose={handleCloseAuth} />}
     </>
   );
 };

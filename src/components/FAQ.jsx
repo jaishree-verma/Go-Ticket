@@ -56,7 +56,7 @@ const faqItems = [
   { question: "How do I track my bus?", answer: "Use the 'Track Now' button to view your bus’s live location and arrival time." },
   { question: "What if my bus doesn’t show up?", answer: "Check with your operator or contact Go Ticket support for help." },
   { question: "Is tracking available for all buses?", answer: "Only verified buses on Go Ticket’s platform support live tracking." },
-  { question: "Do I need to download an app?", answer: "No — tracking works directly from your browser." },
+  { question: "Do I need to download an app?", answer: "No - tracking works directly from your browser." },
   { question: "Is my data secure?", answer: "Yes, Go Ticket uses encrypted channels to protect your travel information." },
   { question: "Can I view nearby buses?", answer: "Yes, the map shows other vehicles in your area." },
   { question: "Does tracking work internationally?", answer: "Currently, tracking is available only in supported regions." },
