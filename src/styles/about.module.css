@@ -1,94 +1,119 @@
-body {
-  background-color: #e7dfd8;
-  margin: 0;
-  padding: 0;
-  color: #000;
-}
+/* ═══════════════════════════════════════════════════════════
+   AboutUs Module — Very Light Blue & Teal Theme (#f0f8ff / #028090)
+   Solid Black Text (#000000) & Playfair Display Highlights
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
 
 /* Wrapper */
-.about-wrapper {
+.aboutWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #e7dfd8;
-  padding: 100px 60px;
+  background-color: #f0f8ff; /* Very Light Blue */
+  padding: 60px 40px;
   gap: 40px;
   width: 100%;
   margin: 0 auto;
-  border-radius: 12px;
-  color: #000;
+  color: #000000;
   flex-wrap: wrap;
   animation: fadeIn 1s ease-in-out;
+  box-sizing: border-box;
 }
+
 /* Flex container */
 .aboutContent {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* center both blocks vertically */
-  gap: 120px;
-  color: #000;
+  align-items: center;
+  gap: 60px;
+  color: #000000;
   flex-wrap: wrap;
-  background-color: #e7dfd8;
+  background-color: #f0f8ff;
   width: 100%;
-  max-width: 1400px;
-  min-height: 600px; /* ensures enough vertical space for centering */
+  max-width: 1300px;
 }
+
 /* Heading */
 .aboutHeading {
-  text-align: center;
-  font-family: 'Montserrat',sans-serif;
-  font-size: 2em;
-  
-  margin-bottom: 30px;
-  color: #000;
+  text-align: left;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 25px;
+  color: #000000;
   width: 100%;
-  font-weight: 500px;
-  background-color: #e7dfd8;
- 
+  background-color: transparent;
+  letter-spacing: -0.5px;
 }
 
 /* Text block */
 .aboutText {
-  flex: 2;
-  color: #000;
-  min-width: 520px;            /* slightly wider */
-  max-width: 700px;            /* more room for content */
-  padding-left: 80px;          /* more breathing space */
-  padding-right: 30px;
-  font-size: 21px;             /* slightly larger text */
-  line-height: 1.9;            /* smoother readability */
+  flex: 1.4;
+  color: #000000;
+  min-width: 320px;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  font-family: 'Inter', sans-serif;
 }
 
 /* List styling */
 .aboutList {
-  list-style-type: disc;
-  padding-left: 30px;
-  color: #000;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .aboutList li {
-  margin-bottom: 22px;
+  background: #ffffff;
+  border: 1.5px solid #bce0ff;
+  border-radius: 16px;
+  padding: 1rem 1.3rem;
+  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.05);
+  font-size: 0.95rem;
+  color: #000000;
+  font-weight: 500;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.aboutList li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(2, 128, 144, 0.12);
+  border-color: #00a896;
+}
+
+.aboutList li strong {
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  color: #028090;
+  font-size: 1rem;
+  display: inline-block;
+  margin-right: 0.4rem;
 }
 
 .aboutImage {
-  flex: 1.1;                   /* give image a bit more space */
-  min-width: 480px;
+  flex: 1;
+  min-width: 320px;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
-  padding-right: 30px;         /* tighter to the right */
-  margin-left: auto;
 }
 
 .aboutImage img {
-  width: 120%;
-  max-width: 760px;            /* slightly larger image */
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  object-fit: contain;
-  background-color: #e7dfd8;
+  width: 100%;
+  max-width: 650px;
+  border-radius: 24px;
+  box-shadow: 0 12px 36px rgba(2, 128, 144, 0.15);
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
+.aboutImage img:hover {
+  transform: scale(1.02);
+}
 
 /* Animation */
 @keyframes fadeIn {
@@ -102,9 +127,8 @@ body {
   }
 }
 
-
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .aboutContent {
     flex-direction: column;
     align-items: center;
@@ -113,36 +137,28 @@ body {
   }
 
   .aboutHeading {
-    font-size: 2.4em;
+    text-align: center;
+    font-size: 2rem;
   }
 
   .aboutText {
-    padding: 0 20px;
-    font-size: 18px;
-  }
-
-  .aboutList {
-    padding-left: 0;
+    min-width: 100%;
+    font-size: 0.95rem;
   }
 
   .aboutList li {
-    margin-bottom: 18px;
-  }
-
-  .aboutImage {
-    justify-content: center;
-    padding-right: 0;
+    text-align: left;
   }
 
   .aboutImage img {
     max-width: 100%;
-    margin-top: 30px;
   }
 }
+
 .sectionDivider {
   width: 100vw;
-  height: 2.5px;
-  background-color: #000;
+  height: 2px;
+  background-color: #bce0ff;
   border: none;
-  margin: 80px 0 0 0;
+  margin: 50px 0 0 0;
 }
