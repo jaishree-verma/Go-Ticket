@@ -1,4 +1,10 @@
-/* Animation */
+/* ═══════════════════════════════════════════════════════════
+   Hero Module — Teal UI & Very Light Blue Theme (#f0f8ff / #028090)
+   Solid Black Text (#000000) & Playfair Display Highlights
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -10,7 +16,6 @@
   }
 }
 
-/* Hero container: side-by-side layout */
 .hero {
   display: flex;
   justify-content: space-between;
@@ -19,39 +24,38 @@
   gap: 40px;
   animation: fadeIn 1.2s ease-in-out;
   flex-wrap: wrap;
-  background-color: #e7dfd8;
+  background-color: #f0f8ff; /* Very Light Blue */
+  color: #000000;
 }
 
-/* Left side: stacked layout */
 .heroText {
   flex: 1;
   min-width: 300px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin-top: -100px;
+  margin-top: -40px;
 }
 
 .heroText h1 {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Playfair Display', serif;
   font-size: 80px;
   font-weight: 900;
   margin-bottom: 10px;
-  letter-spacing: 3px;
-  color: #000;
+  letter-spacing: 2px;
+  color: #000000;
 }
 
 .heroText p {
   font-size: 22px;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 30px;
   max-width: 700px;
   text-align: left;
   line-height: 1.6;
-  color: #000;
+  color: #000000;
 }
 
-/* Search button + icons + seat booking wrapper */
 .searchSection {
   display: flex;
   flex-direction: column;
@@ -59,7 +63,6 @@
   gap: 20px;
 }
 
-/* Buttons */
 .buttons {
   margin-bottom: 10px;
 }
@@ -67,26 +70,27 @@
 .buttons button {
   width: 280px;
   height: 60px;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
   border: none;
-  background-color: #b0a092;
-  color: rgb(8, 8, 8);
+  background-color: #028090;
+  color: #000000;
   cursor: pointer;
-  border-radius: 10px;
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  border-radius: 14px;
+  transition: transform 0.25s ease, background-color 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  box-shadow: 0 6px 18px rgba(2, 128, 144, 0.25);
 }
 
 .buttons button:hover {
-  transform: scale(1.05);
-  background-color: #b0a092;
+  transform: translateY(-2px);
+  background-color: #00a896;
 }
 
-/* Transport icons */
 .transportIcons {
   display: flex;
   flex-wrap: wrap;
@@ -97,13 +101,13 @@
   width: 80px;
   height: auto;
   transition: transform 0.3s ease;
+  filter: drop-shadow(0 4px 10px rgba(2, 128, 144, 0.15));
 }
 
 .transportIcons img:hover {
   transform: scale(1.2);
 }
 
-/* Seat Booking button */
 .seatBooking {
   margin-top: 10px;
 }
@@ -111,26 +115,27 @@
 .seatBooking button {
   width: 280px;
   height: 60px;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
   border: none;
-  background-color: #b0a092;
-  color: rgb(8, 8, 8);
+  background-color: #028090;
+  color: #000000;
   cursor: pointer;
-  border-radius: 10px;
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  border-radius: 14px;
+  transition: transform 0.25s ease, background-color 0.25s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
+  box-shadow: 0 6px 18px rgba(2, 128, 144, 0.25);
 }
 
 .seatBooking button:hover {
-  transform: scale(1.05);
-  background-color: #b0a092;
+  transform: translateY(-2px);
+  background-color: #00a896;
 }
 
-/* Right side: Bus image */
 .heroImage {
   flex: 1;
   min-width: 200px;
@@ -144,7 +149,7 @@
   max-width: 950px;
   height: auto;
   border-radius: 40px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 30px rgba(2, 128, 144, 0.18);
   transition: transform 0.3s ease;
 }
 
@@ -152,7 +157,6 @@
   transform: scale(1.02);
 }
 
-/* Responsive layout */
 @media (max-width: 768px) {
   .hero {
     flex-direction: column;
@@ -161,7 +165,7 @@
   }
 
   .heroText h1 {
-    font-size: 64px;
+    font-size: 54px;
   }
 
   .heroImage img {
@@ -177,10 +181,11 @@
     justify-content: center;
   }
 }
+
 .sectionDivider {
-  width: 100vw;               /* full viewport width */
-  height: 3px;                /* thicker line */
-  background-color: #e7dfd8;     /* solid black */
+  width: 100vw;
+  height: 2px;
+  background-color: #bce0ff;
   border: none;
-  margin: 60px 0 0 0;     /* top, right, bottom, left */
+  margin: 40px 0 0 0;
 }

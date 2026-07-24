@@ -71,16 +71,25 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav>
           <ul className={styles.navList}>
-            {NAV_ITEMS.map((item) => (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  className={`${styles.navLink} ${isActive(item.to, item.exact) ? styles.navLinkActive : ''}`}
-                >
-                  {item.icon} {item.label}
-                </Link>
-              </li>
-            ))}
+            {NAV_ITEMS.map((item) => {
+              const requiresAuth = item.to === '/seatbooking' || item.to === '/livetracking';
+              return (
+                <li key={item.to}>
+                  <Link
+                    to={requiresAuth && !userName ? '#' : item.to}
+                    onClick={(e) => {
+                      if (requiresAuth && !userName) {
+                        e.preventDefault();
+                        setShowAuth(true);
+                      }
+                    }}
+                    className={`${styles.navLink} ${isActive(item.to, item.exact) ? styles.navLinkActive : ''}`}
+                  >
+                    {item.icon} {item.label}
+                  </Link>
+                </li>
+              );
+            })}
 
             {/* Auth / User */}
             <li>

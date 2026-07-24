@@ -4,54 +4,43 @@ import Signup from '../pages/auth/Signup';
 import styles from '../stylespages/login-signup.module.css';
 
 const AuthModal = ({ onClose, bookingRequired = false }) => {
-  const [isNewUser, setIsNewUser] = useState(null); // null = prompt, true = signup, false = login
+  const [isNewUser, setIsNewUser] = useState(false); // Default to clean Login tab
 
   return (
     <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <div className={styles.modalHeader}>
-          <div className={styles.title}>
-            {isNewUser === null ? 'Welcome' : isNewUser ? 'Sign up' : 'Login'}
+      <div className={styles.modalCard}>
+        {/* Modal Header */}
+        <div className={styles.modalHeaderRow}>
+          <div className={styles.tabToggleRow}>
+            <button
+              className={`${styles.tabBtn} ${!isNewUser ? styles.tabBtnActive : ''}`}
+              onClick={() => setIsNewUser(false)}
+            >
+              Sign In / Login
+            </button>
+            <button
+              className={`${styles.tabBtn} ${isNewUser ? styles.tabBtnActive : ''}`}
+              onClick={() => setIsNewUser(true)}
+            >
+              Create Account
+            </button>
           </div>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">×</button>
+          <button className={styles.closeModalBtn} onClick={onClose} aria-label="Close">
+            ✕
+          </button>
         </div>
 
-        {/* Booking required banner */}
+        {/* Required Banner */}
         {bookingRequired && (
-          <div className={styles.bookingBanner}>
-            🔒 <strong>Login required</strong> to book tickets. Please sign in or create a free account.
+          <div className={styles.bookingRequiredBanner}>
+            🔒 <strong>Authentication Required:</strong> Please log in or create an account to proceed with seat booking and tracking.
           </div>
         )}
 
-        {/* Step 1: Prompt box */}
-        {isNewUser === null && (
-          <div className={styles.promptWrapper}>
-            <div className={styles.promptBox}>
-              <h2 className={styles.promptTitle}>New user?</h2>
-              <div className={styles.btnRow}>
-                <button
-                  className={`${styles.btn} ${styles.btnPrimary}`}
-                  onClick={() => setIsNewUser(true)}
-                >
-                  Yes — Sign Up
-                </button>
-                <button
-                  className={styles.btn}
-                  onClick={() => setIsNewUser(false)}
-                >
-                  No — Login
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Signup or Login */}
-        {isNewUser === true && (
+        {/* Dynamic Form Component */}
+        {isNewUser ? (
           <Signup onSwitchToLogin={() => setIsNewUser(false)} />
-        )}
-
-        {isNewUser === false && (
+        ) : (
           <Login onSwitchToSignup={() => setIsNewUser(true)} />
         )}
       </div>
