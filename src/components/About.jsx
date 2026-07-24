@@ -67,8 +67,6 @@ const AboutUs = () => {
       </div>
 
       
-      <hr className={styles.sectionDivider} />
-     
     </section>
   );
 };

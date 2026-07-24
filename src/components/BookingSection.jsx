@@ -42,10 +42,6 @@ const Bookings = () => {
         </button>
       </div>
 
-      {/* Divider Line Outside Padded Container */}
-      <div className={styles.fullWidthDivider}>
-        <hr className={styles.sectionDivider} />
-      </div>
     </section>
   );
 };

@@ -73,7 +73,6 @@ const Faq = () => {
 
   return (
     <div className={styles.faqSection}>
-      <hr className={styles.sectionDivider} />
       <h2 className={styles.sectionTitle}><u>Frequently Asked Questions</u></h2>
 
       <div className={styles.faqGrid}>
@@ -92,9 +91,6 @@ const Faq = () => {
           );
         })}
       </div>
-
-      {/* Final divider after FAQ section */}
-      <hr className={styles.faqEndDivider} />
     </div>
   );
 };

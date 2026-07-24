@@ -83,8 +83,6 @@ const Hero = () => {
         </div>
       </section>
 
-      {/* Horizontal line divider */}
-      <hr className={styles.sectionDivider} />
     </>
   );
 };
