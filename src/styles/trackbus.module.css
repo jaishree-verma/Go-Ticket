@@ -1,111 +1,129 @@
+/* ═══════════════════════════════════════════════════════════
+   TrackBus Module — Very Light Blue & Teal Theme (#f0f8ff / #028090)
+   Solid Black Text (#000000) & Playfair Display Highlights
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
+
 .trackBus {
+  background-color: #f0f8ff; /* Very Light Blue */
+  padding: 60px 40px;
+  color: #000000;
+  box-sizing: border-box;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  background-color: #e7dfd8;
-  font-family: 'Segoe UI', sans-serif;
-  color: #000;
 }
 
 .trackContent {
-  flex: 1 1 500px;
-  max-width: 600px;
-  padding-right: 40px;
-  color: #000;
+  width: 100%;
+  max-width: 1300px;
+  color: #000000;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.8;
 }
 
 .trackContent h1 {
-  font-size: 2.2rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #000000;
   margin-bottom: 20px;
-  color: #000;
+  text-align: center;
+  letter-spacing: -0.5px;
 }
 
-.spacer {
-  height: 10px;
-}
-
-.trackContent p {
-  font-size: 1.2rem;
-  line-height: 1.6;
-  margin-bottom: 20px;
-  color: #000;
-}
-
-.trackContent ul {
-  list-style: none;
+.trackList {
+  list-style-type: none;
   padding: 0;
-  margin-bottom: 20px;
-  color: #000;
+  margin: 24px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
 }
 
-.trackContent ul li {
-  margin-bottom: 10px;
-  padding-left: 20px;
-  position: relative;
-  color: #000;
+.trackList li {
+  background: #ffffff;
+  border: 1.5px solid #bce0ff;
+  border-radius: 16px;
+  padding: 1rem 1.3rem;
+  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.05);
+  font-size: 0.95rem;
+  color: #000000;
+  font-weight: 500;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-.trackContent ul li::before {
-  content: "✔";
-  position: absolute;
-  left: 0;
-  color: #000;
+.trackList li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(2, 128, 144, 0.12);
+  border-color: #00a896;
+}
+
+.trackList li strong {
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  color: #028090;
+  font-size: 1rem;
+  display: inline-block;
+  margin-right: 0.4rem;
 }
 
 .trackImage {
-  flex: 1 1 300px;
-  text-align: center;
+  margin: 40px 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .trackImage img {
-  max-width: 90%;
-  height: auto;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 1px solid #ddd;
+  width: 100%;
+  max-width: 850px;
+  border-radius: 24px;
+  box-shadow: 0 12px 36px rgba(2, 128, 144, 0.15);
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
+.trackImage img:hover {
+  transform: scale(1.02);
+}
 
-.fullWidthDivider {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  height: 2.5px;
-  transform: translateX(-50%);
+.buttonWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.trackButton {
+  width: 280px;
+  height: 60px;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  border: none;
+  background-color: #028090;
+  color: #ffffff; /* White font on TRACK NOW button */
+  cursor: pointer;
+  border-radius: 14px;
+  transition: transform 0.25s ease, background-color 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(2, 128, 144, 0.25);
+}
+
+.trackButton:hover {
+  transform: translateY(-2px);
+  background-color: #00a896;
+  color: #ffffff;
 }
 
 .sectionDivider {
   width: 100vw;
-  height: 2.5px;
-  background-color: #000;
+  height: 2px;
+  background-color: #bce0ff;
   border: none;
-  margin-top: 60px 0px 0px 0px;
-}
-
-.buttonWrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 30px;
-  padding-left: 20px; /* aligns with text padding */
-}
-
-.trackButton {
-  background-color: #b0a092;
-  font-family:'Montserrat',sans-serif;
-  color: #000;
-  padding: 20px 28px;
-  font-size: 1.4rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.trackButton:hover {
-  transform: scale(1.05);
-  background-color: #b0a092;
-  
+  margin: 50px 0 0 0;
 }
