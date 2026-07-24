@@ -23,7 +23,7 @@ const Hero = () => {
         <div className={styles.heroText}>
           <div className={styles.welcomeBadge}>✨ Welcome</div>
           <h1><u>GO TICKET</u></h1>
-          <p><b>Technology, when combined with innovation, has the power to make everyday life seamless, connected, and smarter.</b></p>
+          <p><b>Empowering your everyday journey with modern innovation — smart, seamless, and reliable travel at your fingertips.</b></p>
 
           <div className={styles.searchSection}>
             {/* SEARCH BUSES button -> Navigates to Routes (/home) */}
