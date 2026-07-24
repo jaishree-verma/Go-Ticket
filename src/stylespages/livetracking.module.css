@@ -289,7 +289,7 @@
 
 .busPinLabel {
   background: #028090;
-  color: #000000;
+  color: #ffffff;
   font-size: 0.75rem;
   font-weight: 800;
   border-radius: 8px;
@@ -408,7 +408,7 @@
   background: linear-gradient(135deg, #056676 0%, #028090 60%, #00a896 100%);
   border-radius: 18px;
   padding: 1.5rem;
-  color: #000000;
+  color: #ffffff;
   box-shadow: 0 8px 24px rgba(2, 128, 144, 0.2);
   text-align: center;
   position: relative;
@@ -434,7 +434,7 @@
   font-size: 1.05rem;
   font-weight: 800;
   margin-bottom: 0.7rem;
-  color: #000000;
+  color: #ffffff;
 }
 
 .statusPill {

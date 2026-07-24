@@ -69,8 +69,8 @@
 }
 
 .navLinkActive {
-  background-color: #ffffff;
-  color: #034f59 !important;
+  background-color: #034f59;
+  color: #ffffff !important;
   font-family: 'Playfair Display', serif;
   font-weight: 800;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
