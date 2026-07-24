@@ -71,18 +71,18 @@
 }
 
 .trackImage {
-  margin: 40px 0;
+  margin: 30px 0;
   display: flex;
   justify-content: center;
   width: 100%;
 }
 
 .trackImage img {
-  width: 100%;
-  max-width: 850px;
-  border-radius: 24px;
-  box-shadow: 0 12px 36px rgba(2, 128, 144, 0.15);
-  object-fit: cover;
+  width: 90%;
+  max-width: 540px;
+  border-radius: 20px;
+  box-shadow: 0 10px 28px rgba(2, 128, 144, 0.14);
+  object-fit: contain;
   transition: transform 0.3s ease;
 }
 

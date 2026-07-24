@@ -21,7 +21,7 @@ const Hero = () => {
       <section className={styles.hero}>
         {/* Left side: Text + Buttons + Icons */}
         <div className={styles.heroText}>
-          <div className={styles.welcomeBadge}>✨ Welcome to Go Ticket</div>
+          <div className={styles.welcomeBadge}>✨ Welcome</div>
           <h1><u>GO TICKET</u></h1>
           <p><b>Technology, when combined with innovation, has the power to make everyday life seamless, connected, and smarter.</b></p>
 

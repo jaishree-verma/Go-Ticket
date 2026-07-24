@@ -32,7 +32,8 @@
   min-width: 300px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   margin-top: -30px;
 }
 
@@ -49,6 +50,7 @@
   padding: 0.35rem 1.1rem;
   margin-bottom: 0.8rem;
   box-shadow: 0 4px 12px rgba(2, 128, 144, 0.1);
+  align-self: center;
 }
 
 .heroText h1 {
@@ -58,6 +60,8 @@
   margin-bottom: 10px;
   letter-spacing: 2px;
   color: #000000;
+  text-align: center;
+}
 }
 
 .heroText p {
