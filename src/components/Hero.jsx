@@ -21,7 +21,7 @@ const Hero = () => {
       <section className={styles.hero}>
         {/* Left side: Text + Buttons + Icons */}
         <div className={styles.heroText}>
-          <div className={styles.welcomeBadge}>Welcome</div>
+          <div className={styles.welcomeBadge}>Welcome To</div>
           <h1><u>GO TICKET</u></h1>
           <p><b>Empowering your everyday journey with modern innovation - smart, seamless, and reliable travel at your fingertips.</b></p>
 
