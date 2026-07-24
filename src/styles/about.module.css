@@ -1,0 +1,148 @@
+body {
+  background-color: #e7dfd8;
+  margin: 0;
+  padding: 0;
+  color: #000;
+}
+
+/* Wrapper */
+.about-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #e7dfd8;
+  padding: 100px 60px;
+  gap: 40px;
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 12px;
+  color: #000;
+  flex-wrap: wrap;
+  animation: fadeIn 1s ease-in-out;
+}
+/* Flex container */
+.aboutContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* center both blocks vertically */
+  gap: 120px;
+  color: #000;
+  flex-wrap: wrap;
+  background-color: #e7dfd8;
+  width: 100%;
+  max-width: 1400px;
+  min-height: 600px; /* ensures enough vertical space for centering */
+}
+/* Heading */
+.aboutHeading {
+  text-align: center;
+  font-family: 'Montserrat',sans-serif;
+  font-size: 2em;
+  
+  margin-bottom: 30px;
+  color: #000;
+  width: 100%;
+  font-weight: 500px;
+  background-color: #e7dfd8;
+ 
+}
+
+/* Text block */
+.aboutText {
+  flex: 2;
+  color: #000;
+  min-width: 520px;            /* slightly wider */
+  max-width: 700px;            /* more room for content */
+  padding-left: 80px;          /* more breathing space */
+  padding-right: 30px;
+  font-size: 21px;             /* slightly larger text */
+  line-height: 1.9;            /* smoother readability */
+}
+
+/* List styling */
+.aboutList {
+  list-style-type: disc;
+  padding-left: 30px;
+  color: #000;
+}
+
+.aboutList li {
+  margin-bottom: 22px;
+}
+
+.aboutImage {
+  flex: 1.1;                   /* give image a bit more space */
+  min-width: 480px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 30px;         /* tighter to the right */
+  margin-left: auto;
+}
+
+.aboutImage img {
+  width: 120%;
+  max-width: 760px;            /* slightly larger image */
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  object-fit: contain;
+  background-color: #e7dfd8;
+}
+
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .aboutContent {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 40px;
+  }
+
+  .aboutHeading {
+    font-size: 2.4em;
+  }
+
+  .aboutText {
+    padding: 0 20px;
+    font-size: 18px;
+  }
+
+  .aboutList {
+    padding-left: 0;
+  }
+
+  .aboutList li {
+    margin-bottom: 18px;
+  }
+
+  .aboutImage {
+    justify-content: center;
+    padding-right: 0;
+  }
+
+  .aboutImage img {
+    max-width: 100%;
+    margin-top: 30px;
+  }
+}
+.sectionDivider {
+  width: 100vw;
+  height: 2.5px;
+  background-color: #000;
+  border: none;
+  margin: 80px 0 0 0;
+}

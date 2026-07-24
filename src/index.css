@@ -1,0 +1,44 @@
+/* ═══════════════════════════════════════════════════════════
+   Go-Ticket Global Theme — Teal & Very Light Blue
+   Background: Very Light Blue (#f0f8ff / #e6f2ff)
+   Primary Theme UI: Teal (#028090 / #056676 / #00a896)
+   Typography: Solid Black (#000000) for all text
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
+
+:root {
+  --bg-page: #f0f8ff; /* Very Light Alice Blue */
+  --bg-subtle-blue: #e6f2ff; /* Soft Light Blue */
+  --primary-teal: #028090;
+  --dark-teal: #056676;
+  --turquoise-accent: #00a896;
+  --text-black: #000000;
+  --text-dark: #111111;
+  --text-muted: #444444;
+  --card-bg: #ffffff;
+  --border-blue: #bbe0ff;
+  --shadow-soft: 0 4px 18px rgba(2, 128, 144, 0.08);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-page);
+  color: var(--text-black);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Highlight typography utility */
+.highlightText,
+.importantHighlight {
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  color: #000000 !important;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}

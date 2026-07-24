@@ -1,0 +1,377 @@
+/* ═══════════════════════════════════════════════════════════
+   SelectSeats Module — Turquoise & Teal Seating Layout
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+.page {
+  padding: 2.5rem 1.5rem 6.5rem;
+  background: #f0f7f7;
+  min-height: 100vh;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  text-align: center;
+}
+
+.heading {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #056676;
+  margin-bottom: 1.2rem;
+}
+
+.busHeaderBanner {
+  background: linear-gradient(135deg, #056676 0%, #028090 50%, #00a896 100%);
+  border-radius: 20px;
+  padding: 1.3rem 1.8rem;
+  max-width: 780px;
+  margin: 0 auto 1.4rem;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(5, 102, 118, 0.22);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.busBadgeTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.operatorName {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.busClassTag {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 20px;
+  padding: 0.25rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.routePill {
+  font-size: 0.85rem;
+  color: #e6f7f5;
+  font-weight: 600;
+}
+
+.busDetailsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.85rem;
+  max-width: 780px;
+  margin: 0 auto 1.6rem;
+}
+
+.detailBox {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid #ccece8;
+  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.detailLabel {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #028090;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 0.25rem;
+}
+
+.detailVal {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.seatsHighlight {
+  color: #00a896;
+}
+
+.legendBar {
+  display: flex;
+  justify-content: center;
+  gap: 2.2rem;
+  margin-bottom: 1.8rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #4b5563;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legendBox {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+}
+
+.availableBox {
+  background: #ffffff;
+  border: 2.5px solid #00a896;
+}
+
+.selectedBox {
+  background: #00a896;
+  border: 2.5px solid #00a896;
+}
+
+.soldBox {
+  background: #e5e7eb;
+  border: 2.5px solid #d1d5db;
+}
+
+.busFrameCard {
+  background: #ffffff;
+  border: 3px solid #056676;
+  border-radius: 32px 32px 20px 20px;
+  max-width: 500px;
+  margin: 0 auto 2rem;
+  padding: 1.6rem 1.4rem;
+  box-shadow: 0 14px 45px rgba(2, 128, 144, 0.14);
+  position: relative;
+}
+
+.driverSection {
+  background: #e6f7f5;
+  border-radius: 18px;
+  padding: 0.65rem;
+  margin-bottom: 1.6rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #056676;
+  letter-spacing: 1px;
+  border: 1.5px dashed #00a896;
+}
+
+.rearSection {
+  background: #f9fdfd;
+  border-radius: 14px;
+  padding: 0.5rem;
+  margin-top: 1.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 1px;
+}
+
+.seatGridContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.seatRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leftSeats, .rightSeats {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.aisleGap {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #9ca3af;
+  letter-spacing: 1.2px;
+}
+
+.seat {
+  width: 50px; height: 50px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 2px solid #00a896;
+  color: #111827;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 3px 8px rgba(0, 168, 150, 0.1);
+}
+
+.seatHandle {
+  width: 26px; height: 4px;
+  background: #00a896;
+  border-radius: 4px;
+  margin-bottom: 2px;
+}
+
+.seatNum {
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.seat:hover:not(:disabled) {
+  transform: scale(1.14);
+  box-shadow: 0 8px 20px rgba(0, 168, 150, 0.3);
+}
+
+.seat.selected {
+  background: #00a896;
+  border-color: #00a896;
+  color: #ffffff;
+  transform: scale(1.08);
+  box-shadow: 0 8px 22px rgba(0, 168, 150, 0.4);
+}
+
+.seat.selected .seatHandle {
+  background: #ffffff;
+}
+
+.seat.sold {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.seat.sold .seatHandle {
+  background: #d1d5db;
+}
+
+.bottomActionBar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #ffffff;
+  border-top: 1.5px solid #ccece8;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -8px 30px rgba(2, 128, 144, 0.12);
+  z-index: 100;
+  max-width: 780px;
+  margin: 0 auto;
+  border-radius: 20px 20px 0 0;
+}
+
+.fareSummaryBox {
+  text-align: left;
+}
+
+.totalFareLabel {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #028090;
+  text-transform: uppercase;
+}
+
+.totalFareValue {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.confirmBtn {
+  padding: 0.9rem 2rem;
+  background: linear-gradient(135deg, #028090 0%, #00a896 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 20px rgba(0, 168, 150, 0.35);
+}
+
+.confirmBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0, 168, 150, 0.45);
+}
+
+.confirmBtn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 102, 118, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  padding: 1rem;
+}
+
+.modalBox {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2rem;
+  max-width: 520px;
+  width: 100%;
+  text-align: left;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  border: 1.5px solid #ccece8;
+}
+
+.modalBox h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #056676;
+  margin-bottom: 1rem;
+}
+
+.termsList {
+  margin-bottom: 1.6rem;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.cancelModalBtn {
+  flex: 1;
+  padding: 0.8rem;
+  background: #f3f4f6;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: #4b5563;
+}
+
+.proceedModalBtn {
+  flex: 2;
+  padding: 0.8rem;
+  background: #00a896;
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+}
+
+.proceedModalBtn:hover {
+  background: #028090;
+}

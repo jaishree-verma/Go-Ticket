@@ -1,0 +1,809 @@
+/* ═══════════════════════════════════════════════════════════
+   LiveTracking — Professional redesign
+   Palette: #e7dfd8 base | #b0a092 accent | #1a1a2e dark
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+/* ── Base ───────────────────────────────────────────────── */
+.page {
+  padding: 2.5rem 1.5rem 4rem;
+  background: #ede8e2;
+  min-height: 100vh;
+  font-family: 'Inter', 'Poppins', sans-serif;
+}
+
+.heading {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #000;
+  margin-bottom: 0.4rem;
+  text-align: center;
+}
+
+.subText {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* ── Search Card ────────────────────────────────────────── */
+.searchCard {
+  background: #fff;
+  border-radius: 18px;
+  padding: 1.6rem 1.8rem;
+  max-width: 860px;
+  margin: 0 auto 1.8rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  border: 1px solid rgba(224,216,208,0.6);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.searchCard:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.11);
+  transform: translateY(-2px);
+}
+
+.searchLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #b0a092;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 0.7rem;
+}
+
+.searchRow {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.trackInput {
+  flex: 1;
+  padding: 0.9rem 1.2rem;
+  border: 1.5px solid #e0d8d0;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  outline: none;
+  letter-spacing: 0.8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 200px;
+  color: #1a1a2e;
+}
+
+.trackInput::placeholder { color: #bbb; font-weight: 400; letter-spacing: 0; }
+
+.trackInput:focus {
+  border-color: #b0a092;
+  box-shadow: 0 0 0 3px rgba(176,160,146,0.18);
+}
+
+.trackBtn {
+  padding: 0.9rem 1.8rem;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  box-shadow: 0 4px 14px rgba(26,26,46,0.3);
+}
+
+.trackBtn:hover {
+  background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26,26,46,0.4);
+}
+
+.trackBtn:active { transform: translateY(0); }
+
+/* Demo chip pills */
+.demoChips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid #f0ebe4;
+}
+
+.demoChip {
+  padding: 0.32rem 0.85rem;
+  border: 1.5px solid #e0d8d0;
+  border-radius: 20px;
+  background: #faf8f6;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: 'Inter', monospace;
+  color: #888;
+  cursor: pointer;
+  letter-spacing: 0.4px;
+  transition: border-color 0.18s, color 0.18s, background 0.18s, transform 0.18s;
+}
+
+.demoChip:hover {
+  border-color: #1a1a2e;
+  color: #1a1a2e;
+  background: #f0ebe4;
+  transform: translateY(-1px);
+}
+
+/* Not found */
+.notFoundBox {
+  max-width: 860px;
+  margin: 0 auto 1.5rem;
+  padding: 1rem 1.4rem;
+  background: #fff8f8;
+  border: 1.5px solid #f5c6c6;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: #b33;
+  text-align: center;
+}
+
+/* ── Two-column layout ──────────────────────────────────── */
+.resultLayout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.4rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .resultLayout { grid-template-columns: 1fr; }
+}
+
+/* ── Map section ────────────────────────────────────────── */
+.mapSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.mapHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 0.8rem 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border: 1px solid #f0ebe4;
+  transition: box-shadow 0.25s;
+}
+
+.mapHeader:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
+
+.mapHeaderTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  letter-spacing: 0.3px;
+}
+
+.lastUpdate {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #27ae60;
+}
+
+.liveDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #27ae60;
+  animation: livePulse 1.8s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(39,174,96,0.5); }
+  50%       { opacity: 0.7; box-shadow: 0 0 0 5px rgba(39,174,96,0); }
+}
+
+.mapContainer {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  height: 380px;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.14);
+  border: 2px solid #e8e0d8;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.mapContainer:hover {
+  box-shadow: 0 10px 36px rgba(0,0,0,0.18);
+  transform: translateY(-2px);
+}
+
+.mapFrame {
+  width: 100%; height: 100%;
+  border: none; display: block;
+}
+
+/* Animated bus pin */
+.busPinOverlay {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.busPinWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.busDot {
+  font-size: 2.4rem;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.55));
+  animation: floatBus 2s ease-in-out infinite;
+  display: block;
+  z-index: 2;
+  position: relative;
+}
+
+@keyframes floatBus {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-7px); }
+}
+
+.busPulse {
+  position: absolute;
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  background: rgba(39,174,96,0.2);
+  animation: ripple 2s ease-out infinite;
+}
+
+@keyframes ripple {
+  0%   { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+.busPinLabel {
+  background: rgba(26,26,46,0.82);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: 7px;
+  padding: 0.22rem 0.55rem;
+  white-space: nowrap;
+  letter-spacing: 0.8px;
+  font-family: 'Inter', monospace;
+}
+
+/* ── Waypoint Timeline ──────────────────────────────────── */
+.waypointTimeline {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.1rem 1.4rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border: 1px solid #f0ebe4;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.waypointTimeline:hover {
+  box-shadow: 0 5px 18px rgba(0,0,0,0.09);
+  transform: translateY(-1px);
+}
+
+.waypointRow {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.waypointDot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2.5px solid #ccc;
+  background: #fff;
+  flex-shrink: 0;
+  transition: all 0.4s;
+}
+
+.waypointDotDone   { border-color: #27ae60; background: #27ae60; }
+.waypointDotCurrent {
+  border-color: #e67e22; background: #e67e22;
+  box-shadow: 0 0 0 4px rgba(230,126,34,0.2);
+  animation: dotPulse 1.4s infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(230,126,34,0.25); }
+  50%       { box-shadow: 0 0 0 7px rgba(230,126,34,0.08); }
+}
+
+.waypointInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0.4rem;
+  min-width: 0;
+}
+
+.waypointName {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #aaa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90px;
+}
+
+.waypointNameCurrent { color: #e67e22; font-weight: 800; }
+
+.waypointLine {
+  flex: 1;
+  height: 3px;
+  background: #e8e0d8;
+  border-radius: 3px;
+  transition: background 0.5s;
+}
+
+.waypointLineDone {
+  background: linear-gradient(90deg, #27ae60, #2ecc71);
+}
+
+/* ── Progress bar ───────────────────────────────────────── */
+.progressWrapper {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1rem 1.4rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border: 1px solid #f0ebe4;
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.progressWrapper:hover {
+  box-shadow: 0 5px 18px rgba(0,0,0,0.09);
+  transform: translateY(-1px);
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #888;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.3px;
+}
+
+.progressBar {
+  height: 10px;
+  background: #f0ebe4;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── Details Panel ──────────────────────────────────────── */
+.detailsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Bus header */
+.busHeaderCard {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
+  border-radius: 16px;
+  padding: 1.4rem 1.5rem;
+  color: #fff;
+  box-shadow: 0 6px 24px rgba(26,26,46,0.28);
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.busHeaderCard::before {
+  content: '';
+  position: absolute;
+  top: -25px; right: -25px;
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+
+.busHeaderCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 32px rgba(26,26,46,0.36);
+}
+
+.busNumberBadge {
+  display: inline-block;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.22);
+  border-radius: 8px;
+  padding: 0.35rem 1rem;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  font-family: 'Courier New', monospace;
+}
+
+.busNameText {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+  color: rgba(255,255,255,0.88);
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+.statusDot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.9;
+  animation: livePulse 1.8s infinite;
+  flex-shrink: 0;
+}
+
+/* Generic info card */
+.infoCard {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border: 1px solid #f0ebe4;
+  transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
+}
+
+.infoCard:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  border-color: #e0d8d0;
+}
+
+.infoCardTitle {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #b0a092;
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid #f5f0eb;
+}
+
+.currentLocText {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.2rem;
+}
+
+.coordsText {
+  font-size: 0.72rem;
+  color: #bbb;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.3px;
+}
+
+/* Stats row */
+.statsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.statBox {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border: 1px solid #f0ebe4;
+  transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
+}
+
+.statBox:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+  border-color: #e0d8d0;
+}
+
+.statValue {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 0.25rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.statLabel {
+  font-size: 0.68rem;
+  color: #bbb;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Detail rows */
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid #faf7f5;
+  gap: 1rem;
+}
+
+.detailRow:last-child { border-bottom: none; padding-bottom: 0; }
+
+.detailKey {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #bbb;
+  flex-shrink: 0;
+}
+
+.detailValue {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  text-align: right;
+}
+
+.nextStopHighlight {
+  color: #c0392b;
+  font-weight: 800;
+}
+
+/* Occupancy */
+.occupancyRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.55rem;
+}
+
+.occupancyText { font-size: 0.82rem; font-weight: 600; color: #555; }
+.occupancyPct  { font-size: 0.85rem; font-weight: 800; color: #1a1a2e; }
+
+.occupancyBar {
+  height: 8px;
+  background: #f5f0eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.occupancyFill {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 1s ease;
+}
+
+/* Distance card */
+.distanceCard {
+  background: linear-gradient(145deg, #fff 0%, #faf7f4 100%);
+  border: 1.5px solid #e8e0d8;
+  border-radius: 16px;
+  padding: 1.3rem 1.2rem;
+  text-align: center;
+  transition: box-shadow 0.3s, transform 0.3s, border-color 0.3s;
+}
+
+.distanceCard:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  transform: translateY(-3px);
+  border-color: #d0c8c0;
+}
+
+.distanceTitle {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #b0a092;
+  margin-bottom: 0.5rem;
+}
+
+.distanceValue {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 0.7rem;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.distanceSubtext {
+  font-size: 0.8rem;
+  color: #bbb;
+  margin-bottom: 0.9rem;
+  line-height: 1.5;
+}
+
+.locBtn {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.3px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(26,26,46,0.25);
+}
+
+.locBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26,26,46,0.35);
+}
+
+.locBtn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+
+.locText {
+  font-size: 0.68rem;
+  color: #bbb;
+  margin-top: 0.6rem;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.2px;
+}
+
+/* ── Info tiles (default / no search state) ─────────────── */
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1.2rem;
+  max-width: 920px;
+  margin: 0 auto 2rem;
+}
+
+.infoTile {
+  background: #fff;
+  border-radius: 18px;
+  padding: 1.6rem 1.3rem 1.4rem;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.06);
+  border: 1px solid #f0ebe4;
+  transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1),
+              box-shadow 0.28s ease,
+              border-color 0.28s ease;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.infoTile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255,255,255,0) 60%, rgba(176,160,146,0.06) 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.infoTile:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 36px rgba(0,0,0,0.12);
+  border-color: #d8cfc6;
+}
+
+.infoTile:hover::after { opacity: 1; }
+
+.infoTileIconBox {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.3s;
+}
+
+.infoTile:hover .infoTileIconBox { transform: scale(1.08) rotate(-2deg); }
+
+.infoTileIconText {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.infoTileTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.4rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.infoTileText {
+  font-size: 0.8rem;
+  color: #888;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.infoTileTag {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  background: #f5f0eb;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #b0a092;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: background 0.2s, color 0.2s;
+}
+
+.infoTile:hover .infoTileTag {
+  background: #e7dfd8;
+  color: #9a8878;
+}
+
+/* ── Footer ─────────────────────────────────────────────── */
+.footer {
+  margin-top: 3.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #bbb;
+  letter-spacing: 0.2px;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .heading { font-size: 1.5rem; }
+  .mapContainer { height: 250px; }
+  .statsRow { grid-template-columns: 1fr; }
+  .waypointName { max-width: 60px; font-size: 0.65rem; }
+  .pageHeaderBlock { padding: 1.5rem 1rem 1rem; }
+  .searchCard { padding: 1.2rem; }
+}

@@ -1,0 +1,580 @@
+/* ═══════════════════════════════════════════════════════════
+   ETicket Module — Clean Professional Redesign (No Emoji Headings)
+   Palette: #ede8e2 base | #1a1a2e dark accent | #b0a092 warm neutral
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+.page {
+  padding: 2.5rem 1.5rem 4rem;
+  background: #ede8e2;
+  min-height: 100vh;
+  font-family: 'Inter', 'Poppins', sans-serif;
+}
+
+.heading {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #000;
+  margin-bottom: 0.4rem;
+  text-align: center;
+}
+
+.subText {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 2rem;
+  max-width: 580px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── STEP A: Lookup / Verification Card ──────────────────── */
+.lookupCard {
+  background: #fff;
+  border-radius: 18px;
+  padding: 1.6rem 1.8rem;
+  max-width: 620px;
+  margin: 0 auto 2.2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  border: 1.5px solid #e0d8d0;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.lookupCard:hover {
+  box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.cardHeaderTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid #f0ebe4;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 550px) {
+  .formGrid { grid-template-columns: 1fr; }
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #b0a092;
+  margin-bottom: 0.35rem;
+}
+
+.input {
+  padding: 0.82rem 1rem;
+  border: 1.5px solid #e0d8d0;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  outline: none;
+  color: #1a1a2e;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input:focus {
+  border-color: #b0a092;
+  box-shadow: 0 0 0 3px rgba(176,160,146,0.18);
+}
+
+/* Demo chips */
+.demoChipWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+
+.chipHint {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 600;
+}
+
+.demoChipBtn {
+  padding: 0.28rem 0.75rem;
+  border: 1.5px solid #e0d8d0;
+  border-radius: 20px;
+  background: #faf8f6;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.demoChipBtn:hover {
+  background: #1a1a2e;
+  color: #fff;
+  border-color: #1a1a2e;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 0.88rem;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(26,26,46,0.25);
+}
+
+.submitBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26,26,46,0.35);
+}
+
+/* OTP verification sub-box */
+.otpVerificationBox {
+  background: #fdfaf7;
+  border: 1.5px dashed #b0a092;
+  border-radius: 14px;
+  padding: 1.1rem;
+  margin-top: 1rem;
+}
+
+.otpTitle {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.6rem;
+}
+
+.otpInputRow {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.otpInput {
+  letter-spacing: 3px;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+.verifyBtn {
+  padding: 0 1.2rem;
+  background: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.verifyBtn:hover:not(:disabled) {
+  background: #219653;
+}
+
+.verifyBtn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.otpSentNote {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.errorBanner {
+  background: #fff8f8;
+  border: 1px solid #f5c6c6;
+  color: #c0392b;
+  font-size: 0.82rem;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  margin-top: 0.8rem;
+}
+
+/* ── STEP B: Ticket Display Card ────────────────────────── */
+.ticketCardWrapper {
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.sentNotification {
+  background: #e8f8f0;
+  border: 1.5px solid #27ae60;
+  color: #1e8449;
+  border-radius: 12px;
+  padding: 0.85rem 1.2rem;
+  margin-bottom: 1.2rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ticketCard {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2rem 1.8rem;
+  box-shadow: 0 8px 36px rgba(0,0,0,0.1);
+  border: 1.5px solid #e0d8d0;
+  text-align: center;
+}
+
+.ticketHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1.5px solid #f0ebe4;
+}
+
+.brandTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: 1px;
+}
+
+.ticketBadge {
+  background: #e8f8f0;
+  color: #27ae60;
+  border: 1px solid #a3e4d7;
+  border-radius: 20px;
+  padding: 0.25rem 0.8rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.ticketIdRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 1.2rem;
+}
+
+.bookingDateText {
+  font-size: 0.78rem;
+  color: #888;
+}
+
+/* Passenger Info */
+.passengerSection {
+  background: #faf8f6;
+  border: 1px solid #e8e0d8;
+  border-radius: 14px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.4rem;
+  text-align: left;
+}
+
+.passengerSectionTitle {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #b0a092;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 0.6rem;
+}
+
+.passengerCardInner {
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px dashed #e0d8d0;
+}
+
+.passengerCardInner:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.passengerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.paxName {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.paxDetails {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.passengerRowSub {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #888;
+  margin-top: 0.25rem;
+}
+
+/* QR */
+.qrWrapper {
+  margin: 0 auto 1.5rem;
+  display: inline-block;
+}
+
+.qrBox {
+  padding: 12px;
+  border: 2px solid #1a1a2e;
+  border-radius: 12px;
+  display: inline-block;
+  background: #fff;
+}
+
+.qrGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 18px);
+  grid-template-rows: repeat(5, 18px);
+  gap: 2px;
+}
+
+.qrCell {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+}
+
+.qrLabel {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* Details grid */
+.detailGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+@media (max-width: 500px) {
+  .detailGrid { grid-template-columns: 1fr; }
+}
+
+.detailItem {
+  background: #faf8f6;
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #f0ebe4;
+}
+
+.detailLabel {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #bbb;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.detailVal {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+/* Resend SMS dispatch box */
+.dispatchBox {
+  background: #f5f0eb;
+  border: 1px solid #e0d8d0;
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+.dispatchText {
+  font-size: 0.82rem;
+  color: #555;
+  margin-bottom: 0.65rem;
+}
+
+.resendSmsBtn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #1a1a2e;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.2s;
+}
+
+.resendSmsBtn:hover {
+  background: #0f3460;
+}
+
+/* Download button */
+.downloadBtn {
+  width: 100%;
+  padding: 0.9rem;
+  background: linear-gradient(135deg, #b0a092 0%, #9a8878 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(154,136,120,0.3);
+  margin-bottom: 1rem;
+}
+
+.downloadBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(154,136,120,0.4);
+}
+
+.ticketActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.actionBtn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1.5px solid #e0d8d0;
+  background: #faf8f6;
+  color: #1a1a2e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.2s;
+}
+
+.actionBtn:hover {
+  background: #f0ebe4;
+}
+
+.clearBtn {
+  color: #c0392b;
+  border-color: #f5c6c6;
+  background: #fff8f8;
+}
+
+.clearBtn:hover {
+  background: #ffeaea;
+}
+
+/* No Ticket Box */
+.noTicketBox {
+  background: #fff;
+  border-radius: 18px;
+  padding: 2.2rem 1.8rem;
+  max-width: 460px;
+  margin: 2rem auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  border: 1.5px solid #e0d8d0;
+  text-align: center;
+}
+
+.noTicketTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+.noTicketText {
+  font-size: 0.88rem;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1.4rem;
+}
+
+.bookNowBtn {
+  padding: 0.85rem 2rem;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(26,26,46,0.25);
+}
+
+.bookNowBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26,26,46,0.35);
+}
+
+.footer {
+  margin-top: 3.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #bbb;
+}
+
+/* Print CSS */
+@media print {
+  body * { visibility: hidden; }
+  .ticketCard, .ticketCard * { visibility: visible; }
+  .ticketCard {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    padding: 2rem;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .lookupCard, .dispatchBox, .downloadBtn, .ticketActions, .noTicketBox, .footer, .sentNotification {
+    display: none !important;
+  }
+}

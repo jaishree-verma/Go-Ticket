@@ -1,0 +1,43 @@
+h1{
+  font-size:40px;
+  font-family: 'Montserrat',sans-serif;
+}
+
+
+.featuresSection {
+  text-align: center;
+  padding: 40px;
+  background-color: #e7dfd8; /* same as your background */
+}
+
+.featuresContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columns */
+  gap: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.featureBox {
+  background-color: #e8e2db; /* similar beige tone */
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.featureBox:hover {
+  background-color: #ffffff;
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.sectionDivider {
+  width: 100vw;
+  height: 2.5px;
+  background-color: #000;
+  border: none;
+  margin: 80px 0 0 0;
+}

@@ -1,0 +1,164 @@
+/* ═══════════════════════════════════════════════════════════
+   Header Module — Teal UI & Very Light Blue Background
+   Black Font & Playfair Display Highlights
+═══════════════════════════════════════════════════════════ */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 40px;
+  background-color: #e6f2ff; /* Very Light Blue */
+  border-bottom: 2px solid #bce0ff;
+  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.08);
+  position: relative;
+  z-index: 100;
+  height: 80px;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.logoImg {
+  max-height: 52px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.logoImg:hover {
+  transform: scale(1.06);
+}
+
+.navList {
+  display: flex;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.navLink {
+  background-color: #ffffff;
+  color: #000000;
+  padding: 9px 20px;
+  border-radius: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  font-size: 0.88rem;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(2, 128, 144, 0.1);
+  border: 1.5px solid #00a896;
+}
+
+.navLink:hover {
+  background-color: #00a896;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 168, 150, 0.25);
+}
+
+.navLinkActive {
+  background-color: #028090;
+  color: #000000 !important;
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(2, 128, 144, 0.25);
+  border-color: #028090;
+}
+
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #000000;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.userNameText {
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  color: #000000;
+}
+
+.logoutBtn {
+  background: #ffffff;
+  border: 1.5px solid #cc3333;
+  color: #cc3333;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.logoutBtn:hover {
+  background: #cc3333;
+  color: #ffffff;
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.hamburgerBar {
+  width: 24px;
+  height: 2.5px;
+  background: #000000;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.mobileMenu {
+  display: none;
+  position: fixed;
+  top: 80px; left: 0; right: 0; bottom: 0;
+  background: #e6f2ff;
+  z-index: 999;
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 0.8rem;
+  border-top: 2px solid #bce0ff;
+}
+
+.mobileMenu.mobileMenuOpen {
+  display: flex;
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1.2rem;
+  border-radius: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #000000;
+  text-decoration: none;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1.5px solid #00a896;
+}
+
+@media (max-width: 900px) {
+  .navList { display: none; }
+  .hamburger { display: flex; }
+  .header { padding: 10px 20px; }
+}

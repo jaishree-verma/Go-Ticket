@@ -1,0 +1,221 @@
+/* ═══════════════════════════════════════════════════════════
+   Payment & Booking Flow Module — Turquoise & Teal Theme
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+.page {
+  padding: 2.5rem 1.5rem 5rem;
+  background: #f0f7f7;
+  min-height: 100vh;
+  font-family: 'Inter', 'Poppins', sans-serif;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2rem;
+  max-width: 680px;
+  margin: 0 auto 2rem;
+  box-shadow: 0 10px 36px rgba(2, 128, 144, 0.08);
+  border: 1.5px solid #ccece8;
+}
+
+.heading {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #056676;
+  text-align: center;
+  margin-bottom: 1.8rem;
+}
+
+/* Step Bar */
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+}
+
+.stepDot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #9ca3af;
+  text-transform: uppercase;
+}
+
+.stepCircle {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #d1d5db;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #9ca3af;
+}
+
+.stepDot.active .stepCircle {
+  background: #028090;
+  border-color: #028090;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.3);
+}
+
+.stepDot.active { color: #028090; }
+
+.stepDot.done .stepCircle {
+  background: #00a896;
+  border-color: #00a896;
+  color: #ffffff;
+}
+
+.stepDot.done { color: #00a896; }
+
+.stepLine {
+  flex: 1;
+  height: 2px;
+  background: #e5e7eb;
+  margin: 0 0.4rem;
+  transform: translateY(-10px);
+}
+
+.stepLine.done { background: #00a896; }
+
+/* Passenger Cards */
+.passengerCardBox {
+  background: #ffffff;
+  border: 1.5px solid #ccece8;
+  border-radius: 18px;
+  padding: 1.4rem;
+  margin-bottom: 1.4rem;
+  box-shadow: 0 4px 16px rgba(2, 128, 144, 0.04);
+}
+
+.passengerCardTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #056676;
+}
+
+.primaryBadge {
+  background: #00a896;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  border-radius: 20px;
+  padding: 0.2rem 0.6rem;
+  margin-left: 0.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.1rem;
+  text-align: left;
+}
+
+.label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #028090;
+  margin-bottom: 0.35rem;
+}
+
+.input {
+  padding: 0.85rem 1.1rem;
+  border: 1.5px solid #ccece8;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  color: #111827;
+  outline: none;
+  background: #ffffff;
+}
+
+.input:focus {
+  border-color: #00a896;
+  box-shadow: 0 0 0 4px rgba(0, 168, 150, 0.15);
+}
+
+.sendOtpBtn {
+  padding: 0.85rem 1.4rem;
+  background: linear-gradient(135deg, #028090 0%, #00a896 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.addPassengerBtn {
+  width: 100%;
+  padding: 0.9rem;
+  margin-bottom: 1.5rem;
+  background: #ffffff;
+  border: 2px dashed #00a896;
+  border-radius: 14px;
+  color: #028090;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.addPassengerBtn:hover {
+  background: #e6f7f5;
+}
+
+.proceedBtn {
+  width: 100%;
+  padding: 1.05rem;
+  background: linear-gradient(135deg, #028090 0%, #00a896 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 168, 150, 0.35);
+}
+
+.proceedBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 168, 150, 0.45);
+}
+
+.ticketCard {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2.2rem;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 12px 40px rgba(2, 128, 144, 0.12);
+  border: 1.5px solid #ccece8;
+  text-align: center;
+}
+
+.ticketBadge {
+  background: #e6f7f5;
+  color: #00a896;
+  border: 1.5px solid #00a896;
+  border-radius: 20px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+}

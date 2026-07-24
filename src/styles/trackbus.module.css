@@ -1,0 +1,111 @@
+.trackBus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background-color: #e7dfd8;
+  font-family: 'Segoe UI', sans-serif;
+  color: #000;
+}
+
+.trackContent {
+  flex: 1 1 500px;
+  max-width: 600px;
+  padding-right: 40px;
+  color: #000;
+}
+
+.trackContent h1 {
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.spacer {
+  height: 10px;
+}
+
+.trackContent p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.trackContent ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.trackContent ul li {
+  margin-bottom: 10px;
+  padding-left: 20px;
+  position: relative;
+  color: #000;
+}
+
+.trackContent ul li::before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  color: #000;
+}
+
+.trackImage {
+  flex: 1 1 300px;
+  text-align: center;
+}
+
+.trackImage img {
+  max-width: 90%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ddd;
+}
+
+
+.fullWidthDivider {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  height: 2.5px;
+  transform: translateX(-50%);
+}
+
+.sectionDivider {
+  width: 100vw;
+  height: 2.5px;
+  background-color: #000;
+  border: none;
+  margin-top: 60px 0px 0px 0px;
+}
+
+.buttonWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  padding-left: 20px; /* aligns with text padding */
+}
+
+.trackButton {
+  background-color: #b0a092;
+  font-family:'Montserrat',sans-serif;
+  color: #000;
+  padding: 20px 28px;
+  font-size: 1.4rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.trackButton:hover {
+  transform: scale(1.05);
+  background-color: #b0a092;
+  
+}

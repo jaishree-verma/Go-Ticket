@@ -1,0 +1,599 @@
+/* ═══════════════════════════════════════════════════════════
+   Home / Routes Module — Teal UI & Very Light Blue Page Theme
+   Black Font & Playfair Display Highlights
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
+
+.page {
+  background: #f0f8ff; /* Very Light Blue */
+  min-height: 100vh;
+  font-family: 'Inter', 'Poppins', sans-serif;
+  padding-bottom: 4rem;
+  color: #000000;
+}
+
+/* Hero Section */
+.heroSection {
+  background: #e6f2ff; /* Very Light Blue Banner */
+  padding: 3rem 1.5rem 3.5rem;
+  text-align: center;
+  border-bottom: 2px solid #bce0ff;
+}
+
+.heroBadge {
+  display: inline-block;
+  background: #ffffff;
+  border: 1.5px solid #00a896;
+  color: #000000;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 0.35rem 1.2rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 10px rgba(2, 128, 144, 0.08);
+}
+
+.heroHeading {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #000000;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.heroSub {
+  font-size: 1rem;
+  color: #222222;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+/* Search Card Box */
+.searchBox {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2rem 2.2rem;
+  max-width: 880px;
+  margin: 0 auto;
+  box-shadow: 0 10px 36px rgba(2, 128, 144, 0.1);
+  text-align: left;
+  border: 1.5px solid #bce0ff;
+}
+
+.errorMsg {
+  background: #fff5f5;
+  border: 1.5px solid #feb2b2;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.2rem;
+  font-size: 0.88rem;
+  color: #c53030;
+}
+
+.routeRow {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-end;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.inputWrapper {
+  flex: 1;
+  position: relative;
+  min-width: 140px;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #000000;
+  margin-bottom: 0.4rem;
+}
+
+.cityInput {
+  width: 100%;
+  padding: 0.9rem 1.1rem;
+  border: 1.5px solid #bce0ff;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  outline: none;
+  color: #000000;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.cityInput:focus {
+  border-color: #00a896;
+  box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.2);
+}
+
+.swapBtn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid #00a896;
+  background: #e6f2ff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #000000;
+  transition: all 0.3s ease;
+  display: flex; align-items: center; justify-content: center;
+  align-self: flex-end;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.swapBtn:hover {
+  background: #00a896;
+  color: #000000;
+  transform: rotate(180deg);
+}
+
+.suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: #ffffff;
+  border: 1.5px solid #00a896;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(2, 128, 144, 0.15);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.suggestion {
+  padding: 0.7rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #000000;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.suggestion:hover {
+  background: #e6f2ff;
+}
+
+.detailsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+
+@media (max-width: 640px) {
+  .detailsRow { grid-template-columns: 1fr; }
+  .routeRow   { flex-direction: column; }
+}
+
+.dateInput,
+.selectInput {
+  padding: 0.88rem 1.1rem;
+  border: 1.5px solid #bce0ff;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  outline: none;
+  color: #000000;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  height: 48px;
+}
+
+.dateInput:focus, .selectInput:focus {
+  border-color: #00a896;
+  box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.2);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #bce0ff;
+  border-radius: 14px;
+  overflow: hidden;
+  height: 48px;
+  background: #ffffff;
+}
+
+.stepBtn {
+  width: 44px; height: 100%;
+  border: none;
+  background: #e6f2ff;
+  font-size: 1.2rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: #000000;
+  transition: background 0.15s;
+}
+
+.stepBtn:hover:not(:disabled) { background: #00a896; color: #000000; }
+
+.stepVal {
+  flex: 1;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #000000;
+}
+
+.searchBtn {
+  width: 100%;
+  padding: 1.05rem;
+  background: #028090;
+  color: #000000;
+  border: none;
+  border-radius: 16px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: transform 0.2s, background 0.2s;
+  box-shadow: 0 6px 18px rgba(2, 128, 144, 0.2);
+}
+
+.searchBtn:hover {
+  background: #00a896;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+/* Track Bus Box */
+.trackBusCardBox {
+  background: #e6f2ff;
+  border: 1.5px solid #00a896;
+  border-radius: 16px;
+  padding: 1.2rem;
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.trackBoxTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #000000;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 0.6rem;
+}
+
+.trackBoxRow {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.trackBusInput {
+  flex: 1;
+  padding: 0.85rem 1.1rem;
+  border: 1.5px solid #bce0ff;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  outline: none;
+  color: #000000;
+  background: #ffffff;
+  min-width: 200px;
+}
+
+.trackNowSubmitBtn {
+  padding: 0.85rem 1.8rem;
+  background: #00a896;
+  color: #000000;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.trackNowSubmitBtn:hover {
+  background: #028090;
+  transform: translateY(-1px);
+}
+
+.quickNavRow {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.quickNavBtn {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1.5px solid #00a896;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #000000;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.25s ease;
+}
+
+.quickNavBtn:hover {
+  background: #00a896;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+/* Stats Strip */
+.statsStrip {
+  display: flex;
+  justify-content: center;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(2, 128, 144, 0.08);
+  flex-wrap: wrap;
+  border-top: 1px solid #bce0ff;
+  border-bottom: 1px solid #bce0ff;
+}
+
+.statItem {
+  flex: 1;
+  min-width: 130px;
+  text-align: center;
+  padding: 1.6rem 1rem;
+  border-right: 1px solid #bce0ff;
+}
+
+.statItem:last-child { border-right: none; }
+
+.statValue {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #000000;
+}
+
+.statLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #444444;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Section Block */
+.sectionBlock {
+  max-width: 1100px;
+  margin: 3.5rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.sectionTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #000000;
+  margin-bottom: 0.2rem;
+}
+
+.sectionSub {
+  font-size: 0.9rem;
+  color: #444444;
+  font-weight: 500;
+}
+
+.tagFilterRow {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin: 1.4rem 0;
+}
+
+.tagFilter {
+  padding: 0.4rem 1.1rem;
+  border: 1.5px solid #bce0ff;
+  border-radius: 20px;
+  background: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #000000;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tagFilterActive, .tagFilter:hover {
+  background: #028090;
+  border-color: #028090;
+  color: #000000;
+}
+
+/* Route Grid Cards */
+.routeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.4rem;
+}
+
+.routeCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 1.5rem 1.4rem 1.2rem;
+  border: 1.5px solid #bce0ff;
+  box-shadow: 0 4px 16px rgba(2, 128, 144, 0.06);
+  position: relative;
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+
+.routeCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(2, 128, 144, 0.15);
+  border-color: #00a896;
+}
+
+.routeTag {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #000000;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.cityFrom, .cityTo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #000000;
+}
+
+.routeArrowDot { background: #000000; }
+.routeArrowBar { background: #000000; }
+.routeArrowHead { color: #000000; }
+
+.routeMeta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 0.5rem;
+  background: #e6f2ff;
+  border-radius: 14px;
+  padding: 0.85rem 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.metaKey {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #444444;
+  text-transform: uppercase;
+}
+
+.metaVal {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #000000;
+}
+
+.fareHighlight {
+  color: #000000;
+  font-family: 'Playfair Display', serif;
+}
+
+.bookRouteBtn {
+  flex: 1;
+  padding: 0.7rem 0.6rem;
+  background: #028090;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #000000;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.bookRouteBtn:hover {
+  background: #00a896;
+  color: #000000;
+}
+
+.detailsBtn {
+  flex: 1;
+  padding: 0.7rem 0.6rem;
+  background: #ffffff;
+  border: 1.5px solid #bce0ff;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #000000;
+  cursor: pointer;
+}
+
+/* Steps & CTA */
+.stepCard {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 1.6rem 1.4rem;
+  border: 1.5px solid #bce0ff;
+  box-shadow: 0 4px 16px rgba(2, 128, 144, 0.06);
+}
+
+.stepCard::before {
+  background: #00a896;
+}
+
+.stepNum {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #000000;
+}
+
+.stepTitle {
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  color: #000000;
+}
+
+.ctaStrip {
+  background: #ffffff;
+  border: 2px solid #00a896;
+  border-radius: 24px;
+  padding: 2.2rem 2.8rem;
+  max-width: 1100px;
+  margin: 3.5rem auto 0;
+  box-shadow: 0 10px 30px rgba(2, 128, 144, 0.1);
+}
+
+.ctaTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #000000;
+}
+
+.ctaSub {
+  font-size: 0.9rem;
+  color: #444444;
+}
+
+.ctaBtn {
+  padding: 0.95rem 2rem;
+  background: #00a896;
+  color: #000000;
+  border: none;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ctaBtn:hover {
+  background: #028090;
+  color: #000000;
+  transform: translateY(-2px);
+}
+
+.footer {
+  text-align: center;
+  font-size: 0.82rem;
+  color: #555555;
+  margin-top: 3.5rem;
+}

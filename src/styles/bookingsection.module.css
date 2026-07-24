@@ -1,0 +1,102 @@
+.bookingSection {
+  background-color: #e7dfd8;
+  padding: 60px 40px;
+  font-family: 'Montserrat', sans-serif;
+  color: #000;
+}
+
+.bookingContent {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 40px;
+  color: #000;
+}
+
+.bookingText {
+  flex: 1;
+  text-align: left;
+  color: #000;
+}
+
+.bookingText h2 {
+  font-size: 2.2em;
+  margin-bottom: 30px;
+  color: #000;
+}
+
+.bookingText p {
+  font-size: 1.1em;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.bookingSteps {
+  padding-left: 20px;
+  font-size: 1.1em;
+  line-height: 1.8;
+  color: #000;
+}
+
+.bookingSteps li {
+  margin-bottom: 16px;
+  color: #000;
+}
+
+.bookingImage {
+  flex: 1;
+  text-align: center;
+}
+
+.bookingImage img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ddd;
+  transition: transform 0.3s ease;
+}
+
+.bookingImage img:hover {
+  transform: scale(1.02);
+}
+.fullWidthDivider {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.sectionDivider {
+  width: 100%;
+  height: 2.5px;
+  background-color: #000;
+  border: none;
+  margin-top: 60px;
+}
+.buttonWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+  padding-left: 20px; /* aligns with text padding */
+}
+
+.bookingButton {
+  background-color: #b0a092;
+  font-family:'Montserrat',sans-serif;
+  color: #000;
+  padding: 20px 28px;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bookingButton:hover {
+  transform: scale(1.05);
+  background-color: #b0a092;
+  
+}
