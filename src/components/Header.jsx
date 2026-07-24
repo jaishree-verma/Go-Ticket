@@ -72,7 +72,7 @@ const Header = () => {
         <nav>
           <ul className={styles.navList}>
             {NAV_ITEMS.map((item) => {
-              const requiresAuth = item.to === '/seatbooking' || item.to === '/livetracking';
+              const requiresAuth = item.to === '/seatbooking';
               return (
                 <li key={item.to}>
                   <Link
