@@ -1,48 +1,49 @@
 /* ═══════════════════════════════════════════════════════════
-   Footer Module — Darker Teal Gradient & Very Light Blue Accent Theme
+   Footer Module — Compact Height & Centered Alignment
 ═══════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
 
 .footer {
   background: linear-gradient(135deg, #034f59 0%, #056676 60%, #028090 100%);
-  padding: 3.5rem 1.5rem 1.5rem;
-  border-top: 3px solid #00a896;
+  padding: 2rem 1.5rem 1rem;
+  border-top: 2.5px solid #00a896;
   color: #ffffff;
   font-family: 'Inter', 'Poppins', sans-serif;
-  box-shadow: 0 -6px 24px rgba(3, 79, 89, 0.2);
+  box-shadow: 0 -6px 20px rgba(3, 79, 89, 0.2);
+  text-align: center;
 }
 
 .footerContainer {
   display: flex;
   justify-content: center;
-  gap: 12rem;
+  gap: 6rem;
   flex-wrap: wrap;
-  text-align: left;
-  max-width: 1200px;
+  text-align: center;
+  max-width: 900px;
   margin: 0 auto;
 }
 
-@media (max-width: 800px) {
+@media (max-width: 600px) {
   .footerContainer {
-    gap: 3rem;
+    gap: 1.8rem;
     flex-direction: column;
     align-items: center;
-    text-align: center;
   }
 }
 
 .footerColumn {
-  min-width: 220px;
+  min-width: 180px;
 }
 
 .footerColumn h2 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 800;
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.8rem;
   color: #ffffff;
   letter-spacing: 0.5px;
+  text-align: center;
 }
 
 .footerColumn ul {
@@ -51,7 +52,8 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.45rem;
+  align-items: center;
 }
 
 .footerColumn li {
@@ -61,7 +63,7 @@
 .footerColumn a {
   color: #e6f2ff;
   text-decoration: none;
-  font-size: 0.92rem;
+  font-size: 0.85rem;
   font-weight: 600;
   font-family: 'Poppins', sans-serif;
   transition: all 0.2s ease;
@@ -70,16 +72,16 @@
 
 .footerColumn a:hover {
   color: #ffffff;
-  transform: translateX(4px);
+  transform: translateY(-2px);
   text-decoration: underline;
 }
 
 .footerBottom {
-  margin-top: 3rem;
-  padding-top: 1.2rem;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.2);
+  margin-top: 1.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
   text-align: center;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: #e6f2ff;
 }
