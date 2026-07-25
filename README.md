@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# GoTicket
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+GoTicket is a modern bus ticket reservation and transport management web application built using React and CSS Modules. It offers users an intuitive booking experience with route searching, seat layout selection, live bus tracking, e-ticket generation, and promotional gift voucher management.
+
+## Overview
+
+The platform simplifies intercity travel booking through an integrated search widget, route filters, interactive seat selection grids, and automated checkout processing.
+
+## Core Features
+
+- Search Widget - Single-row transport search bar supporting source city filtering, destination city selection, and date pickers with city selection dropdowns for major Indian routes.
+- Seat Selection Engine - Interactive bus layout rendering lower and upper sleeper berths, seater arrangements, gender-specific pricing indicators, and real-time total fare calculations.
+- Live Bus Tracking - Route status tracking with visual timeline checkpoints, vehicle movement metrics, estimated arrival times, and driver contact details.
+- E-Ticket Generation - Digital ticket confirmation with downloadable pass summaries, QR verification codes, boarding point guidelines, and cancellation policies.
+- Offers and Gift Vouchers - Interactive promotion section offering instant discounts, cashbacks, and automated coupon application during checkout.
+- Authentication - Integrated login and user signup modal supporting local session persistence.
+
+## Tech Stack
+
+- Frontend Framework - React 18
+- Routing - React Router DOM v6
+- Styling - CSS Modules with custom design tokens
+- Icons - Standard Unicode typography
+- State Management - React Context API and Local Storage
+
+## Getting Started
+
+### Prerequisites
+
+Ensure Node.js (v16.0 or higher) and npm are installed on your machine.
+
+### Installation
+
+1. Clone the repository:
+   git clone https://github.com/jaishree-verma/go-ticket.git
+
+2. Navigate into the project directory:
+   cd go-ticket
+
+3. Install project dependencies:
+   npm install
+
+4. Start the development server:
+   npm start
+
+5. Open your browser and navigate to:
+   http://localhost:3000
 
 ## Available Scripts
 
-In the project directory, you can run:
+In the project directory, you can execute:
 
-### `npm start`
+- `npm start` - Runs the application in development mode.
+- `npm run build` - Builds the optimized production bundle in the `build` folder.
+- `npm test` - Executes the test runner in interactive watch mode.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Project Structure
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```
+go-ticket/
+├── public/
+│   └── images/          - Static assets and bus fleet banner media
+├── src/
+│   ├── components/      - Core UI components (Header, Hero, BookingSection, OffersSection, TrackBus, Chatbot)
+│   ├── pages/           - Application view pages (SeatBooking, DropPage, PaymentPage)
+│   ├── styles/          - Component-level CSS module stylesheets
+│   ├── stylespages/     - Page-level CSS module stylesheets
+│   ├── App.js           - Application routing layout definition
+│   └── index.js         - React DOM entry point
+└── package.json         - Dependency definitions and project scripts
+```
 
-### `npm test`
+## License
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is open source and available under the MIT License.
