@@ -1,7 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   LiveTracking — Teal UI & Very Light Blue Page Theme
-   Palette: #f0f8ff / #e6f2ff background | #028090 / #00a896 Teal UI
-   Typography: Solid Black (#000000) with Playfair Display highlights
+   LiveTracking — Vibrant Teal Header Icon Badges & High Visibility Tiles
 ═══════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
@@ -95,7 +93,7 @@
 .trackBtn {
   padding: 0.9rem 1.8rem;
   background: #028090;
-  color: #000000;
+  color: #ffffff !important;
   border: none;
   border-radius: 14px;
   font-size: 0.92rem;
@@ -110,7 +108,7 @@
 
 .trackBtn:hover {
   background: #00a896;
-  color: #000000;
+  color: #ffffff !important;
   transform: translateY(-2px);
 }
 
@@ -140,7 +138,7 @@
 
 .demoChip:hover {
   border-color: #028090;
-  color: #000000;
+  color: #ffffff !important;
   background: #00a896;
 }
 
@@ -618,7 +616,7 @@
   width: 100%;
   padding: 0.85rem 1rem;
   background: #028090;
-  color: #000000;
+  color: #ffffff !important;
   border: none;
   border-radius: 12px;
   font-size: 0.88rem;
@@ -631,6 +629,7 @@
 
 .locBtn:hover:not(:disabled) {
   background: #00a896;
+  color: #ffffff !important;
   transform: translateY(-2px);
 }
 
@@ -657,7 +656,7 @@
   background: #ffffff;
   border-radius: 20px;
   padding: 1.6rem 1.4rem 1.4rem;
-  box-shadow: 0 4px 18px rgba(2, 128, 144, 0.06);
+  box-shadow: 0 6px 20px rgba(2, 128, 144, 0.08);
   border: 1.5px solid #bce0ff;
   transition: transform 0.28s ease, box-shadow 0.28s ease;
 }
@@ -669,48 +668,50 @@
 }
 
 .infoTileIconBox {
-  width: 50px; height: 50px;
+  width: 54px; height: 54px;
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
-  box-shadow: 0 4px 12px rgba(2, 128, 144, 0.2);
+  margin-bottom: 1.1rem;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
 
 .infoTileIconText {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 800;
-  color: #000000;
+  color: #ffffff !important;
   font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.5px;
 }
 
 .infoTileTitle {
-  font-family: 'Playfair Display', serif;
-  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
   font-weight: 800;
-  color: #000000;
-  margin-bottom: 0.4rem;
+  color: #0f172a !important;
+  margin-bottom: 0.5rem;
 }
 
 .infoTileText {
-  font-size: 0.82rem;
-  color: #333333;
+  font-size: 0.88rem;
+  color: #475569 !important;
   line-height: 1.6;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
   font-weight: 500;
 }
 
 .infoTileTag {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background: #e6f2ff;
-  border: 1px solid #bce0ff;
+  padding: 0.35rem 0.95rem;
+  background: #028090;
+  border: none;
   border-radius: 20px;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 800;
-  color: #000000;
+  color: #ffffff !important;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* ── Footer ─────────────────────────────────────────────── */

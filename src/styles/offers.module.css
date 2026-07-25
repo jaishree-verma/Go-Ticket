@@ -1,0 +1,312 @@
+/* ═══════════════════════════════════════════════════════════
+   Gift Voucher Banner Module — Full-Width Edge-to-Edge Zig-Zag Stamp Effect
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+.giftBannerSection {
+  width: 100%;
+  padding: 24px 0;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+/* Edge-to-edge full width rectangle box with zig-zag stamp edges */
+.giftBanner {
+  width: 100%;
+  background: linear-gradient(90deg, #f5d0fe 0%, #fbcfe8 25%, #fed7aa 65%, #fef08a 100%);
+  padding: 22px 24px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(251, 207, 232, 0.25);
+
+  /* Precise Sawtooth / Zig-Zag Mask Pattern along Top & Bottom Edges */
+  -webkit-mask-image: 
+    conic-gradient(from -45deg at bottom 4px center, #000 90deg, transparent 0),
+    conic-gradient(from 135deg at top 4px center, #000 90deg, transparent 0);
+  mask-image: 
+    conic-gradient(from -45deg at bottom 4px center, #000 90deg, transparent 0),
+    conic-gradient(from 135deg at top 4px center, #000 90deg, transparent 0);
+  -webkit-mask-size: 14px 100%;
+  mask-size: 14px 100%;
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+}
+
+.giftContent {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.giftIcon {
+  font-size: 3rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  animation: giftBouncePulse 1.8s infinite ease-in-out;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+}
+
+.giftIcon:hover {
+  transform: scale(1.25) rotate(-6deg);
+}
+
+.giftIcon:active {
+  transform: scale(0.9) rotate(8deg);
+}
+
+@keyframes giftBouncePulse {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  30% {
+    transform: translateY(-10px) scale(1.12) rotate(-4deg);
+  }
+  50% {
+    transform: translateY(0) scale(0.96) rotate(3deg);
+  }
+  70% {
+    transform: translateY(-5px) scale(1.05) rotate(-2deg);
+  }
+}
+
+.giftTextGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.giftSubtext {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  color: #475569;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.giftMainHeading {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.actionGroup {
+  margin-left: 8px;
+}
+
+.viewGiftBtn {
+  background: #ffffff;
+  color: #0f172a !important;
+  border: 1.5px solid #fbcfe8;
+  border-radius: 24px;
+  padding: 9px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.viewGiftBtn:hover {
+  background: #d32f2f;
+  color: #ffffff !important;
+  border-color: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(211, 47, 47, 0.25);
+}
+
+/* Modal Overlay & Card Styling */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modalContent {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px;
+  width: 100%;
+  max-width: 580px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border: 1.5px solid #e2e8f0;
+  animation: modalPop 0.3s ease;
+}
+
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.modalTitleGroup {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.modalIcon {
+  font-size: 2rem;
+  background: #f0fdfa;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid #ccfbf1;
+}
+
+.modalTitleGroup h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.modalTitleGroup p {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.closeBtn {
+  background: #f1f5f9;
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.closeBtn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.couponsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.couponCard {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.couponCard:hover {
+  border-color: #d32f2f;
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(211, 47, 47, 0.1);
+}
+
+.couponInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.couponBadge {
+  display: inline-block;
+  background: #dcfce7;
+  color: #16a34a;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 10px;
+  border-radius: 12px;
+  align-self: flex-start;
+}
+
+.couponTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 2px 0 0 0;
+}
+
+.couponDesc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.couponTag {
+  font-size: 0.82rem;
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+.applyBtn {
+  background: linear-gradient(135deg, #e55353 0%, #d32f2f 100%);
+  color: #ffffff !important;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.25);
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.applyBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(211, 47, 47, 0.35);
+}
+
+@media (max-width: 768px) {
+  .giftContent {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .couponCard {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .applyBtn {
+    width: 100%;
+  }
+}

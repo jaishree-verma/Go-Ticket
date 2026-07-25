@@ -1,72 +1,120 @@
-// import React from 'react';
-// import styles from '../styles/about.module.css'; // Adjust path if needed
+import React, { useState, useEffect } from 'react';
+import styles from '../styles/about.module.css';
 
-// const AboutUs = () => {
-//   return (
-//     <section id="about" className={styles.aboutWrapper}>
-//       <div className={styles.aboutContent}>
-//         {/* Text Section */}
-//         <div className={styles.aboutText}>
-//           <h1 className={styles.aboutHeading}><u>About Us</u></h1>
-//           <ul className={styles.aboutList}>
-//             <li><strong><u>Smart Travel Companion:</u></strong> Go Ticket is designed to make every journey smoother, faster, and stress-free.</li>
-//             <li><strong><u>Real-Time Bus Tracking:</u></strong> Passengers can view live bus locations and plan their journeys without guesswork.</li>
-//             <li><strong><u>Dynamic Seat Availability:</u></strong> Instantly see which seats are booked and how many are available.</li>
-//             <li><strong><u>Instant Ticket Booking:</u></strong> Book tickets with ease and receive confirmations immediately.</li>
-//             <li><strong><u>Fare Transparency:</u></strong> Access budget-friendly fare and avoid hidden fees or charges.</li>
-//             <li><strong><u>Affordable Accommodations:</u></strong> Hotel bookings anytime with exclusive offers and discounts.</li>
-//             <li><strong><u>24/7 Customer Support:</u></strong> Receive around-the-clock care for travel hassles.</li>
-//             <li><strong><u>Multiple Payment Options:</u></strong> Choose from various payment methods for fast bookings.</li>
-//             <li><strong><u>Electronic Ticket Confirmations:</u></strong> Receive instant digital confirmations for all bookings.</li>
-//             <li><strong><u>Mission-Driven:</u></strong> We believe travel should be simple, transparent, and enjoyable - one ticket at a time.</li>
-//           </ul>
-//         </div>
+// Animated Counter Hook
+const useCounter = (end, duration = 2000) => {
+  const [count, setCount] = useState(0);
 
-//         {/* Image Section */}
-//         <div className={styles.aboutImage}>
-//           <img src="/images/About us (6).png" alt="Illustration of smart travel with Go Ticket" />
-//         </div>
-//       </div>
+  useEffect(() => {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      setCount(Math.floor(progress * end));
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }, [end, duration]);
 
-      
-//       <hr className={styles.sectionDivider} />
-     
-//     </section>
-//   );
-// };
+  return count;
+};
 
-// export default AboutUs;
-import React from 'react';
-import styles from '../styles/about.module.css'; // Adjust path if needed
+const FEATURES_DATA = [
+  {
+    icon: '⚡',
+    title: 'Live GPS Bus Tracking',
+    highlight: 'Real-time ETA & Map Location',
+    desc: 'Monitor live bus speeds, exact stop arrivals, and delays on satellite maps.'
+  },
+  {
+    icon: '🪑',
+    title: 'Interactive Seat Layouts',
+    highlight: 'Window & Sleeper Picks',
+    desc: 'Select upper/lower sleeper berths and single window seats with transparent views.'
+  },
+  {
+    icon: '🛡️',
+    title: 'Instant QR & WhatsApp Pass',
+    highlight: '100% Paperless Boarding',
+    desc: 'Get instant WhatsApp & SMS ticket passes with 1-tap QR boarding at gates.'
+  },
+  {
+    icon: '💳',
+    title: 'Zero Hidden Booking Fees',
+    highlight: 'Transparent Price Guarantee',
+    desc: 'No convenience surcharges. Instant refunds via UPI, Cards, and NetBanking.'
+  },
+  {
+    icon: '🏨',
+    title: 'Hotel & Transit Stays',
+    highlight: 'Up to 30% Partner Discounts',
+    desc: 'Book verified hotel stays near top drop points and bus terminals.'
+  },
+  {
+    icon: '🎧',
+    title: '24/7 Tixie Support Desk',
+    highlight: 'Instant Direct Ticket Help',
+    desc: 'Round-the-clock live passenger desk for modifications, refunds & assistance.'
+  }
+];
 
 const AboutUs = () => {
+  const passengersCount = useCounter(5284000);
+  const routesCount = useCounter(10450);
+  const operatorsCount = useCounter(280);
+  const ratingScore = (useCounter(48, 1500) / 10).toFixed(1);
+
   return (
     <section id="about" className={styles.aboutWrapper}>
-      <div className={styles.aboutContent}>
-        {/* Text Section */}
-        <div className={styles.aboutText}>
-          <h1 className={styles.aboutHeading}><u>About Us</u></h1>
-          <ul className={styles.aboutList}>
-            <li><strong><u>Smart Travel Companion:</u></strong> Go Ticket is designed to make every journey smoother, faster, and stress-free.</li>
-            <li><strong><u>Real-Time Bus Tracking:</u></strong> Passengers can view live bus locations and plan their journeys without guesswork.</li>
-            <li><strong><u>Dynamic Seat Availability:</u></strong> Instantly see which seats are booked and how many are available.</li>
-            <li><strong><u>Instant Ticket Booking:</u></strong> Book tickets with ease and receive confirmations immediately.</li>
-            <li><strong><u>Fare Transparency:</u></strong> Access budget-friendly fare and avoid hidden fees or charges.</li>
-            <li><strong><u>Affordable Accommodations:</u></strong> Hotel bookings anytime with exclusive offers and discounts.</li>
-            <li><strong><u>24/7 Customer Support:</u></strong> Receive around-the-clock care for travel hassles.</li>
-            <li><strong><u>Multiple Payment Options:</u></strong> Choose from various payment methods for fast bookings.</li>
-            <li><strong><u>Electronic Ticket Confirmations:</u></strong> Receive instant digital confirmations for all bookings.</li>
-            <li><strong><u>Mission-Driven:</u></strong> We believe travel should be simple, transparent, and enjoyable - one ticket at a time.</li>
-          </ul>
+      <div className={styles.aboutContainer}>
+        {/* Header Area */}
+        <div className={styles.headerArea}>
+          <span className={styles.sectionBadge}>WHY CHOOSE GO TICKET</span>
+          <h2 className={styles.aboutHeading}>Built for Modern, Comfortable &amp; Reliable Travel</h2>
+          <p className={styles.aboutSubheading}>
+            We connect thousands of passengers every day with verified bus operators, delivering a seamless travel experience.
+          </p>
         </div>
 
-        {/* Image Section */}
-        <div className={styles.aboutImage}>
-          <img src="images\\About us (6).png" alt="Illustration of smart travel with Go Ticket" />
+        {/* Live Animated Customer Counting Bar */}
+        <div className={styles.liveMetricsBanner}>
+          <div className={styles.metricCard}>
+            <div className={styles.metricNumber}>{passengersCount.toLocaleString()}+</div>
+            <div className={styles.metricLabel}>Happy Passengers Served</div>
+          </div>
+          <div className={styles.metricDivider}></div>
+          <div className={styles.metricCard}>
+            <div className={styles.metricNumber}>{routesCount.toLocaleString()}+</div>
+            <div className={styles.metricLabel}>Active Daily Routes</div>
+          </div>
+          <div className={styles.metricDivider}></div>
+          <div className={styles.metricCard}>
+            <div className={styles.metricNumber}>{operatorsCount}+</div>
+            <div className={styles.metricLabel}>Verified Bus Partners</div>
+          </div>
+          <div className={styles.metricDivider}></div>
+          <div className={styles.metricCard}>
+            <div className={styles.metricNumber}>⭐ {ratingScore} / 5.0</div>
+            <div className={styles.metricLabel}>Customer Satisfaction</div>
+          </div>
+        </div>
+
+        {/* Compact & Impactful Feature Cards Grid */}
+        <div className={styles.featuresGrid}>
+          {FEATURES_DATA.map((feat, index) => (
+            <div key={index} className={styles.featureCard}>
+              <div className={styles.cardTopRow}>
+                <div className={styles.cardIcon}>{feat.icon}</div>
+                <span className={styles.cardHighlightBadge}>{feat.highlight}</span>
+              </div>
+              <h3 className={styles.cardTitle}>{feat.title}</h3>
+              <p className={styles.cardDesc}>{feat.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
-
-      
     </section>
   );
 };

@@ -7,16 +7,28 @@ export default function ChatModal({ onClose, onMinimize }) {
   const messagesEndRef = useRef(null);
 
   const [input, setInput] = useState('');
+  const [awaitingBusId, setAwaitingBusId] = useState(false);
+  const [bookingStep, setBookingStep] = useState(0); // 0: None, 1: Passengers, 2: Cities, 3: Date/Time, 4: Payment
+  const [bookingData, setBookingData] = useState({
+    passengers: 1,
+    from: '',
+    to: '',
+    date: '',
+    time: '',
+    paymentMethod: ''
+  });
+
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: 'tixie',
-      text: 'Hi there! I am Tixie, your Go-Ticket assistant. How can I help you today?',
+      text: 'Hi there! I am Tixie, your personal travel coordinator! How can I help you today? ✨',
       chips: [
-        'Search Buses',
-        'Book Ticket',
-        'Live Track Bus',
-        'Generate E-Ticket & Email'
+        'Contact Me for Direct Booking 📞',
+        'Book a Ticket Step-by-Step 🎟️',
+        'Search Buses 🚌',
+        'Live Track Bus 📍',
+        'Generate E-Ticket 📄'
       ]
     }
   ]);
@@ -33,26 +45,179 @@ export default function ChatModal({ onClose, onMinimize }) {
     const query = (textToSend || input).trim();
     if (!query) return;
 
-    // 1. Add user query message
+    // Add user query message
     const userMsg = { id: Date.now(), sender: 'user', text: query };
     setMessages((prev) => [...prev, userMsg]);
     if (!textToSend) setInput('');
 
-    // 2. Process Intent Engine
+    // Process intent
     setTimeout(() => {
-      processBotIntent(query.toLowerCase());
+      processBotIntent(query);
     }, 400);
   };
 
-  const processBotIntent = (q) => {
-    // A. SEARCH BUSES
-    if (q.includes('search') || q.includes('route') || q.includes('bus list')) {
+  const processBotIntent = (rawQuery) => {
+    const q = rawQuery.toLowerCase();
+
+    // INTERACTIVE MULTI-STEP BOOKING FLOW
+    if (bookingStep === 1) { // Got Passengers -> Ask Departure & Drop Cities
+      const count = parseInt(rawQuery.replace(/\D/g, '')) || 1;
+      setBookingData((prev) => ({ ...prev, passengers: count }));
+      setBookingStep(2);
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now(),
           sender: 'tixie',
-          text: 'I can help you search for available buses! We have active routes connecting Delhi, Jaipur, Agra, Kanpur, Chandigarh, and Gurgaon.',
+          text: `Wonderful! ${count} passenger(s) set. 🎟️\n\nWhere are you traveling from and where do you want to be dropped off? (e.g. Kanpur to Lucknow, Delhi to Agra)`,
+          chips: ['Kanpur to Lucknow', 'Delhi to Agra', 'Mumbai to Pune', 'Jaipur to Delhi']
+        }
+      ]);
+      return;
+    }
+
+    if (bookingStep === 2) { // Got Cities -> Ask Date & Time
+      const cities = rawQuery.split(/to|->|→|-/i);
+      const fromCity = (cities[0] || 'Kanpur').trim();
+      const toCity = (cities[1] || 'Lucknow').trim();
+      setBookingData((prev) => ({ ...prev, from: fromCity, to: toCity }));
+      setBookingStep(3);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          sender: 'tixie',
+          text: `Got it! Route selected: ${fromCity} ➔ ${toCity} 🚌\n\nWhat is your preferred Departure Date & Time? (e.g. Tomorrow 08:00 AM, 26th July 09:30 PM)`,
+          chips: ['Tomorrow 08:00 AM', 'Tomorrow 02:00 PM', 'Today 09:00 PM']
+        }
+      ]);
+      return;
+    }
+
+    if (bookingStep === 3) { // Got Date/Time -> Ask Payment Method
+      setBookingData((prev) => ({ ...prev, date: rawQuery }));
+      setBookingStep(4);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          sender: 'tixie',
+          text: `Schedule confirmed for ${rawQuery} 📅\n\nWhich Payment Method would you prefer to complete your booking?`,
+          chips: ['UPI (GPay / PhonePe / Paytm)', 'Credit / Debit Card', 'Net Banking', 'Cash at Boarding']
+        }
+      ]);
+      return;
+    }
+
+    if (bookingStep === 4) { // Completed All Information -> Summary & Proceed
+      setBookingData((prev) => ({ ...prev, paymentMethod: rawQuery }));
+      const finalFrom = bookingData.from || 'Kanpur';
+      const finalTo = bookingData.to || 'Lucknow';
+      const finalPass = bookingData.passengers || 1;
+      const finalDate = bookingData.date || 'Tomorrow';
+
+      setBookingStep(0);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          sender: 'tixie',
+          text: `🎉 Booking Details Saved Successfully!\n\n📋 Trip Summary:\n• Passengers: ${finalPass}\n• Route: ${finalFrom} ➔ ${finalTo}\n• Departure: ${finalDate}\n• Payment: ${rawQuery}\n\nClick below to select your seats and finalize payment!`,
+          actionCard: {
+            title: `Proceed to Seat Selection (${finalPass} Passenger)`,
+            btnText: 'Open Seat Map & Complete Booking',
+            onAction: () => {
+              onClose();
+              navigate('/available-buses', {
+                state: {
+                  from: finalFrom,
+                  to: finalTo,
+                  date: new Date().toISOString().split('T')[0],
+                  passengers: finalPass,
+                  route: `${finalFrom} → ${finalTo}`
+                }
+              });
+            }
+          },
+          chips: ['Contact Me for Direct Booking 📞', 'Search More Buses 🚌']
+        }
+      ]);
+      return;
+    }
+
+    // IF BOT IS AWAITING BUS ID FOR TRACKING
+    if (awaitingBusId && !q.includes('track') && !q.includes('contact') && !q.includes('search')) {
+      setAwaitingBusId(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          sender: 'tixie',
+          text: `🔍 Fetching live GPS location for Bus ID "${rawQuery.toUpperCase()}"...\n\nYour bus is currently near Expressway Toll, traveling at 65 km/h on schedule. Estimated arrival: 45 minutes.`,
+          actionCard: {
+            title: `Live Tracking for ${rawQuery.toUpperCase()}`,
+            btnText: 'View On Interactive Live Map',
+            onAction: () => {
+              onClose();
+              navigate('/livetracking');
+            }
+          },
+          chips: ['Contact Me for Direct Booking 📞', 'Search Buses 🚌']
+        }
+      ]);
+      return;
+    }
+
+    // START BOOKING CONVERSATION FLOW
+    if (q.includes('book') || q.includes('seat') || q.includes('reservation') || q.includes('passenger')) {
+      setAwaitingBusId(false);
+      setBookingStep(1);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          sender: 'tixie',
+          text: 'I can assist you with instant seat reservations! 🎟️\n\nFirst, how many passengers will be traveling?',
+          chips: ['1 Passenger', '2 Passengers', '3 Passengers', '4+ Passengers']
+        }
+      ]);
+      return;
+    }
+
+    // DIRECT BOOKING / CONTACT ME INTENT
+    if (q.includes('contact') || q.includes('direct') || q.includes('call') || q.includes('agent') || q.includes('help')) {
+      setAwaitingBusId(false);
+      setBookingStep(0);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          sender: 'tixie',
+          text: '📞 Contact Me For Direct Booking! I can connect you directly with our 24/7 travel desk for VIP seat allocation, sleeper cabins, and exclusive group discounts.',
+          actionCard: {
+            title: '24/7 Direct Travel Desk',
+            btnText: 'Call Booking Agent (+91 1800-123-4567)',
+            onAction: () => {
+              onClose();
+              navigate('/contact');
+            }
+          },
+          chips: ['Book a Ticket Step-by-Step 🎟️', 'Search Buses 🚌', 'Live Track Bus 📍']
+        }
+      ]);
+      return;
+    }
+
+    // SEARCH BUSES
+    if (q.includes('search') || q.includes('route') || q.includes('bus list')) {
+      setAwaitingBusId(false);
+      setBookingStep(0);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          sender: 'tixie',
+          text: 'I can help you search for available buses across Delhi, Jaipur, Agra, Kanpur, Chandigarh, and Gurgaon.',
           actionCard: {
             title: 'Explore Available Routes & Buses',
             btnText: 'View Available Buses Now',
@@ -61,136 +226,66 @@ export default function ChatModal({ onClose, onMinimize }) {
               navigate('/home');
             }
           },
-          chips: ['Book Ticket', 'Live Track Bus', 'Generate E-Ticket']
+          chips: ['Book a Ticket Step-by-Step 🎟️', 'Contact Me for Direct Booking 📞', 'Live Track Bus 📍']
         }
       ]);
       return;
     }
 
-    // B. BOOK TICKET
-    if (q.includes('book') || q.includes('seat') || q.includes('reservation')) {
-      const userName = localStorage.getItem('userName');
-      if (!userName) {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now(),
-            sender: 'tixie',
-            text: 'To complete your ticket booking, please sign in or create an account.',
-            actionCard: {
-              title: 'Authentication Required',
-              btnText: 'Open Login / Booking Portal',
-              onAction: () => {
-                onClose();
-                navigate('/seatbooking');
-              }
-            },
-            chips: ['Search Buses', 'Live Track Bus']
-          }
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now(),
-            sender: 'tixie',
-            text: `Welcome back, ${userName}! Ready to reserve your seats? Choose your route and cabin layout below.`,
-            actionCard: {
-              title: 'Interactive Seat Selection',
-              btnText: 'Proceed to Seat Layout Map',
-              onAction: () => {
-                onClose();
-                navigate('/seatbooking');
-              }
-            },
-            chips: ['Live Track Bus', 'Generate E-Ticket']
-          }
-        ]);
-      }
-      return;
-    }
-
-    // C. LIVE TRACK BUS
+    // LIVE TRACK BUS INTENT
     if (q.includes('track') || q.includes('location') || q.includes('gps') || q.includes('where is')) {
+      setAwaitingBusId(true);
+      setBookingStep(0);
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now(),
           sender: 'tixie',
-          text: 'You can track any active bus live on OpenStreetMap with real-time GPS speed, ETA, and distance calculations! Try bus numbers UP-78-EX-2026 or DL-01-AB-1234.',
-          actionCard: {
-            title: 'Live GPS Bus Tracker',
-            btnText: 'Open Live Bus Map',
-            onAction: () => {
-              onClose();
-              navigate('/livetracking');
-            }
-          },
-          chips: ['Search Buses', 'Generate E-Ticket & Email']
+          text: 'Please share your Bus ID or Ticket Number, and I will track your live vehicle location right away! 🚌📍',
+          chips: ['GT-1048', 'UP-78-EX-2026', 'DL-01-AB-1234']
         }
       ]);
       return;
     }
 
-    // D. GENERATE E-TICKET & SEND EMAIL / SMS
-    if (q.includes('ticket') || q.includes('mail') || q.includes('pdf') || q.includes('sms') || q.includes('download')) {
-      const lastTicket = localStorage.getItem('lastTicket');
-      if (lastTicket) {
-        try {
-          const parsed = JSON.parse(lastTicket);
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: Date.now(),
-              sender: 'tixie',
-              text: `Found active ticket #${parsed.pnr || 'GT-987654'} for ${parsed.passengers?.[0]?.name || 'Passenger'}! I can dispatch it to your registered mobile/email and generate your printable PDF.`,
-              actionCard: {
-                title: 'E-Ticket & Dispatch Portal',
-                btnText: 'Generate & Email E-Ticket',
-                onAction: () => {
-                  onClose();
-                  navigate('/eticket');
-                }
-              },
-              chips: ['Live Track Bus', 'Book Another Ticket']
-            }
-          ]);
-          return;
-        } catch (e) {}
-      }
-
+    // GENERATE E-TICKET
+    if (q.includes('ticket') || q.includes('pdf') || q.includes('mail')) {
+      setAwaitingBusId(false);
+      setBookingStep(0);
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now(),
           sender: 'tixie',
-          text: 'You can verify your mobile number via OTP on our E-Ticket portal to retrieve, email, or print your PDF e-ticket instantly.',
+          text: 'Manage and download your official E-Ticket PDF instantly using your mobile number or PNR.',
           actionCard: {
-            title: 'E-Ticket Lookup Portal',
-            btnText: 'Open E-Ticket Verification',
+            title: 'E-Ticket Portal',
+            btnText: 'View & Download E-Ticket',
             onAction: () => {
               onClose();
               navigate('/eticket');
             }
           },
-          chips: ['Search Buses', 'Book Ticket']
+          chips: ['Book a Ticket Step-by-Step 🎟️', 'Contact Me for Direct Booking 📞']
         }
       ]);
       return;
     }
 
     // DEFAULT FALLBACK
+    setAwaitingBusId(false);
+    setBookingStep(0);
     setMessages((prev) => [
       ...prev,
       {
         id: Date.now(),
         sender: 'tixie',
-        text: 'I can assist you with searching available buses, interactive seat booking, live GPS tracking, and generating PDF e-tickets to your mobile/email.',
+        text: 'Hi there! I am Tixie. How can I assist your trip today? Feel free to ask about direct booking, routes, or live GPS tracking!',
         chips: [
-          'Search Buses',
-          'Book Ticket',
-          'Live Track Bus',
-          'Generate E-Ticket & Email'
+          'Book a Ticket Step-by-Step 🎟️',
+          'Contact Me for Direct Booking 📞',
+          'Search Buses 🚌',
+          'Live Track Bus 📍'
         ]
       }
     ]);
@@ -200,7 +295,13 @@ export default function ChatModal({ onClose, onMinimize }) {
     <div id="chat-modal">
       {/* Header */}
       <div className="chat-header">
-        Ask Tixie...
+        <div className="chat-bot-info">
+          <span className="chat-avatar">👩‍💼</span>
+          <div>
+            <span className="chat-title">Tixie - Travel Specialist</span>
+            <span className="chat-online-badge">● Online 24/7 Support</span>
+          </div>
+        </div>
         <div className="chat-controls">
           <button className="chat-minimize" onClick={onMinimize} title="Minimize">
             –
@@ -211,7 +312,13 @@ export default function ChatModal({ onClose, onMinimize }) {
         </div>
       </div>
 
-      <div className="chat-subtext">Book, Track, and Manage Tickets Directly Here</div>
+      <div className="chat-subtext">🌸 Instant Booking & Live GPS Travel Assistant</div>
+
+      {/* Direct Booking Callout Card */}
+      <div className="chat-direct-banner" onClick={() => handleSend('Contact Me for Direct Booking 📞')}>
+        <span>📞 <strong>Contact me for direct booking</strong></span>
+        <small>Connect with female travel concierge desk</small>
+      </div>
 
       {/* Message History */}
       <div className="chat-messages-container">
@@ -222,7 +329,7 @@ export default function ChatModal({ onClose, onMinimize }) {
               m.sender === 'tixie' ? 'chat-msg-tixie' : 'chat-msg-user'
             }`}
           >
-            <div>{m.text}</div>
+            <div style={{ whitespace: 'pre-line' }}>{m.text}</div>
 
             {/* Action Trigger Card */}
             {m.actionCard && (
@@ -266,7 +373,19 @@ export default function ChatModal({ onClose, onMinimize }) {
       >
         <input
           type="text"
-          placeholder="Ask Tixie (e.g. search bus, book ticket, live track)..."
+          placeholder={
+            bookingStep === 1
+              ? "How many passengers? (e.g. 2)..."
+              : bookingStep === 2
+              ? "From and Drop city (e.g. Kanpur to Lucknow)..."
+              : bookingStep === 3
+              ? "Departure Date & Time (e.g. Tomorrow 8 AM)..."
+              : bookingStep === 4
+              ? "Payment Method (e.g. UPI, Card)..."
+              : awaitingBusId
+              ? "Enter Bus ID / Ticket No (e.g. GT-1048)..."
+              : "Ask Tixie (e.g. direct booking, search bus)..."
+          }
           className="chat-input-field"
           value={input}
           onChange={(e) => setInput(e.target.value)}

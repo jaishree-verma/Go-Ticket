@@ -3,15 +3,6 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthModal from './AuthModal';
 import styles from '../styles/header.module.css';
 
-const NAV_ITEMS = [
-  { to: '/',             label: 'HOME',        exact: true },
-  { to: '/livetracking', label: 'BUS TRACK' },
-  { to: '/home',         label: 'ROUTES' },
-  { to: '/eticket',      label: 'E-TICKET' },
-  { to: '/seatbooking',  label: 'BOOKINGS' },
-  { to: '/contact',      label: 'CONTACT' },
-];
-
 const Header = () => {
   const [showAuth, setShowAuth]     = useState(false);
   const [userName, setUserName]     = useState('');
@@ -21,7 +12,6 @@ const Header = () => {
   const location = useLocation();
   const navigate  = useNavigate();
 
-  /* ── Auto-popup on first load if not logged in ── */
   useEffect(() => {
     const name = localStorage.getItem('userName');
     if (name) {
@@ -32,7 +22,6 @@ const Header = () => {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* Re-check userName after modal closes */
   const handleCloseAuth = () => {
     setShowAuth(false);
     setAutoDismissed(true);
@@ -40,7 +29,6 @@ const Header = () => {
     if (name) setUserName(name);
   };
 
-  // Close mobile menu whenever route changes
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
@@ -52,112 +40,128 @@ const Header = () => {
     navigate('/');
   };
 
-  const isActive = (to, exact = false) => {
-    if (exact) return location.pathname === '/';
-    return location.pathname === to;
-  };
-
   return (
     <>
       <header className={styles.header}>
-        {/* Logo */}
-        <div className={styles.logo}>
-          <Link to="/">
-            <img src="/images/logo.png" alt="Go Ticket Logo" className={styles.logoImg} />
-          </Link>
-        </div>
-
-        {/* Desktop Navigation */}
-        <nav>
-          <ul className={styles.navList}>
-            {NAV_ITEMS.map((item) => {
-              const requiresAuth = item.to === '/seatbooking';
-              return (
-                <li key={item.to}>
-                  <Link
-                    to={requiresAuth && !userName ? '#' : item.to}
-                    onClick={(e) => {
-                      if (requiresAuth && !userName) {
-                        e.preventDefault();
-                        setShowAuth(true);
-                      }
-                    }}
-                    className={`${styles.navLink} ${isActive(item.to, item.exact) ? styles.navLinkActive : ''}`}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
-
-            {/* Auth / User */}
-            <li>
-              {userName ? (
-                <div className={styles.userSection}>
-                  <span className={styles.navLink}>
-                    Hi, {userName.split(' ')[0]}
-                  </span>
-                  <button onClick={handleLogout} className={styles.logoutBtn}>
-                    Logout
-                  </button>
-                </div>
-              ) : (
-                <span
-                  className={styles.navLink}
-                  onClick={() => setShowAuth(true)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && setShowAuth(true)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  LOGIN
+        <div className={styles.navContainer}>
+          {/* Logo & Trusted Customer Laurel Badge */}
+          <div className={styles.leftNav}>
+            <Link to="/" className={styles.logoLink}>
+              <div className={styles.brandLogoBox}>
+                <span className={styles.brandTitle}>
+                  <span className={styles.brandGo}>Go</span>
+                  <span className={styles.brandTicket}>Ticket</span>
                 </span>
-              )}
-            </li>
-          </ul>
-        </nav>
+              </div>
+            </Link>
 
-        {/* Hamburger (mobile) */}
-        <button
-          className={`${styles.hamburger} ${mobileOpen ? styles.hamburgerOpen : ''}`}
-          onClick={() => setMobileOpen((p) => !p)}
-          aria-label="Toggle navigation menu"
-        >
-          <span className={styles.hamburgerBar} />
-          <span className={styles.hamburgerBar} />
-          <span className={styles.hamburgerBar} />
-        </button>
+            {/* Golden Laurel Trust Badge */}
+            <div className={styles.trustLaurelBadge}>
+              <span className={styles.laurelIcon}>🌾</span>
+              <div className={styles.trustTextCol}>
+                <span className={styles.trustSubtitle}>Trusted by</span>
+                <strong className={styles.trustMainTitle}>Indian Customers</strong>
+              </div>
+              <span className={styles.laurelIcon}>🌾</span>
+            </div>
+
+            <div className={styles.categoryGroup}>
+              <Link
+                to="/"
+                className={`${styles.categoryItem} ${location.pathname === '/' || location.pathname === '/available-buses' ? styles.activeCategory : ''}`}
+              >
+                <span className={styles.categoryIcon}>🚌</span>
+                <span className={styles.categoryLabel}>Bus tickets</span>
+              </Link>
+
+              <Link
+                to="/livetracking"
+                className={`${styles.categoryItem} ${location.pathname === '/livetracking' ? styles.activeCategory : ''}`}
+              >
+                <span className={styles.categoryIcon}>📍</span>
+                <span className={styles.categoryLabel}>Bus tracking</span>
+              </Link>
+
+              <Link
+                to="/eticket"
+                className={`${styles.categoryItem} ${location.pathname === '/eticket' ? styles.activeCategory : ''}`}
+              >
+                <span className={styles.categoryIcon}>📄</span>
+                <span className={styles.categoryLabel}>E-Ticket</span>
+              </Link>
+
+              <Link
+                to="/home"
+                className={`${styles.categoryItem} ${location.pathname === '/home' ? styles.activeCategory : ''}`}
+              >
+                <span className={styles.categoryIcon}>🗺️</span>
+                <span className={styles.categoryLabel}>Routes</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Action Options */}
+          <div className={styles.rightNav}>
+            <Link to="/seatbooking" className={styles.actionItem}>
+              <span className={styles.actionIcon}>📋</span>
+              <span className={styles.actionLabel}>Bookings</span>
+            </Link>
+
+            <Link to="/contact" className={styles.actionItem}>
+              <span className={styles.actionIcon}>❓</span>
+              <span className={styles.actionLabel}>Help</span>
+            </Link>
+
+            {userName ? (
+              <div className={styles.userSection}>
+                <span className={styles.actionItem}>
+                  <span className={styles.actionIcon}>👤</span>
+                  <span className={styles.actionLabel}>{userName.split(' ')[0]}</span>
+                </span>
+                <button onClick={handleLogout} className={styles.logoutBtn}>
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div
+                className={styles.actionItem}
+                onClick={() => setShowAuth(true)}
+                role="button"
+                tabIndex={0}
+              >
+                <span className={styles.actionIcon}>👤</span>
+                <span className={styles.actionLabel}>Account</span>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile Hamburger */}
+          <button
+            className={`${styles.hamburger} ${mobileOpen ? styles.hamburgerOpen : ''}`}
+            onClick={() => setMobileOpen((p) => !p)}
+            aria-label="Toggle navigation menu"
+          >
+            <span className={styles.hamburgerBar} />
+            <span className={styles.hamburgerBar} />
+            <span className={styles.hamburgerBar} />
+          </button>
+        </div>
       </header>
 
       {/* Mobile Drawer */}
       <div className={`${styles.mobileMenu} ${mobileOpen ? styles.mobileMenuOpen : ''}`}>
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.to}
-            to={item.to}
-            className={`${styles.mobileNavLink} ${isActive(item.to, item.exact) ? styles.mobileNavLinkActive : ''}`}
-          >
-            {item.label}
-          </Link>
-        ))}
-
-        <div className={styles.mobileDivider} />
-
-        <Link to="/seatbooking" className={styles.mobileBookBtn}>
-          Book a Ticket
-        </Link>
+        <Link to="/" className={styles.mobileNavLink}>🚌 Bus Tickets</Link>
+        <Link to="/livetracking" className={styles.mobileNavLink}>📍 Bus Tracking</Link>
+        <Link to="/eticket" className={styles.mobileNavLink}>📄 E-Ticket</Link>
+        <Link to="/home" className={styles.mobileNavLink}>🗺️ Routes</Link>
+        <Link to="/seatbooking" className={styles.mobileNavLink}>📋 Bookings</Link>
+        <Link to="/contact" className={styles.mobileNavLink}>❓ Help &amp; Support</Link>
 
         {userName ? (
-          <div className={styles.mobileNavLink} style={{ justifyContent: 'space-between' }}>
-            <span>{userName}</span>
-            <button onClick={handleLogout} className={styles.logoutBtn}>Logout</button>
-          </div>
+          <button onClick={handleLogout} className={styles.mobileLogoutBtn}>Logout ({userName})</button>
         ) : (
-          <button
-            onClick={() => { setMobileOpen(false); setShowAuth(true); }}
-            className={styles.mobileNavLink}
-          >
-            LOGIN / SIGNUP
+          <button onClick={() => { setMobileOpen(false); setShowAuth(true); }} className={styles.mobileNavLink}>
+            👤 Account (Login / Signup)
           </button>
         )}
       </div>

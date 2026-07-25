@@ -1,72 +1,59 @@
-// import React, { useState } from 'react';
-// import ChatModal from './ChatModal';
-// import './Chatbot.css';
-// import girlIcon from './assets/chatbot-girl.png';
-
-// export default function ChatbotLauncher() {
-//   const [open, setOpen] = useState(false);
-//   const [minimized, setMinimized] = useState(false);
-
-//   const handleOpen = () => {
-//     setOpen(true);
-//     setMinimized(false);
-//   };
-
-//   return (
-//     <>
-//       <div id="chat-launcher" onClick={handleOpen}>
-//         <div className="chat-icon-wrapper">
-//           <img src={girlIcon} alt="Chatbot Girl" className="wave" />
-//           <div className="chat-tooltip">For bookings, talk to me directly!</div>
-//         </div>
-//         {/* <div className="chat-text">Hey! Let's have a chat for direct booking</div> */}
-//       </div>
-
-//       {open && !minimized && (
-//         <ChatModal
-//           onClose={() => setOpen(false)}
-//           onMinimize={() => setMinimized(true)}
-//         />
-//       )}
-//     </>
-//   );
-// }
 import React, { useState } from 'react';
 import ChatModal from './ChatModal';
 import './Chatbot.css';
-import girlIcon from './assets/chatbot-girl.png';
 
 export default function ChatbotLauncher() {
-  const [chatOpen, setChatOpen] = useState(false);
-
-  const handleOpenChat = () => setChatOpen(true);
-  const handleCloseChat = () => setChatOpen(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   return (
     <>
-      {/* ✅ Always-visible waving girl — now clickable */}
-      <div id="chat-launcher" onClick={handleOpenChat}>
-        <div className="chat-icon-wrapper">
-          <img src={girlIcon} alt="Chatbot Girl" className="wave" />
-          {/* ✅ Tooltip only when chat is closed */}
-          {!chatOpen && (
-            <div className="chat-tooltip">For bookings, talk to me directly!</div>
-          )}
-        </div>
-      </div>
-
-      {/* ✅ Blue bubble launcher — hidden when chat is open */}
-      {!chatOpen && (
-        <div className="chat-minimized-bubble" onClick={handleOpenChat} title="">
-          –
+      {/* Minimized Float Indicator */}
+      {isMinimized && (
+        <div
+          className="chat-minimized-bubble"
+          onClick={() => {
+            setIsMinimized(false);
+            setIsOpen(true);
+          }}
+          title="Open Tixie Assistant"
+        >
+          👩‍💼
         </div>
       )}
 
-      {/* ✅ Chat modal appears when chatOpen is true */}
-      {chatOpen && (
+      {/* Floating Launcher with Premium Teal & White Female Agent Avatar */}
+      {!isOpen && !isMinimized && (
+        <div
+          id="chat-launcher"
+          onClick={() => setIsOpen(true)}
+          role="button"
+          tabIndex={0}
+        >
+          <div className="chat-icon-wrapper">
+            {/* Teal & White Persistent Callout Badge */}
+            <div className="chat-tooltip persistent-tooltip">
+              Hey! Contact me for direct booking 💬
+            </div>
+
+            <div className="lady-avatar-teal">
+              {/* Premium Female Assistant Icon */}
+              <span className="lady-emoji">👩‍💼</span>
+              <span className="headset-icon-teal">🎧</span>
+              <span className="agent-status-dot"></span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Chat Window Modal */}
+      {isOpen && (
         <ChatModal
-          onClose={handleCloseChat}
-          onMinimize={handleCloseChat}
+          onClose={() => setIsOpen(false)}
+          onMinimize={() => {
+            setIsOpen(false);
+            setIsMinimized(true);
+          }}
         />
       )}
     </>

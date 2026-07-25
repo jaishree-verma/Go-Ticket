@@ -1,9 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styles from '../../stylespages/payment.module.css';
 
 const generateTicketId = () =>
   'GT' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+const PROMO_OFFERS = [
+  { code: 'FIRSTGO', text: 'Flat 20% OFF (Up to ₹150)', discount: 150 },
+  { code: 'GTWEEKEND', text: 'Weekend Saver ₹200 OFF', discount: 200 },
+  { code: 'UPIPAY', text: 'UPI Cashback ₹50 OFF', discount: 50 }
+];
 
 /* ── Empty passenger template ───────────────────────────── */
 const emptyPassenger = () => ({
@@ -65,7 +71,6 @@ const StepBar = ({ current }) => {
 const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
   const timerRef = useRef(null);
 
-  /* Simulate sending OTP */
   const sendOtp = () => {
     if (!/^[6-9]\d{9}$/.test(pax.mobile)) {
       onChange(index, 'otpError', 'Enter a valid 10-digit mobile first.');
@@ -77,7 +82,6 @@ const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
     onChange(index, 'otpError', '');
     onChange(index, 'mobileVerified', false);
     onChange(index, 'otpInput', '');
-    // Countdown 30s
     let t = 30;
     onChange(index, 'otpTimer', t);
     clearInterval(timerRef.current);
@@ -101,7 +105,6 @@ const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
 
   return (
     <div className={styles.passengerCardBox}>
-      {/* Card header */}
       <div className={styles.passengerCardHeader}>
         <span className={styles.passengerCardTitle}>
           👤 Passenger {index + 1}
@@ -120,7 +123,6 @@ const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
         )}
       </div>
 
-      {/* Full Name */}
       <div className={styles.formGroup}>
         <label className={styles.label}>Full Name *</label>
         <input
@@ -132,7 +134,6 @@ const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
         />
       </div>
 
-      {/* Gender + Age */}
       <div className={styles.formRow}>
         <div className={styles.formGroup}>
           <label className={styles.label}>Gender *</label>
@@ -165,7 +166,6 @@ const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
         </div>
       </div>
 
-      {/* Mobile + OTP */}
       <div className={styles.formGroup}>
         <label className={styles.label}>Mobile Number *</label>
         <div className={styles.mobileOtpRow}>
@@ -199,7 +199,6 @@ const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
         )}
       </div>
 
-      {/* OTP input */}
       {pax.otpSent && !pax.mobileVerified && (
         <div className={styles.formGroup}>
           <label className={styles.label}>Enter OTP *</label>
@@ -227,7 +226,6 @@ const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
         </div>
       )}
 
-      {/* Email */}
       <div className={styles.formGroup}>
         <label className={styles.label}>Email Address *</label>
         <input
@@ -240,7 +238,6 @@ const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
         <p className={styles.fieldHint}>📧 PDF ticket will be sent to this email</p>
       </div>
 
-      {/* Aadhaar */}
       <div className={styles.sectionDivider}>🪪 Aadhaar Verification</div>
       <div className={styles.formGroup}>
         <label className={styles.label}>Aadhaar Card Number *</label>
@@ -276,6 +273,25 @@ const PaymentPage = () => {
   const [step, setStep]     = useState('summary');
   const [method, setMethod] = useState('');
 
+  /* Offer / Coupon State */
+  const [appliedCoupon, setAppliedCoupon] = useState('');
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [couponInput, setCouponInput] = useState('');
+
+  /* Auto load coupon from localStorage if applied from gift banner */
+  useEffect(() => {
+    const stored = localStorage.getItem('appliedCoupon');
+    if (stored) {
+      try {
+        const c = JSON.parse(stored);
+        if (c?.code) {
+          setAppliedCoupon(c.code);
+          setDiscountAmount(150);
+        }
+      } catch (e) {}
+    }
+  }, []);
+
   /* Payment fields */
   const [upiId, setUpiId]       = useState('');
   const [cardNum, setCardNum]   = useState('');
@@ -283,18 +299,30 @@ const PaymentPage = () => {
   const [expiry, setExpiry]     = useState('');
   const [cvv, setCvv]           = useState('');
 
-  /* Multiple passengers */
   const [passengers, setPassengers] = useState([emptyPassenger()]);
-
   const [errorMsg, setErrorMsg] = useState('');
   const [ticketId]              = useState(generateTicketId());
 
-  const totalFare = bookingData.fare
+  const subTotal = bookingData.fare
     ? parseInt(bookingData.fare.replace(/[^\d]/g, ''), 10) *
       (bookingData.seats?.length || 1)
     : 0;
 
-  /* ── Passenger state helpers ────── */
+  const totalFare = Math.max(0, subTotal - discountAmount);
+
+  const applyPromo = (code, amount) => {
+    setAppliedCoupon(code);
+    setDiscountAmount(amount);
+    setCouponInput(code);
+  };
+
+  const removePromo = () => {
+    setAppliedCoupon('');
+    setDiscountAmount(0);
+    setCouponInput('');
+    localStorage.removeItem('appliedCoupon');
+  };
+
   const updatePassenger = (idx, field, value) => {
     setPassengers((prev) =>
       prev.map((p, i) => (i === idx ? { ...p, [field]: value } : p))
@@ -309,7 +337,6 @@ const PaymentPage = () => {
     setPassengers((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  /* ── Validation ─────────────────── */
   const validateDetails = () => {
     for (let i = 0; i < passengers.length; i++) {
       const p   = passengers[i];
@@ -344,7 +371,6 @@ const PaymentPage = () => {
     return null;
   };
 
-  /* ── Handlers ───────────────────── */
   const handleProceedToDetails = () => { setErrorMsg(''); setStep('details'); };
 
   const handleProceedToPayment = () => {
@@ -364,6 +390,8 @@ const PaymentPage = () => {
       ticketId,
       ...bookingData,
       totalFare,
+      appliedCoupon,
+      discountAmount,
       paymentMethod: method,
       passenger: {
         fullName: primary.fullName.trim(),
@@ -396,91 +424,93 @@ const PaymentPage = () => {
     const allPax  = ticket.passengers || [primary];
 
     return (
-      <div className={styles.page}>
-        <div className={`${styles.ticketCard} ${styles.printArea}`}>
-          <div className={styles.ticketHeader}>
-            <div className={styles.ticketLogo}>
-              <img src="/images/logo.png" alt="Go Ticket" className={styles.ticketLogoImg} />
-            </div>
-            <div className={styles.ticketBadge}>✅ CONFIRMED</div>
-          </div>
-
-          <h2 className={styles.ticketTitle}>🎉 Booking Confirmed!</h2>
-          <p className={styles.ticketId}>Ticket ID: <strong>{ticketId}</strong></p>
-
-          {/* Delivery notification */}
-          <div className={styles.deliveryNote}>
-            📲 Ticket sent to <strong>{primary.mobile}</strong> &amp;{' '}
-            <strong>{primary.email}</strong>
-          </div>
-
-          {/* All passengers */}
-          {allPax.map((p, i) => (
-            <div key={i} className={styles.passengerBanner}>
-              <div className={styles.passengerBannerTitle}>
-                👤 Passenger {i + 1}{i === 0 ? ' (Primary)' : ''}
+      <>
+        <div className={styles.page}>
+          <div className={`${styles.ticketCard} ${styles.printArea}`}>
+            <div className={styles.ticketHeader}>
+              <div className={styles.ticketLogo}>
+                <img src="/images/logo.png" alt="Go Ticket" className={styles.ticketLogoImg} />
               </div>
-              <div className={styles.passengerBannerRow}>
-                <strong>{p.fullName}</strong>
-                <span>{p.gender} · Age {p.age}</span>
-              </div>
-              <div className={styles.passengerBannerRow} style={{ marginTop: '0.3rem' }}>
-                <span>📱 {p.mobile}</span>
-                <span>🪪 Aadhaar {p.aadhaar}</span>
-              </div>
+              <div className={styles.ticketBadge}>✅ CONFIRMED</div>
             </div>
-          ))}
 
-          {/* QR */}
-          <div className={styles.qrBox}>
-            <div className={styles.qrGrid}>
-              {Array.from({ length: 25 }).map((_, i) => (
-                <div
-                  key={i}
-                  className={styles.qrCell}
-                  style={{ background: (i * 7 + 3) % 3 !== 0 ? '#333' : '#fff' }}
-                />
-              ))}
+            <h2 className={styles.ticketTitle}>🎉 Booking Confirmed!</h2>
+            <p className={styles.ticketId}>Ticket ID: <strong>{ticketId}</strong></p>
+
+            <div className={styles.deliveryNote}>
+              📲 Ticket sent to <strong>{primary.mobile}</strong> &amp;{' '}
+              <strong>{primary.email}</strong>
             </div>
-            <p className={styles.qrLabel}>Scan at boarding</p>
-          </div>
 
-          {/* Journey details */}
-          <div className={styles.detailGrid}>
-            {[
-              { label: 'Bus',       val: ticket.name },
-              { label: 'Route',     val: ticket.route },
-              { label: 'Date',      val: ticket.date },
-              { label: 'Departure', val: ticket.time },
-              { label: 'Seats',     val: ticket.seats?.join(', ') || 'N/A' },
-              { label: 'Boarding',  val: ticket.boarding?.location },
-              { label: 'Drop',      val: ticket.dropping?.location },
-              { label: 'Total Paid',val: `₹${ticket.totalFare}` },
-            ].map(({ label, val }) => (
-              <div key={label} className={styles.detailItem}>
-                <span className={styles.detailLabel}>{label}</span>
-                <span className={styles.detailVal}>{val || '—'}</span>
+            {allPax.map((p, i) => (
+              <div key={i} className={styles.passengerBanner}>
+                <div className={styles.passengerBannerTitle}>
+                  👤 Passenger {i + 1}{i === 0 ? ' (Primary)' : ''}
+                </div>
+                <div className={styles.passengerBannerRow}>
+                  <strong>{p.fullName}</strong>
+                  <span>{p.gender} · Age {p.age}</span>
+                </div>
+                <div className={styles.passengerBannerRow} style={{ marginTop: '0.3rem' }}>
+                  <span>📱 {p.mobile}</span>
+                  <span>🪪 Aadhaar {p.aadhaar}</span>
+                </div>
               </div>
             ))}
-          </div>
 
-          <button className={styles.downloadBtn} onClick={() => window.print()}>
-            📄 Download PDF Ticket
-          </button>
+            <div className={styles.qrBox}>
+              <div className={styles.qrGrid}>
+                {Array.from({ length: 25 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={styles.qrCell}
+                    style={{ background: (i * 7 + 3) % 3 !== 0 ? '#333' : '#fff' }}
+                  />
+                ))}
+              </div>
+              <p className={styles.qrLabel}>Scan at boarding</p>
+            </div>
 
-          <div className={styles.ticketActions}>
-            <button className={styles.actionBtn} onClick={() => navigate('/eticket')}>
-              🎫 View E-Ticket
+            <div className={styles.detailGrid}>
+              {[
+                { label: 'Bus',       val: ticket.name },
+                { label: 'Route',     val: ticket.route },
+                { label: 'Date',      val: ticket.date },
+                { label: 'Departure', val: ticket.time },
+                { label: 'Seats',     val: ticket.seats?.join(', ') || 'N/A' },
+                { label: 'Boarding',  val: ticket.boarding?.location },
+                { label: 'Drop',      val: ticket.dropping?.location },
+                { label: 'Promo Code',val: ticket.appliedCoupon ? `${ticket.appliedCoupon} (-₹${ticket.discountAmount})` : 'None' },
+                { label: 'Total Paid',val: `₹${ticket.totalFare}` },
+              ].map(({ label, val }) => (
+                <div key={label} className={styles.detailItem}>
+                  <span className={styles.detailLabel}>{label}</span>
+                  <span className={styles.detailVal}>{val || '—'}</span>
+                </div>
+              ))}
+            </div>
+
+            <button className={styles.downloadBtn} onClick={() => window.print()}>
+              📄 Download PDF Ticket
             </button>
-            <button
-              className={`${styles.actionBtn} ${styles.homeBtn}`}
-              onClick={() => navigate('/')}
-            >
-              🏠 Back to Home
-            </button>
+
+            <div className={styles.ticketActions}>
+              <button className={styles.actionBtn} onClick={() => navigate('/eticket')}>
+                🎫 View E-Ticket
+              </button>
+              <button
+                className={`${styles.actionBtn} ${styles.homeBtn}`}
+                onClick={() => navigate('/')}
+              >
+                🏠 Back to Home
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+        <footer className={styles.copyrightBar}>
+          <p>© 2026 Go Ticket India. All rights reserved.</p>
+        </footer>
+      </>
     );
   }
 
@@ -488,184 +518,219 @@ const PaymentPage = () => {
      MAIN FLOW STEPS
   ══════════════════════════════════════ */
   return (
-    <div className={styles.page}>
+    <>
+      <div className={styles.page}>
 
-      {/* ── STEP 1: Booking Summary ──────────────────────── */}
-      {step === 'summary' && (
-        <div className={styles.card}>
-          <StepBar current="summary" />
-          <h2 className={styles.heading}><u>Booking Summary</u></h2>
+        {/* ── STEP 1: Booking Summary ──────────────────────── */}
+        {step === 'summary' && (
+          <div className={styles.card}>
+            <StepBar current="summary" />
+            <h2 className={styles.heading}><u>Booking Summary</u></h2>
 
-          <div className={styles.summaryGrid}>
-            {[
-              { label: 'Bus',        val: bookingData.name },
-              { label: 'Route',      val: bookingData.route },
-              { label: 'Date',       val: bookingData.date },
-              { label: 'Departure',  val: bookingData.time },
-              { label: 'Bus Type',   val: bookingData.type },
-              { label: 'Seats',      val: bookingData.seats?.join(', ') || 'N/A' },
-              { label: 'Boarding',   val: bookingData.boarding?.location },
-              { label: 'Drop',       val: bookingData.dropping?.location },
-              { label: 'Fare/seat',  val: bookingData.fare },
-            ].map(({ label, val }) => (
-              <div key={label} className={styles.summaryItem}>
-                <span className={styles.summaryLabel}>{label}</span>
-                <span className={styles.summaryVal}>{val}</span>
-              </div>
-            ))}
-            <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Total</span>
-              <span className={`${styles.summaryVal} ${styles.totalFare}`}>₹{totalFare}</span>
+            <div className={styles.summaryGrid}>
+              {[
+                { label: 'Bus',        val: bookingData.name },
+                { label: 'Route',      val: bookingData.route },
+                { label: 'Date',       val: bookingData.date },
+                { label: 'Departure',  val: bookingData.time },
+                { label: 'Bus Type',   val: bookingData.type },
+                { label: 'Seats',      val: bookingData.seats?.join(', ') || 'N/A' },
+                { label: 'Boarding',   val: bookingData.boarding?.location },
+                { label: 'Drop',       val: bookingData.dropping?.location },
+                { label: 'Subtotal',   val: `₹${subTotal}` },
+              ].map(({ label, val }) => (
+                <div key={label} className={styles.summaryItem}>
+                  <span className={styles.summaryLabel}>{label}</span>
+                  <span className={styles.summaryVal}>{val}</span>
+                </div>
+              ))}
             </div>
-          </div>
 
-          <button className={styles.proceedBtn} onClick={handleProceedToDetails}>
-            <b>👤 Enter Passenger Details →</b>
-          </button>
-        </div>
-      )}
+            {/* REALISTIC PROMO & COUPON OFFERS SECTION */}
+            <div className={styles.promoSection}>
+              <div className={styles.promoTitle}>🎁 Apply Promo Code &amp; Offers</div>
 
-      {/* ── STEP 2: Passenger Details ────────────────────── */}
-      {step === 'details' && (
-        <div className={styles.card}>
-          <StepBar current="details" />
-          <h2 className={styles.heading}><u>Passenger Details</u></h2>
+              {appliedCoupon ? (
+                <div className={styles.appliedPromoBadge}>
+                  <span>🎉 Coupon <strong>{appliedCoupon}</strong> Applied! (Saved ₹{discountAmount})</span>
+                  <button className={styles.removePromoBtn} onClick={removePromo}>Remove</button>
+                </div>
+              ) : (
+                <div className={styles.promoChipsRow}>
+                  {PROMO_OFFERS.map((offer) => (
+                    <button
+                      key={offer.code}
+                      type="button"
+                      className={styles.promoChip}
+                      onClick={() => applyPromo(offer.code, offer.discount)}
+                    >
+                      🏷️ {offer.code} - {offer.text}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          <div className={styles.detailsStepInfo}>
-            <strong>🇮🇳 Indian Citizen Verification Required</strong>
-            Aadhaar number and mobile OTP verification are mandatory. Ticket will
-            be delivered via SMS and email after successful payment.
-          </div>
+            {/* Final Total Amount Display */}
+            <div className={styles.finalTotalBox}>
+              <div>
+                <span>Total Amount to Pay</span>
+                {discountAmount > 0 && <small>(After ₹{discountAmount} Instant Discount)</small>}
+              </div>
+              <span className={styles.totalFare}>₹{totalFare}</span>
+            </div>
 
-          {errorMsg && <div className={styles.errorMsg}>⚠️ {errorMsg}</div>}
-
-          {/* Render each passenger */}
-          {passengers.map((pax, idx) => (
-            <PassengerCard
-              key={pax.id}
-              pax={pax}
-              index={idx}
-              total={passengers.length}
-              onChange={updatePassenger}
-              onRemove={removePassenger}
-            />
-          ))}
-
-          {/* Add Passenger button */}
-          <button className={styles.addPassengerBtn} onClick={addPassenger}>
-            ＋ Add Another Passenger
-          </button>
-
-          <div className={styles.payBtnRow}>
-            <button className={styles.backBtn} onClick={() => setStep('summary')}>← Back</button>
-            <button className={styles.proceedBtn} onClick={handleProceedToPayment}>
-              <b>💳 Proceed to Pay ₹{totalFare}</b>
+            <button className={styles.proceedBtn} onClick={handleProceedToDetails}>
+              <b>👤 Enter Passenger Details →</b>
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ── STEP 3: Payment ──────────────────────────────── */}
-      {step === 'payment' && (
-        <div className={styles.card}>
-          <StepBar current="payment" />
-          <h2 className={styles.heading}><u>Choose Payment Method</u></h2>
+        {/* ── STEP 2: Passenger Details ────────────────────── */}
+        {step === 'details' && (
+          <div className={styles.card}>
+            <StepBar current="details" />
+            <h2 className={styles.heading}><u>Passenger Details</u></h2>
 
-          {errorMsg && <div className={styles.errorMsg}>⚠️ {errorMsg}</div>}
+            <div className={styles.detailsStepInfo}>
+              <strong>🇮🇳 Indian Citizen Verification Required</strong>
+              Aadhaar number and mobile OTP verification are mandatory. Ticket will
+              be delivered via SMS and email after successful payment.
+            </div>
 
-          <div className={styles.methodRow}>
-            {['upi', 'card', 'cod'].map((m) => (
-              <button
-                key={m}
-                className={`${styles.methodBtn} ${method === m ? styles.methodActive : ''}`}
-                onClick={() => setMethod(m)}
-              >
-                {m === 'upi'  && '📱 UPI'}
-                {m === 'card' && '💳 Card'}
-                {m === 'cod'  && '💵 Cash'}
-              </button>
-            ))}
-          </div>
+            {errorMsg && <div className={styles.errorMsg}>⚠️ {errorMsg}</div>}
 
-          {method === 'upi' && (
-            <div className={styles.formGroup}>
-              <label className={styles.label}>UPI ID</label>
-              <input
-                type="text"
-                className={styles.input}
-                placeholder="yourname@upi"
-                value={upiId}
-                onChange={(e) => setUpiId(e.target.value)}
+            {passengers.map((pax, idx) => (
+              <PassengerCard
+                key={pax.id}
+                pax={pax}
+                index={idx}
+                total={passengers.length}
+                onChange={updatePassenger}
+                onRemove={removePassenger}
               />
-            </div>
-          )}
+            ))}
 
-          {method === 'card' && (
-            <>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Card Number</label>
-                <input
-                  type="text"
-                  className={styles.input}
-                  placeholder="1234 5678 9012 3456"
-                  maxLength={19}
-                  value={cardNum}
-                  onChange={(e) => {
-                    const v = e.target.value.replace(/\D/g, '').slice(0, 16);
-                    setCardNum(v.replace(/(.{4})/g, '$1 ').trim());
-                  }}
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Cardholder Name</label>
-                <input
-                  type="text"
-                  className={styles.input}
-                  placeholder="Name on card"
-                  value={cardName}
-                  onChange={(e) => setCardName(e.target.value)}
-                />
-              </div>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>Expiry</label>
-                  <input
-                    type="month"
-                    className={styles.input}
-                    value={expiry}
-                    onChange={(e) => setExpiry(e.target.value)}
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label className={styles.label}>CVV</label>
-                  <input
-                    type="password"
-                    className={styles.input}
-                    placeholder="•••"
-                    maxLength={3}
-                    value={cvv}
-                    onChange={(e) => setCvv(e.target.value.replace(/\D/g, ''))}
-                  />
-                </div>
-              </div>
-            </>
-          )}
-
-          {method === 'cod' && (
-            <p className={styles.codNote}>
-              💵 You will pay ₹{totalFare} in cash to the bus conductor before departure.
-            </p>
-          )}
-
-          <div className={styles.payBtnRow}>
-            <button className={styles.backBtn} onClick={() => setStep('details')}>← Back</button>
-            <button className={styles.proceedBtn} onClick={handleConfirmPay}>
-              <b>✅ Confirm &amp; Pay ₹{totalFare}</b>
+            <button className={styles.addPassengerBtn} onClick={addPassenger}>
+              ＋ Add Another Passenger
             </button>
+
+            <div className={styles.payBtnRow}>
+              <button className={styles.backBtn} onClick={() => setStep('summary')}>← Back</button>
+              <button className={styles.proceedBtn} onClick={handleProceedToPayment}>
+                <b>💳 Proceed to Pay ₹{totalFare}</b>
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+
+        {/* ── STEP 3: Payment ──────────────────────────────── */}
+        {step === 'payment' && (
+          <div className={styles.card}>
+            <StepBar current="payment" />
+            <h2 className={styles.heading}><u>Choose Payment Method</u></h2>
+
+            {errorMsg && <div className={styles.errorMsg}>⚠️ {errorMsg}</div>}
+
+            <div className={styles.methodRow}>
+              {['upi', 'card', 'cod'].map((m) => (
+                <button
+                  key={m}
+                  className={`${styles.methodBtn} ${method === m ? styles.methodActive : ''}`}
+                  onClick={() => setMethod(m)}
+                >
+                  {m === 'upi'  && '📱 UPI'}
+                  {m === 'card' && '💳 Card'}
+                  {m === 'cod'  && '💵 Cash'}
+                </button>
+              ))}
+            </div>
+
+            {method === 'upi' && (
+              <div className={styles.formGroup}>
+                <label className={styles.label}>UPI ID</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  placeholder="yourname@upi"
+                  value={upiId}
+                  onChange={(e) => setUpiId(e.target.value)}
+                />
+              </div>
+            )}
+
+            {method === 'card' && (
+              <>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Card Number</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    placeholder="1234 5678 9012 3456"
+                    maxLength={19}
+                    value={cardNum}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, '').slice(0, 16);
+                      setCardNum(v.replace(/(.{4})/g, '$1 ').trim());
+                    }}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Cardholder Name</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    placeholder="Name on card"
+                    value={cardName}
+                    onChange={(e) => setCardName(e.target.value)}
+                  />
+                </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Expiry</label>
+                    <input
+                      type="month"
+                      className={styles.input}
+                      value={expiry}
+                      onChange={(e) => setExpiry(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>CVV</label>
+                    <input
+                      type="password"
+                      className={styles.input}
+                      placeholder="•••"
+                      maxLength={3}
+                      value={cvv}
+                      onChange={(e) => setCvv(e.target.value.replace(/\D/g, ''))}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {method === 'cod' && (
+              <p className={styles.codNote}>
+                💵 You will pay ₹{totalFare} in cash to the bus conductor before departure.
+              </p>
+            )}
+
+            <div className={styles.payBtnRow}>
+              <button className={styles.backBtn} onClick={() => setStep('details')}>← Back</button>
+              <button className={styles.proceedBtn} onClick={handleConfirmPay}>
+                <b>✅ Confirm &amp; Pay ₹{totalFare}</b>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Copyright Bar */}
+      <footer className={styles.copyrightBar}>
+        <p>© 2026 Go Ticket India. All rights reserved.</p>
+      </footer>
+    </>
   );
 };
 

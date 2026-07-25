@@ -1,99 +1,130 @@
 /* ═══════════════════════════════════════════════════════════
-   FAQ Module — Very Light Blue & Teal Theme (#f0f8ff / #028090)
-   Solid Black Text (#000000) & Playfair Display Highlights
+   FAQ Module — Clean Accordion & Realistic Card Styling
 ═══════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 .faqSection {
-  background-color: #f0f8ff; /* Very Light Blue */
-  padding: 60px 40px;
-  color: #000000;
-  box-sizing: border-box;
+  background-color: #ffffff;
+  padding: 80px 20px;
+  color: #0f172a;
+}
+
+.faqContainer {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.headerArea {
+  text-align: center;
+  margin-bottom: 50px;
+  max-width: 700px;
+}
+
+.sectionBadge {
+  display: inline-block;
+  background: #e0f2fe;
+  color: #028090;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 20px;
+  padding: 6px 16px;
+  margin-bottom: 12px;
 }
 
 .sectionTitle {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.2rem;
   font-weight: 800;
-  color: #000000;
-  margin-bottom: 40px;
-  text-align: center;
-  letter-spacing: -0.5px;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.subTitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.6;
 }
 
 .faqGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 20px;
-  max-width: 1300px;
-  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
 }
 
 .faqBox {
-  background: #ffffff;
-  border: 1.5px solid #bce0ff;
-  border-radius: 18px;
-  padding: 1.4rem;
-  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.05);
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px 24px;
   cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: all 0.25s ease;
 }
 
 .faqBox:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(2, 128, 144, 0.12);
-  border-color: #00a896;
+  border-color: #028090;
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(2, 128, 144, 0.08);
 }
 
 .faqBox.open {
   border-color: #028090;
   background: #ffffff;
+  box-shadow: 0 8px 20px rgba(2, 128, 144, 0.12);
 }
 
 .faqQuestion {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: #000000;
-  gap: 12px;
+  gap: 16px;
 }
 
-.plusSign {
-  font-size: 1.3rem;
-  font-weight: 800;
+.questionTextGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.categoryBadge {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: #028090;
-  line-height: 1;
+  background: #e0f2fe;
+  padding: 2px 10px;
+  border-radius: 12px;
+}
+
+.questionText {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.toggleIcon {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #028090;
+  min-width: 24px;
+  text-align: center;
 }
 
 .faqAnswer {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.35s ease, opacity 0.35s ease, margin-top 0.35s ease;
-  opacity: 0;
   font-family: 'Inter', sans-serif;
-  font-size: 0.92rem;
-  color: #333333;
-  line-height: 1.6;
-  font-weight: 500;
-}
-
-.faqAnswer.open {
-  max-height: 200px;
-  opacity: 1;
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.65;
   margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px dashed #bce0ff;
-}
-
-.sectionDivider,
-.faqEndDivider {
-  width: 100vw;
-  height: 2px;
-  background-color: #bce0ff;
-  border: none;
-  margin: 0 0 40px 0;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f0;
 }

@@ -1,49 +1,100 @@
 /* ═══════════════════════════════════════════════════════════
-   Footer Module — Compact Height & Centered Alignment
+   Footer Module — Modern Dark Teal & Professional Layout
 ═══════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 .footer {
-  background: linear-gradient(135deg, #034f59 0%, #056676 60%, #028090 100%);
-  padding: 2rem 1.5rem 1rem;
-  border-top: 2.5px solid #00a896;
-  color: #ffffff;
-  font-family: 'Inter', 'Poppins', sans-serif;
-  box-shadow: 0 -6px 20px rgba(3, 79, 89, 0.2);
-  text-align: center;
+  background: #002e35;
+  padding: 60px 20px 24px 20px;
+  color: #f8fafc;
+  font-family: 'Inter', sans-serif;
+  border-top: 4px solid #00a896;
 }
 
 .footerContainer {
-  display: flex;
-  justify-content: center;
-  gap: 6rem;
-  flex-wrap: wrap;
-  text-align: center;
-  max-width: 900px;
+  max-width: 1200px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+  gap: 40px;
+  margin-bottom: 40px;
 }
 
-@media (max-width: 600px) {
-  .footerContainer {
-    gap: 1.8rem;
-    flex-direction: column;
-    align-items: center;
-  }
+.brandColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.logoBadge {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: #028090;
+  padding: 6px 16px;
+  border-radius: 10px;
+  display: inline-block;
+  letter-spacing: 0.5px;
+}
+
+.brandDesc {
+  font-size: 0.92rem;
+  color: #94a3b8;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.socialIcons {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.socialIcon {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.socialIcon:hover {
+  background: #00a896;
+  border-color: #00a896;
+  transform: translateY(-2px);
 }
 
 .footerColumn {
-  min-width: 180px;
+  display: flex;
+  flex-direction: column;
 }
 
-.footerColumn h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.15rem;
-  font-weight: 800;
-  margin-bottom: 0.8rem;
+.footerColumn h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: #ffffff;
-  letter-spacing: 0.5px;
-  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.footerColumn h3::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 30px;
+  height: 2px;
+  background: #00a896;
+  border-radius: 2px;
 }
 
 .footerColumn ul {
@@ -52,36 +103,51 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
-  align-items: center;
-}
-
-.footerColumn li {
-  margin: 0;
+  gap: 10px;
 }
 
 .footerColumn a {
-  color: #e6f2ff;
+  color: #cbd5e1;
   text-decoration: none;
-  font-size: 0.85rem;
-  font-weight: 600;
-  font-family: 'Poppins', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 500;
   transition: all 0.2s ease;
-  display: inline-block;
 }
 
 .footerColumn a:hover {
-  color: #ffffff;
-  transform: translateY(-2px);
-  text-decoration: underline;
+  color: #00a896;
+  padding-left: 4px;
+}
+
+.contactList li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #cbd5e1;
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 
 .footerBottom {
-  margin-top: 1.8rem;
-  padding-top: 0.8rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #e6f2ff;
+  font-size: 0.88rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .footerContainer {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footerContainer {
+    grid-template-columns: 1fr;
+  }
 }

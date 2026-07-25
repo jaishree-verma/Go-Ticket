@@ -1,211 +1,419 @@
 /* ═══════════════════════════════════════════════════════════
-   Hero Module — Teal Theme & White Text on Action Buttons
+   Hero Module — Exact AbhiBus Style Recent Search Pill
 ═══════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.heroBanner {
+  position: relative;
+  width: 100%;
+  background-color: #ffffff;
+  padding-bottom: 20px;
 }
 
-.hero {
+.bannerImageContainer {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.bannerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 75%;
+  filter: brightness(1.05) contrast(1.08);
+}
+
+.bannerOverlay {
+  display: none;
+}
+
+/* Floating Search Card Overlay */
+.widgetWrapper {
+  max-width: 1120px;
+  margin: -85px auto 0;
+  position: relative;
+  z-index: 10;
+  padding: 0 20px;
+}
+
+.searchCard {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 10px 18px 12px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+/* Transport Category Tabs with AbhiBus circular badge icons */
+.tabHeader {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 40px;
-  gap: 40px;
-  animation: fadeIn 1.2s ease-in-out;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f1f5f9;
   flex-wrap: wrap;
-  background-color: #f0f8ff; /* Very Light Blue */
-  color: #000000;
+  gap: 6px;
 }
 
-.heroText {
-  flex: 1;
-  min-width: 300px;
+.tabsList {
   display: flex;
-  flex-direction: column;
+  gap: 14px;
+}
+
+.tabBtn {
+  display: flex;
   align-items: center;
-  text-align: center;
-  margin-top: -30px;
+  gap: 8px;
+  padding: 4px 14px 6px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
 }
 
-.welcomeBadge {
-  display: inline-block;
-  background: #e6f2ff;
-  border: 1.5px solid #00a896;
-  color: #000000;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.15rem;
-  font-weight: 800;
-  letter-spacing: 1px;
-  border-radius: 24px;
-  padding: 0.45rem 1.6rem;
-  margin-bottom: 0.9rem;
-  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.12);
-  align-self: center;
-}
-
-.heroText h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 52px;
-  font-weight: 900;
-  margin-bottom: 12px;
-  letter-spacing: 2px;
-  color: #000000;
-  text-align: center;
-}
-
-.heroText p {
+.tabIconBadge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffedd5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 30px;
-  max-width: 650px;
-  text-align: center;
-  line-height: 1.6;
-  color: #000000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
 }
 
-.searchSection {
+.tabBtn:hover {
+  color: #d32f2f;
+}
+
+.tabActive {
+  color: #0f172a !important;
+  font-weight: 800;
+}
+
+.tabActive .tabIconBadge {
+  background: #fed7aa;
+}
+
+.tabActive::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0; right: 0;
+  height: 3px;
+  background: #d32f2f;
+  border-radius: 3px 3px 0 0;
+}
+
+.taglineText {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Integrated Single-Row Light Gray Input Container matching reference screenshot */
+.searchFormRow {
+  display: flex;
+  align-items: stretch;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0;
+  gap: 0;
+}
+
+.inputCell {
+  flex: 1.2;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  position: relative;
+  background: #f1f5f9;
+  border-right: 1px solid #e2e8f0;
+}
+
+.cellIcon {
+  font-size: 1rem;
+  color: #64748b;
+}
+
+.cellContent {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 20px;
   width: 100%;
 }
 
-.buttons {
-  margin-bottom: 10px;
+.cellContent label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.5px;
+  margin-bottom: -1px;
 }
 
-.buttons button {
-  width: 280px;
-  height: 60px;
-  font-size: 18px;
-  font-weight: 800;
-  font-family: 'Poppins', sans-serif;
+.cellContent input {
   border: none;
-  background-color: #028090;
-  color: #ffffff; /* White font on Search Buses button */
+  background: transparent;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+  padding: 0;
+}
+
+.cellContent input::placeholder {
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Dropdown Menu */
+.cityDropdownMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 260px;
+  max-height: 260px;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  border: 1px solid #e2e8f0;
+  z-index: 100;
+  padding: 4px 0;
+}
+
+.cityDropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
   cursor: pointer;
-  border-radius: 14px;
-  transition: transform 0.25s ease, background-color 0.25s ease;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+.cityDropdownItem:last-child {
+  border-bottom: none;
+}
+
+.cityDropdownItem:hover {
+  background: #f1f5f9;
+}
+
+.cityBuildingIcon {
+  font-size: 1.1rem;
+  color: #334155;
+}
+
+.cityInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.cityName {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.stateName {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.noCityFound {
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  color: #64748b;
+  text-align: center;
+}
+
+/* Swap Circle Button */
+.swapBtn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.82rem;
+  font-weight: bold;
+  color: #64748b;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  box-shadow: 0 6px 18px rgba(2, 128, 144, 0.25);
+  margin: auto -13px;
+  z-index: 5;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
 }
 
-.buttons button:hover {
-  transform: translateY(-2px);
-  background-color: #00a896;
-  color: #ffffff;
+.swapBtn:hover {
+  background: #d32f2f;
+  color: #ffffff !important;
+  border-color: #d32f2f;
+  transform: rotate(180deg);
 }
 
-.transportIcons {
+.quickDateGroup {
   display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  border-right: 1px solid #e2e8f0;
+}
+
+.dateChip {
+  background: #f1f5f9;
+  border: none;
+  padding: 0 14px;
+  height: 100%;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #e2e8f0;
+}
+
+.dateChip:last-child {
+  border-right: none;
+}
+
+.dateChip:hover {
+  background: #e2e8f0;
+  color: #d32f2f;
+}
+
+/* Coral Red Pill Search Button matching reference screenshot */
+.submitSearchBtn {
+  background: linear-gradient(135deg, #e55353 0%, #d32f2f 100%);
+  color: #ffffff !important;
+  border: none;
+  border-radius: 0 12px 12px 0;
+  padding: 10px 24px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.submitSearchBtn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* Recent Searches matching exact screenshot card */
+.recentSearchesContainer {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recentTitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.recentGrid {
+  display: flex;
+  gap: 12px;
   flex-wrap: wrap;
-  gap: 20px;
 }
 
-.transportIcons img {
-  width: 80px;
-  height: auto;
-  transition: transform 0.3s ease;
-  filter: drop-shadow(0 4px 10px rgba(2, 128, 144, 0.15));
-}
-
-.transportIcons img:hover {
-  transform: scale(1.2);
-}
-
-.seatBooking {
-  margin-top: 10px;
-}
-
-.seatBooking button {
-  width: 280px;
-  height: 60px;
-  font-size: 18px;
-  font-weight: 800;
-  font-family: 'Poppins', sans-serif;
-  border: none;
-  background-color: #028090;
-  color: #ffffff; /* White font on Seat Booking button */
+.recentCard {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 16px;
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   cursor: pointer;
-  border-radius: 14px;
-  transition: transform 0.25s ease, background-color 0.25s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  box-shadow: 0 6px 18px rgba(2, 128, 144, 0.25);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
-.seatBooking button:hover {
+.recentCard:hover {
+  border-color: #e15b5b;
   transform: translateY(-2px);
-  background-color: #00a896;
-  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(225, 91, 91, 0.12);
 }
 
-.heroImage {
-  flex: 1;
-  min-width: 200px;
+.historyIconBadge {
+  font-size: 1.4rem;
+  color: #e15b5b;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
-.heroImage img {
-  width: 110%;
-  max-width: 950px;
-  height: auto;
-  border-radius: 40px;
-  box-shadow: 0 12px 30px rgba(2, 128, 144, 0.18);
-  transition: transform 0.3s ease;
+.recentCard strong {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
 }
 
-.heroImage img:hover {
-  transform: scale(1.02);
+.recentCard small {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #3b82f6;
+  margin-top: 2px;
 }
 
-@media (max-width: 768px) {
-  .hero {
+@media (max-width: 900px) {
+  .searchFormRow {
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: stretch;
+    border-radius: 12px;
   }
 
-  .heroText h1 {
-    font-size: 54px;
+  .inputCell, .quickDateGroup, .submitSearchBtn {
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 0;
   }
 
-  .heroImage img {
-    max-width: 100%;
-  }
-
-  .buttons button,
-  .seatBooking button {
+  .submitSearchBtn {
     width: 100%;
+    border-radius: 0 0 12px 12px;
   }
 
-  .transportIcons {
-    justify-content: center;
+  .bannerImageContainer {
+    height: 320px;
   }
-}
 
-.sectionDivider {
-  width: 100vw;
-  height: 2px;
-  background-color: #bce0ff;
-  border: none;
-  margin: 40px 0 0 0;
+  .widgetWrapper {
+    margin-top: -40px;
+  }
 }

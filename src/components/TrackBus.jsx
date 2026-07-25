@@ -1,72 +1,81 @@
-// import React from 'react';
-// import styles from '../styles/trackbus.module.css'; // Adjust path if needed
-
-// const TrackBus = () => {
-//   return (
-//     <section id="track-bus" className={styles.trackBus}>
-//       <div className={styles.trackContent}>
-//         <h1><u>Track Your Bus Live with Go Ticket</u></h1>
-//         <div className={styles.spacer}></div>
-//         <p>
-//           Worried about delays or missed buses? With Go Ticket’s <strong>Live Bus Tracking</strong>, you get real-time updates on your bus’s location, speed, and arrival time — all from your phone.
-//         </p>
-//         <ul className={styles.trackList}>
-//           <li><strong><u>Live Location Map:</u></strong> Watch your bus move in real time.</li>
-//           <li><strong><u>ETA Alerts:</u></strong> Know exactly when to reach your stop.</li>
-//           <li><strong><u>Boarding Point Clarity:</u></strong> Get precise directions to your pickup spot.</li>
-//           <li><strong><u>Secure Access:</u></strong> Only valid passengers can track.</li>
-//           <li><strong><u>No App Needed:</u></strong> Works directly in your browser.</li>
-//         </ul>
-//         <p>
-//           Whether you're traveling solo or tracking a loved one’s journey, Go Ticket gives you peace of mind — every step of the way.
-//         </p>
-//       </div>
-
-//       <div className={styles.trackImage}>
-//         <img src="/images/About us (8).png" alt="Live Bus Tracking Illustration" />
-//       </div>
-      
-//   <div className={styles.buttonWrapper}>
-//     <button className={styles.trackButton}><b>TRACK NOW</b></button>
-//   </div>
-    
-//     </section>
-//   );
-// };
-
-// export default TrackBus;
 import React from 'react';
-import styles from '../styles/trackbus.module.css'; // Adjust path if needed
+import { useNavigate } from 'react-router-dom';
+import styles from '../styles/trackbus.module.css';
 
 const TrackBus = () => {
+  const navigate = useNavigate();
+
   return (
     <section id="track-bus" className={styles.trackBus}>
-      <div className={styles.trackContent}>
-        <h1><u>Track Your Bus Live with Go Ticket</u></h1>
-        <div className={styles.spacer}></div>
-        <p>
-          Worried about delays or missed buses? With Go Ticket’s <strong>Live Bus Tracking</strong>, you get real-time updates on your bus’s location, speed, and arrival time - all from your phone.
-        </p>
-        <ul className={styles.trackList}>
-          <li><strong><u>Live Location Map:</u></strong> Watch your bus move in real time.</li>
-          <li><strong><u>ETA Alerts:</u></strong> Know exactly when to reach your stop.</li>
-          <li><strong><u>Boarding Point Clarity:</u></strong> Get precise directions to your pickup spot.</li>
-          <li><strong><u>Secure Access:</u></strong> Only valid passengers can track.</li>
-          <li><strong><u>No App Needed:</u></strong> Works directly in your browser.</li>
-        </ul>
-        <p>
-          Whether you're traveling solo or tracking a loved one’s journey, Go Ticket gives you peace of mind - every step of the way.
-        </p>
-      </div>
+      <div className={styles.trackContainer}>
+        <div className={styles.trackTextContent}>
+          <span className={styles.sectionBadge}>REAL-TIME GPS</span>
+          <h2 className={styles.title}>Track Your Bus Live With Precision GPS</h2>
+          <p className={styles.subtitle}>
+            Eliminate waiting times and uncertainty. Monitor exact vehicle coordinates, delay updates, traffic conditions, and precise ETA on interactive live maps.
+          </p>
 
-      <div className={styles.trackImage}>
-        <img src="/images/About us (8).png" alt="Live Bus Tracking Illustration" />
+          <div className={styles.featuresList}>
+            <div className={styles.featureItem}>
+              <span className={styles.icon}>📍</span>
+              <div>
+                <h4>Live Interactive Map</h4>
+                <p>Watch your bus movement turn-by-turn in real time.</p>
+              </div>
+            </div>
+
+            <div className={styles.featureItem}>
+              <span className={styles.icon}>⏱️</span>
+              <div>
+                <h4>Smart Boarding & ETA Alerts</h4>
+                <p>Get automated alerts 15 minutes before arrival at your stop.</p>
+              </div>
+            </div>
+
+            <div className={styles.featureItem}>
+              <span className={styles.icon}>🔗</span>
+              <div>
+                <h4>Trip Sharing with Loved Ones</h4>
+                <p>Share live trip status links with family for extra safety.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.buttonWrapper}>
+            <button className={styles.trackButton} onClick={() => navigate('/livetracking')}>
+              ⚡ <b>TRACK YOUR BUS NOW</b>
+            </button>
+          </div>
+        </div>
+
+        <div className={styles.trackVisual}>
+          <div className={styles.mapCard}>
+            <div className={styles.mapHeader}>
+              <span className={styles.liveIndicator}>● LIVE GPS TRACKING</span>
+              <span className={styles.busNumber}>Bus #GT-1048 (Delhi → Kanpur)</span>
+            </div>
+            <div className={styles.mapBody}>
+              <div className={styles.routePoint}>
+                <span className={styles.pointDot}></span>
+                <div>
+                  <strong>Delhi ISBT Kashmere Gate</strong>
+                  <p>Departed 08:00 AM</p>
+                </div>
+              </div>
+              <div className={styles.routeLine}>
+                <span className={styles.movingBus}>🚌</span>
+              </div>
+              <div className={styles.routePoint}>
+                <span className={styles.pointDotActive}></span>
+                <div>
+                  <strong>Kanpur Central Bus Stand</strong>
+                  <p>ETA: 01:30 PM (On Time)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      
-  <div className={styles.buttonWrapper}>
-    <button className={styles.trackButton}><b>TRACK NOW</b></button>
-  </div>
-    
     </section>
   );
 };

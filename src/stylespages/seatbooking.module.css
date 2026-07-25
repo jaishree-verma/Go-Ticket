@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   SeatBooking Module — Teal UI & Very Light Blue Page Theme
-   Black Font & Playfair Display Highlights
+   SeatBooking Module Styling — Pure Clean Copyright Footer Bar
 ═══════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
@@ -8,8 +7,8 @@
 .page {
   padding: 3rem 1.5rem 5rem;
   text-align: center;
-  background: #f0f8ff; /* Very Light Blue */
-  min-height: 100vh;
+  background: #f0f8ff;
+  min-height: calc(100vh - 120px);
   font-family: 'Inter', 'Poppins', sans-serif;
   color: #000000;
 }
@@ -32,6 +31,10 @@
   flex-wrap: wrap;
 }
 
+.inputWrapper {
+  position: relative;
+}
+
 .routeSelector input,
 .cityInput {
   padding: 0.95rem 1.3rem;
@@ -51,12 +54,6 @@
 .routeSelector input:focus {
   border-color: #00a896;
   box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.2);
-}
-
-.arrow {
-  font-size: 1.8rem;
-  color: #000000;
-  font-weight: 800;
 }
 
 .detailsRow {
@@ -91,6 +88,7 @@
   letter-spacing: 0.8px;
   margin-bottom: 0.45rem;
   color: #000000;
+  display: block;
 }
 
 .bookButton {
@@ -98,8 +96,8 @@
   font-size: 1.1rem;
   font-family: 'Poppins', sans-serif;
   font-weight: 800;
-  background: #028090;
-  color: #000000;
+  background: linear-gradient(135deg, #028090 0%, #00a896 100%);
+  color: #ffffff !important;
   border: none;
   border-radius: 16px;
   cursor: pointer;
@@ -109,8 +107,7 @@
 }
 
 .bookButton:hover {
-  background: #00a896;
-  color: #000000;
+  background: linear-gradient(135deg, #00a896 0%, #028090 100%);
   transform: translateY(-2px);
 }
 
@@ -171,7 +168,7 @@ input[type="date"] {
 
 .swapBtn:hover {
   background: #00a896;
-  color: #000000;
+  color: #ffffff;
   transform: rotate(180deg);
 }
 
@@ -198,7 +195,7 @@ input[type="date"] {
 
 .stepperBtn:hover:not(:disabled) {
   background: #00a896;
-  color: #000000;
+  color: #ffffff;
 }
 
 .stepperValue {
@@ -209,31 +206,79 @@ input[type="date"] {
   color: #000000;
 }
 
+/* Expanded Popular Routes Section */
+.popularRoutes {
+  margin-top: 3.5rem;
+  max-width: 950px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .popularTitle {
-  font-family: 'Playfair Display', serif;
-  font-size: 0.85rem;
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.15rem;
   font-weight: 800;
-  color: #000000;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  color: #0f172a;
+  margin-bottom: 1.2rem;
 }
 
-.routeTag {
-  padding: 0.55rem 1.2rem;
-  border-radius: 20px;
-  border: 1.5px solid #bce0ff;
+.routeGridExpanded {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.routeCardItem {
   background: #ffffff;
-  color: #000000;
-  font-family: 'Inter', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 700;
+  border: 1.5px solid #bce0ff;
+  border-radius: 14px;
+  padding: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
-.routeTag:hover {
+.routeCardItem:hover {
   background: #028090;
-  color: #000000;
   border-color: #028090;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(2, 128, 144, 0.2);
+}
+
+.routeCardItem:hover .routeCardCities,
+.routeCardItem:hover .routeCardMeta {
+  color: #ffffff !important;
+}
+
+.routeCardCities {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.routeCardMeta {
+  font-size: 0.78rem;
+  color: #028090;
+  font-weight: 600;
+}
+
+/* Pure Clean Copyright Footer Bar (No top border / lines) */
+.copyrightBar {
+  background: #002e35;
+  color: #94a3b8;
+  padding: 18px 20px;
+  text-align: center;
+  font-size: 0.88rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  border: none !important;
+}
+
+.copyrightBar p {
+  margin: 0;
 }

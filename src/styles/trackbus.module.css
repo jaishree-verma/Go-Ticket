@@ -1,129 +1,225 @@
 /* ═══════════════════════════════════════════════════════════
-   TrackBus Module — Very Light Blue & Teal Theme (#f0f8ff / #028090)
-   Solid Black Text (#000000) & Playfair Display Highlights
+   TrackBus Module — Modern Live Tracking Banner & Map Preview
 ═══════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 .trackBus {
-  background-color: #f0f8ff; /* Very Light Blue */
-  padding: 60px 40px;
-  color: #000000;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background-color: #f8fafc;
+  padding: 80px 20px;
+  color: #0f172a;
 }
 
-.trackContent {
-  width: 100%;
-  max-width: 1300px;
-  color: #000000;
+.trackContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 50px;
+  flex-wrap: wrap;
+}
+
+.trackTextContent {
+  flex: 1.2;
+  min-width: 320px;
+}
+
+.sectionBadge {
+  display: inline-block;
+  background: #dcfce7;
+  color: #15803d;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 20px;
+  padding: 6px 16px;
+  margin-bottom: 14px;
+}
+
+.title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 14px;
+  line-height: 1.3;
+}
+
+.subtitle {
   font-family: 'Inter', sans-serif;
   font-size: 1.05rem;
-  line-height: 1.8;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 30px;
 }
 
-.trackContent h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #000000;
-  margin-bottom: 20px;
-  text-align: center;
-  letter-spacing: -0.5px;
+.featuresList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 35px;
 }
 
-.trackList {
-  list-style-type: none;
-  padding: 0;
-  margin: 24px 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 14px;
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
 }
 
-.trackList li {
+.icon {
+  font-size: 1.5rem;
   background: #ffffff;
-  border: 1.5px solid #bce0ff;
-  border-radius: 16px;
-  padding: 1rem 1.3rem;
-  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.05);
-  font-size: 0.95rem;
-  color: #000000;
-  font-weight: 500;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-
-.trackList li:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(2, 128, 144, 0.12);
-  border-color: #00a896;
-}
-
-.trackList li strong {
-  font-family: 'Playfair Display', serif;
-  font-weight: 800;
-  color: #028090;
-  font-size: 1rem;
-  display: inline-block;
-  margin-right: 0.4rem;
-}
-
-.trackImage {
-  margin: 30px 0;
+  border: 1px solid #e2e8f0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
+  align-items: center;
   justify-content: center;
-  width: 100%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-.trackImage img {
-  width: 90%;
-  max-width: 540px;
-  border-radius: 20px;
-  box-shadow: 0 10px 28px rgba(2, 128, 144, 0.14);
-  object-fit: contain;
-  transition: transform 0.3s ease;
+.featureItem h4 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
 }
 
-.trackImage img:hover {
-  transform: scale(1.02);
-}
-
-.buttonWrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
+.featureItem p {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  color: #64748b;
+  margin: 0;
 }
 
 .trackButton {
-  width: 280px;
-  height: 60px;
-  font-size: 18px;
-  font-weight: 800;
+  padding: 16px 36px;
+  font-size: 1.05rem;
+  font-weight: 700;
   font-family: 'Poppins', sans-serif;
   border: none;
-  background-color: #028090;
-  color: #ffffff; /* White font on TRACK NOW button */
+  background: linear-gradient(135deg, #028090 0%, #00a896 100%);
+  color: #ffffff;
   cursor: pointer;
-  border-radius: 14px;
-  transition: transform 0.25s ease, background-color 0.25s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 12px;
+  transition: all 0.25s ease;
   box-shadow: 0 6px 18px rgba(2, 128, 144, 0.25);
 }
 
 .trackButton:hover {
   transform: translateY(-2px);
-  background-color: #00a896;
-  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(2, 128, 144, 0.35);
 }
 
-.sectionDivider {
-  width: 100vw;
-  height: 2px;
-  background-color: #bce0ff;
-  border: none;
-  margin: 50px 0 0 0;
+.trackVisual {
+  flex: 1;
+  min-width: 320px;
+  display: flex;
+  justify-content: center;
+}
+
+.mapCard {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+}
+
+.mapHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.liveIndicator {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #16a34a;
+  letter-spacing: 0.5px;
+}
+
+.busNumber {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.mapBody {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.routePoint {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.routePoint strong {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
+  color: #0f172a;
+  display: block;
+}
+
+.routePoint p {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.pointDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #cbd5e1;
+}
+
+.pointDotActive {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.2);
+}
+
+.routeLine {
+  margin-left: 6px;
+  height: 60px;
+  border-left: 2px dashed #028090;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.movingBus {
+  position: absolute;
+  left: -13px;
+  font-size: 1.3rem;
+  animation: busMove 3s infinite ease-in-out;
+}
+
+@keyframes busMove {
+  0% { top: 0; }
+  50% { top: 50%; }
+  100% { top: 0; }
+}
+
+@media (max-width: 900px) {
+  .trackContainer {
+    flex-direction: column;
+  }
 }

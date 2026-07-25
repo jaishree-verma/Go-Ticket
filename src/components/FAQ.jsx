@@ -1,97 +1,82 @@
-// import { useState } from 'react';
-// import styles from '../styles/faq.module.css';
-
-// const faqItems = [
-//   { question: "How do I track my bus?", answer: "Use the 'Track Now' button to view your bus’s live location and arrival time." },
-//   { question: "What if my bus doesn’t show up?", answer: "Check with your operator or contact Go Ticket support for help." },
-//   { question: "Is tracking available for all buses?", answer: "Only verified buses on Go Ticket’s platform support live tracking." },
-//   { question: "Do I need to download an app?", answer: "No — tracking works directly from your browser." },
-//   { question: "Is my data secure?", answer: "Yes, Go Ticket uses encrypted channels to protect your travel information." },
-//   { question: "Can I view nearby buses?", answer: "Yes, the map shows other vehicles in your area." },
-//   { question: "Does tracking work internationally?", answer: "Currently, tracking is available only in supported regions." },
-//   { question: "Can I share my live location?", answer: "Yes, you can share your trip with friends or family." },
-//   { question: "Is there a cost to use tracking?", answer: "Live tracking is free for all Go Ticket users." },
-// ];
-
-// const Faq = () => {
-//   const [openIndex, setOpenIndex] = useState(null);
-
-//   const toggleFAQ = (index) => {
-//     setOpenIndex(openIndex === index ? null : index);
-//   };
-
-//   return (
-//     <div className={styles.faqSection}>
-//       <hr className={styles.sectionDivider} />
-//       <h2 className={styles.sectionTitle}><u>Frequently Asked Questions</u></h2>
-
-//       <div className={styles.faqGrid}>
-//         {faqItems.map((item, index) => {
-//           const isOpen = openIndex === index;
-//           return (
-//             <div key={index} className={`${styles.faqBox} ${isOpen ? styles.open : ''}`} onClick={() => toggleFAQ(index)}>
-//               <div className={styles.faqQuestion}>
-//                 <span>{item.question}</span>
-//                 <span className={styles.plusSign}>{isOpen ? '−' : '+'}</span>
-//               </div>
-//               <div className={`${styles.faqAnswer} ${isOpen ? styles.open : ''}`}>
-//                 {item.answer}
-//               </div>
-//             </div>
-//           );
-//         })}
-//       </div>
-
-//       {/* Final divider after FAQ section */}
-//       <hr className={styles.faqEndDivider} />
-//     </div>
-//   );
-// };
-
-// export default Faq;
-import { useState } from 'react';
+import React, { useState } from 'react';
 import styles from '../styles/faq.module.css';
 
-const faqItems = [
-  { question: "How do I track my bus?", answer: "Use the 'Track Now' button to view your bus’s live location and arrival time." },
-  { question: "What if my bus doesn’t show up?", answer: "Check with your operator or contact Go Ticket support for help." },
-  { question: "Is tracking available for all buses?", answer: "Only verified buses on Go Ticket’s platform support live tracking." },
-  { question: "Do I need to download an app?", answer: "No - tracking works directly from your browser." },
-  { question: "Is my data secure?", answer: "Yes, Go Ticket uses encrypted channels to protect your travel information." },
-  { question: "Can I view nearby buses?", answer: "Yes, the map shows other vehicles in your area." },
-  { question: "Does tracking work internationally?", answer: "Currently, tracking is available only in supported regions." },
-  { question: "Can I share my live location?", answer: "Yes, you can share your trip with friends or family." },
-  { question: "Is there a cost to use tracking?", answer: "Live tracking is free for all Go Ticket users." },
+const FAQ_ITEMS = [
+  {
+    category: 'Booking & Tickets',
+    question: "How do I book a bus ticket on Go Ticket?",
+    answer: "Enter your source city, destination, and travel date on the home page search widget. Browse available bus operators, pick your seat, enter passenger details, and pay securely to receive your instant digital E-Ticket."
+  },
+  {
+    category: 'Tracking & Live Status',
+    question: "How does real-time GPS bus tracking work?",
+    answer: "Once your ticket is booked, click 'Track Now' or visit the Bus Track section. Enter your PNR or trip details to view live vehicle location, current speed, and updated arrival times."
+  },
+  {
+    category: 'Cancellation & Refunds',
+    question: "Can I cancel or reschedule my bus ticket?",
+    answer: "Yes, tickets can be cancelled or rescheduled up to 2 hours before departure via the E-Ticket management page. Refund amounts are processed instantly according to operator policy."
+  },
+  {
+    category: 'Payments & Safety',
+    question: "What payment methods are supported?",
+    answer: "We support UPI (Google Pay, PhonePe, Paytm), All Major Credit & Debit Cards, Net Banking, and Digital Wallets with 256-bit SSL encryption."
+  },
+  {
+    category: 'Boarding & Safety',
+    question: "Do I need to print my ticket before boarding?",
+    answer: "No paper printouts needed! Simply present your digital E-Ticket QR code or SMS confirmation along with a valid Government ID."
+  },
+  {
+    category: 'Support',
+    question: "How do I contact customer support if my bus is delayed?",
+    answer: "Our 24/7 customer care team is accessible directly via live chat on the app or via the Contact page helpline number."
+  }
 ];
 
 const Faq = () => {
-  const [openIndex, setOpenIndex] = useState(null);
+  const [openIndex, setOpenIndex] = useState(0);
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
   return (
-    <div className={styles.faqSection}>
-      <h2 className={styles.sectionTitle}><u>Frequently Asked Questions</u></h2>
+    <section className={styles.faqSection}>
+      <div className={styles.faqContainer}>
+        <div className={styles.headerArea}>
+          <span className={styles.sectionBadge}>GOT QUESTIONS?</span>
+          <h2 className={styles.sectionTitle}>Frequently Asked Questions</h2>
+          <p className={styles.subTitle}>Find quick answers to common questions about ticket booking, live tracking, payments, and cancellations.</p>
+        </div>
 
-      <div className={styles.faqGrid}>
-        {faqItems.map((item, index) => {
-          const isOpen = openIndex === index;
-          return (
-            <div key={index} className={`${styles.faqBox} ${isOpen ? styles.open : ''}`} onClick={() => toggleFAQ(index)}>
-              <div className={styles.faqQuestion}>
-                <span>{item.question}</span>
-                <span className={styles.plusSign}>{isOpen ? '−' : '+'}</span>
+        <div className={styles.faqGrid}>
+          {FAQ_ITEMS.map((item, index) => {
+            const isOpen = openIndex === index;
+            return (
+              <div
+                key={index}
+                className={`${styles.faqBox} ${isOpen ? styles.open : ''}`}
+                onClick={() => toggleFAQ(index)}
+              >
+                <div className={styles.faqQuestion}>
+                  <div className={styles.questionTextGroup}>
+                    <span className={styles.categoryBadge}>{item.category}</span>
+                    <span className={styles.questionText}>{item.question}</span>
+                  </div>
+                  <span className={styles.toggleIcon}>{isOpen ? '−' : '+'}</span>
+                </div>
+                {isOpen && (
+                  <div className={styles.faqAnswer}>
+                    {item.answer}
+                  </div>
+                )}
               </div>
-              <div className={`${styles.faqAnswer} ${isOpen ? styles.open : ''}`}>
-                {item.answer}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

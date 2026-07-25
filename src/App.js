@@ -70,9 +70,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 
 import Hero from './components/Hero';
+import OffersSection from './components/OffersSection';
 import About from './components/About';
 import Booking from './components/BookingSection';
 import TrackBus from './components/TrackBus';
+import TestimonialsSection from './components/TestimonialsSection';
 import FAQ from './components/FAQ';
 
 import Home from './pages/aboutgoticket/Home';
@@ -101,9 +103,11 @@ function App() {
             element={
               <>
                 <Hero />
+                <OffersSection />
                 <About />
                 <Booking />
                 <TrackBus />
+                <TestimonialsSection />
                 <FAQ />
               </>
             }
