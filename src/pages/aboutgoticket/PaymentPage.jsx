@@ -276,8 +276,7 @@ const PaymentPage = () => {
   /* Offer / Coupon State */
   const [appliedCoupon, setAppliedCoupon] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
-  // eslint-disable-next-line no-unused-vars
-  const [couponInput, setCouponInput] = useState('');
+
 
   /* Auto load coupon from localStorage if applied from gift banner */
   useEffect(() => {
