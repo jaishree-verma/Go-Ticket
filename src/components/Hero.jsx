@@ -138,17 +138,17 @@ const Hero = () => {
   return (
     <>
       <section className={styles.heroBanner}>
-        {/* Full-width City Bus Shelter at Dusk Banner with Cinematic Looping Animation */}
+        {/* Full-width Futuristic 3D Electric Bus Transit Station with Cinematic Looping Animation */}
         <div className={styles.bannerImageContainer}>
           <div className={styles.animatedTrack}>
             <img
-              src="/images/city_bus_shelter_dusk.jpg"
-              alt="Modern City Bus Stopping at Bus Shelter at Dusk"
+              src="/images/futuristic_3d_bus_hero.jpg"
+              alt="Futuristic 3D Electric Bus at Transit Station"
               className={styles.bannerImg}
             />
             <img
-              src="/images/city_bus_shelter_dusk.jpg"
-              alt="Modern City Bus Stopping at Bus Shelter at Dusk Duplicate"
+              src="/images/futuristic_3d_bus_hero.jpg"
+              alt="Futuristic 3D Electric Bus at Transit Station Duplicate"
               className={styles.bannerImg}
             />
           </div>
