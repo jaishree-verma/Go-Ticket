@@ -138,14 +138,21 @@ const Hero = () => {
   return (
     <>
       <section className={styles.heroBanner}>
-        {/* Full-width KSRTC Tea Garden Bus Banner */}
+        {/* Full-width KSRTC Tea Garden Bus Banner with Cinematic Looping Animation */}
         <div className={styles.bannerImageContainer}>
-          <img
-            src="/images/ksrtc_yellow_bus.jpg"
-            alt="KSRTC Bus on Winding Tea Garden Road"
-            className={styles.bannerImg}
-          />
-          <div className={styles.bannerOverlay}></div>
+          <div className={styles.animatedTrack}>
+            <img
+              src="/images/ksrtc_yellow_bus.jpg"
+              alt="KSRTC Bus on Winding Tea Garden Road"
+              className={styles.bannerImg}
+            />
+            <img
+              src="/images/ksrtc_yellow_bus.jpg"
+              alt="KSRTC Bus on Winding Tea Garden Road Duplicate"
+              className={styles.bannerImg}
+            />
+          </div>
+          <div className={styles.cinematicGlowOverlay}></div>
         </div>
 
         {/* Floating Multi-Transport Search Widget */}
