@@ -1,4 +1,4 @@
-# GoTicket
+# GoTicket - AI Based Bus Booking Platform
 
 GoTicket is a modern bus ticket reservation and transport management web application built using React and CSS Modules. It offers users an intuitive booking experience with route searching, seat layout selection, live bus tracking, e-ticket generation, and promotional gift voucher management.
 
