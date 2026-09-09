@@ -138,18 +138,18 @@ const Hero = () => {
   return (
     <>
       <section className={styles.heroBanner}>
-        {/* Full-width Futuristic 3D Electric Bus Transit Station with Cinematic Looping Animation */}
+        {/* Full-section Realistic Video Loop: Girl Stepping Inside Electric Bus */}
         <div className={styles.bannerImageContainer}>
-          <div className={styles.animatedTrack}>
+          <div className={styles.frameTrackContainer}>
             <img
-              src="/images/futuristic_3d_bus_hero.jpg"
-              alt="Futuristic 3D Electric Bus at Transit Station"
-              className={styles.bannerImg}
+              src="/images/girl_boarding_frame1.jpg"
+              alt="Girl Walking Toward Electric Bus at Station"
+              className={`${styles.bannerImg} ${styles.frame1}`}
             />
             <img
-              src="/images/futuristic_3d_bus_hero.jpg"
-              alt="Futuristic 3D Electric Bus at Transit Station Duplicate"
-              className={styles.bannerImg}
+              src="/images/girl_boarding_frame2.jpg"
+              alt="Girl Stepping Inside Illuminated Electric Bus"
+              className={`${styles.bannerImg} ${styles.frame2}`}
             />
           </div>
           <div className={styles.cinematicGlowOverlay}></div>
