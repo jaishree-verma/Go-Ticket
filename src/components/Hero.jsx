@@ -138,17 +138,17 @@ const Hero = () => {
   return (
     <>
       <section className={styles.heroBanner}>
-        {/* Full-width KSRTC Tea Garden Bus Banner with Cinematic Looping Animation */}
+        {/* Full-width City Bus Shelter at Dusk Banner with Cinematic Looping Animation */}
         <div className={styles.bannerImageContainer}>
           <div className={styles.animatedTrack}>
             <img
-              src="/images/ksrtc_yellow_bus.jpg"
-              alt="KSRTC Bus on Winding Tea Garden Road"
+              src="/images/city_bus_shelter_dusk.jpg"
+              alt="Modern City Bus Stopping at Bus Shelter at Dusk"
               className={styles.bannerImg}
             />
             <img
-              src="/images/ksrtc_yellow_bus.jpg"
-              alt="KSRTC Bus on Winding Tea Garden Road Duplicate"
+              src="/images/city_bus_shelter_dusk.jpg"
+              alt="Modern City Bus Stopping at Bus Shelter at Dusk Duplicate"
               className={styles.bannerImg}
             />
           </div>
