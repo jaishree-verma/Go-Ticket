@@ -313,13 +313,11 @@ const PaymentPage = () => {
   const applyPromo = (code, amount) => {
     setAppliedCoupon(code);
     setDiscountAmount(amount);
-    setCouponInput(code);
   };
 
   const removePromo = () => {
     setAppliedCoupon('');
     setDiscountAmount(0);
-    setCouponInput('');
     localStorage.removeItem('appliedCoupon');
   };
 
