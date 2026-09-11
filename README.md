@@ -1,4 +1,4 @@
-# GoTicket — AI-Agent-Based Intercity Bus Booking Platform
+# GoTicket AI-Agent-Based Intercity Bus Booking Platform
 >>>>>>> feature/ai-agent-booking
 
 GoTicket is a modern, responsive Indian intercity bus reservation platform featuring **Tixie**, an autonomous AI conversational travel agent, alongside an end-to-end manual booking workflow.
