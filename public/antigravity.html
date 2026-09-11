@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ANTIGRAVITY — Explore. Discover. Journey.</title>
+  <meta name="description" content="Bus Travel Reimagined. Book premium bus tickets across India with ANTIGRAVITY." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --neon-blue:   #00d4ff;
+      --neon-purple: #a855f7;
+      --neon-glow:   rgba(0, 212, 255, 0.35);
+      --dark-glass:  rgba(8, 12, 22, 0.72);
+      --dark-card:   rgba(12, 18, 32, 0.82);
+      --border-neon: rgba(0, 212, 255, 0.45);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: #060a14;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ── HERO BACKGROUND ─────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('/images/hero_bus_mountain.jpg');
+      background-size: cover;
+      background-position: center 40%;
+      filter: blur(1.5px) brightness(0.45);
+      transform: scale(1.04);
+      z-index: 0;
+    }
+
+    /* Gradient overlay */
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(6, 10, 20, 0.75) 0%,
+        rgba(6, 10, 20, 0.30) 35%,
+        rgba(6, 10, 20, 0.55) 70%,
+        rgba(6, 10, 20, 0.92) 100%
+      );
+      z-index: 1;
+    }
+
+    /* subtle neon ambient glow at center */
+    .hero-glow {
+      position: absolute;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 350px;
+      background: radial-gradient(ellipse, rgba(0, 212, 255, 0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* ── NAVBAR ──────────────────────────────────── */
+    nav {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 56px;
+      background: rgba(6, 10, 20, 0.55);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .nav-logo {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #fff;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .nav-logo span {
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.5px;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--neon-blue);
+      text-shadow: 0 0 10px rgba(0,212,255,0.5);
+    }
+
+    /* ── HERO CONTENT ────────────────────────────── */
+    .hero-content {
+      position: relative;
+      z-index: 5;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
+      text-align: center;
+      padding-top: 48px;
+    }
+
+    .hero-tagline {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--neon-blue);
+      margin-bottom: 16px;
+      text-shadow: 0 0 12px var(--neon-glow);
+    }
+
+    .hero-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 3.6rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: 1px;
+      color: #fff;
+      text-shadow: 0 4px 32px rgba(0,0,0,0.6);
+      margin-bottom: 14px;
+    }
+
+    .hero-title .highlight {
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 2px;
+      margin-bottom: 52px;
+    }
+
+    /* ── NEON SEARCH BOX ─────────────────────────── */
+    .search-wrapper {
+      width: 100%;
+      max-width: 980px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: stretch;
+      background: var(--dark-glass);
+      backdrop-filter: blur(24px) saturate(1.5);
+      border-radius: 16px;
+      border: 1px solid var(--border-neon);
+      box-shadow:
+        0 0 0 1px rgba(168, 85, 247, 0.2),
+        0 0 40px rgba(0, 212, 255, 0.12),
+        0 0 80px rgba(168, 85, 247, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.07);
+      overflow: visible;
+      position: relative;
+    }
+
+    /* animated neon border glow */
+    .search-box::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 17px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-blue));
+      background-size: 200% 100%;
+      animation: borderFlow 4s linear infinite;
+      z-index: -1;
+      opacity: 0.6;
+    }
+
+    @keyframes borderFlow {
+      0%   { background-position: 0% 0%; }
+      100% { background-position: 200% 0%; }
+    }
+
+    .search-field {
+      flex: 1;
+      padding: 20px 22px;
+      border-right: 1px solid rgba(0,212,255,0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .search-field:hover {
+      background: rgba(0, 212, 255, 0.04);
+    }
+
+    .search-field:last-of-type {
+      border-right: none;
+    }
+
+    .field-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--neon-blue);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .field-label svg {
+      opacity: 0.85;
+    }
+
+    .field-value {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .field-value::placeholder {
+      color: rgba(255,255,255,0.35);
+      font-weight: 400;
+    }
+
+    .field-value option {
+      background: #0d1426;
+    }
+
+    .search-btn {
+      padding: 0 32px;
+      background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-purple) 100%);
+      border: none;
+      border-radius: 0 15px 15px 0;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.25s ease;
+      box-shadow: 0 0 24px rgba(0,212,255,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .search-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+      border-radius: 0 15px 15px 0;
+    }
+
+    .search-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 36px rgba(0,212,255,0.5), 0 0 60px rgba(168,85,247,0.3);
+    }
+
+    /* ── POPULAR ROUTES ──────────────────────────── */
+    .routes-section {
+      position: relative;
+      z-index: 5;
+      padding: 40px 56px 32px;
+    }
+
+    .routes-title {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .routes-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent);
+    }
+
+    .routes-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .route-card {
+      background: var(--dark-card);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0,212,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    .route-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      border: 1px solid transparent;
+      background: linear-gradient(135deg, rgba(0,212,255,0.0), rgba(168,85,247,0.0)) border-box;
+      transition: all 0.28s ease;
+      pointer-events: none;
+    }
+
+    .route-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(0,212,255,0.35);
+      box-shadow: 0 12px 32px rgba(0,212,255,0.15), 0 0 0 1px rgba(168,85,247,0.2);
+    }
+
+    .route-thumb {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.85) saturate(1.1);
+      transition: transform 0.4s ease, filter 0.3s ease;
+    }
+
+    .route-card:hover .route-thumb {
+      transform: scale(1.06);
+      filter: brightness(1) saturate(1.2);
+    }
+
+    .route-info {
+      padding: 12px 14px 14px;
+    }
+
+    .route-name {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .route-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .route-price {
+      color: var(--neon-blue);
+      font-weight: 700;
+    }
+
+    .route-dot {
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+    }
+
+    /* ── BOTTOM BUS ICON ─────────────────────────── */
+    .bus-icon-wrap {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      justify-content: center;
+      padding: 8px 0 24px;
+    }
+
+    .bus-icon-wrap svg {
+      width: 36px;
+      height: 36px;
+      filter: drop-shadow(0 0 10px var(--neon-blue)) drop-shadow(0 0 22px rgba(0,212,255,0.5));
+      animation: busFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes busFloat {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-6px); }
+    }
+
+    /* Star sparkle */
+    .sparkle {
+      position: absolute;
+      bottom: 80px;
+      right: 60px;
+      z-index: 5;
+      animation: sparklePulse 2.5s ease-in-out infinite;
+    }
+
+    .sparkle svg {
+      width: 28px;
+      height: 28px;
+      fill: rgba(255,255,255,0.18);
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.2));
+    }
+
+    @keyframes sparklePulse {
+      0%, 100% { opacity: 0.4; transform: scale(1) rotate(0deg); }
+      50%       { opacity: 0.9; transform: scale(1.15) rotate(15deg); }
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────── */
+    @media (max-width: 900px) {
+      nav { padding: 16px 24px; }
+      .nav-links { gap: 18px; }
+      .hero-content { padding-top: 32px; }
+      .search-box { flex-direction: column; border-radius: 14px; }
+      .search-field { border-right: none; border-bottom: 1px solid rgba(0,212,255,0.12); }
+      .search-btn { border-radius: 0 0 13px 13px; padding: 16px; }
+      .routes-section { padding: 28px 20px 20px; }
+      .routes-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="hero">
+  <!-- Blurred background photo -->
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-glow"></div>
+
+  <!-- ── Navbar ── -->
+  <nav>
+    <div class="nav-logo">ANTI<span>GRAVITY</span></div>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Contact</a></li>
+      <li><a href="#">Blog</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero Headline ── -->
+  <div class="hero-content">
+    <p class="hero-tagline">✦ Premium Bus Travel ✦</p>
+    <h1 class="hero-title">
+      ANTIGRAVITY: <span class="highlight">EXPLORE.</span><br>
+      DISCOVER. <span class="highlight">JOURNEY.</span>
+    </h1>
+    <p class="hero-subtitle">Bus Travel Reimagined</p>
+
+    <!-- ── Neon Search Box ── -->
+    <div class="search-wrapper">
+      <div class="search-box">
+
+        <!-- Leaving From -->
+        <div class="search-field">
+          <span class="field-label">
+            <svg width="11" height="14" fill="none" viewBox="0 0 12 16"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="currentColor"/></svg>
+            Leaving From
+          </span>
+          <input type="text" class="field-value" placeholder="Mumbai, India" value="Mumbai, India" />
+        </div>
+
+        <!-- Destination -->
+        <div class="search-field">
+          <span class="field-label">
+            <svg width="11" height="14" fill="none" viewBox="0 0 12 16"><path d="M6 0C3.24 0 1 2.24 1 5c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 6 3.5a1.5 1.5 0 0 1 0 3z" fill="#a855f7"/></svg>
+            Destination
+          </span>
+          <select class="field-value">
+            <option value="" disabled selected>Select Destination</option>
+            <option>Pune</option>
+            <option>Agra</option>
+            <option>Goa</option>
+            <option>Pondicherry</option>
+            <option>Bangalore</option>
+            <option>Delhi</option>
+          </select>
+        </div>
+
+        <!-- Departure Date -->
+        <div class="search-field">
+          <span class="field-label">
+            <svg width="13" height="13" fill="none" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M1 6h14" stroke="currentColor" stroke-width="1.5"/><path d="M5 1v2M11 1v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Departure Date
+          </span>
+          <input type="date" class="field-value" placeholder="Select Date" />
+        </div>
+
+        <!-- Return Date -->
+        <div class="search-field">
+          <span class="field-label" style="color:rgba(168,85,247,0.85)">
+            <svg width="13" height="13" fill="none" viewBox="0 0 16 16"><rect x="1" y="2" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M1 6h14" stroke="currentColor" stroke-width="1.5"/><path d="M5 1v2M11 1v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Return Date <span style="font-weight:400;opacity:0.6;font-size:0.6rem;text-transform:none;letter-spacing:0">(optional)</span>
+          </span>
+          <input type="date" class="field-value" placeholder="Select Date" />
+        </div>
+
+        <!-- Search Button -->
+        <button class="search-btn">Search&nbsp;Buses&nbsp;→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Popular Routes ── -->
+  <section class="routes-section">
+    <p class="routes-title">Popular Routes</p>
+    <div class="routes-grid">
+
+      <div class="route-card">
+        <img src="/images/route_mumbai_pune.jpg" alt="Mumbai to Pune" class="route-thumb" />
+        <div class="route-info">
+          <p class="route-name">Mumbai to Pune</p>
+          <div class="route-meta">
+            <span class="route-price">₹250</span>
+            <span class="route-dot"></span>
+            <span>3h 30m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-card">
+        <img src="/images/route_delhi_agra.jpg" alt="Delhi to Agra" class="route-thumb" />
+        <div class="route-info">
+          <p class="route-name">Delhi to Agra</p>
+          <div class="route-meta">
+            <span class="route-price">₹480</span>
+            <span class="route-dot"></span>
+            <span>4h 00m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-card">
+        <img src="/images/route_bangalore_goa.jpg" alt="Bangalore to Goa" class="route-thumb" />
+        <div class="route-info">
+          <p class="route-name">Bangalore to Goa</p>
+          <div class="route-meta">
+            <span class="route-price">₹799</span>
+            <span class="route-dot"></span>
+            <span>8h 30m</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-card">
+        <img src="/images/route_chennai_pondicherry.jpg" alt="Chennai to Pondicherry" class="route-thumb" />
+        <div class="route-info">
+          <p class="route-name">Chennai to Pondicherry</p>
+          <div class="route-meta">
+            <span class="route-price">₹299</span>
+            <span class="route-dot"></span>
+            <span>3h 00m</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Glowing Bus Icon ── -->
+  <div class="bus-icon-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="1" y="5" width="22" height="13" rx="3"/>
+      <path d="M1 10h22"/>
+      <path d="M7 18v2M17 18v2"/>
+      <circle cx="5.5" cy="18.5" r="1.5"/>
+      <circle cx="18.5" cy="18.5" r="1.5"/>
+      <path d="M8 5V3M16 5V3"/>
+    </svg>
+  </div>
+
+  <!-- sparkle -->
+  <div class="sparkle">
+    <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+  </div>
+
+</main>
+
+</body>
+</html>

@@ -61,57 +61,77 @@ const ALL_INDIAN_CITIES = [
   { city: 'Salem', state: 'Tamil Nadu' },
   { city: 'Tiruchirappalli', state: 'Tamil Nadu' },
   { city: 'Tirunelveli', state: 'Tamil Nadu' },
-  { city: 'Pondicherry', state: 'Puducherry' }
+  { city: 'Pondicherry', state: 'Puducherry' },
 ];
 
 const RECENT_SEARCHES = [
-  { from: 'Delhi', to: 'Jaipur', date: 'Tomorrow', icon: '⚡', price: '₹499', badge: '🔥 Popular' },
-  { from: 'Mumbai', to: 'Goa', date: '24 Sep 2025', icon: '🌴', price: '₹899', badge: '⭐ 4.9 Rated' },
-  { from: 'Bangalore', to: 'Chennai', date: 'Daily Route', icon: '🚌', price: '₹550', badge: '⚡ 4h 30m' },
-  { from: 'Hyderabad', to: 'Bangalore', date: 'Tue 23 Sep 2025', icon: '🕒', price: '₹799', badge: '🛡️ Sleeper' },
-  { from: 'Kanpur', to: 'Delhi', date: 'Today', icon: '🚀', price: '₹620', badge: '🔥 8 Seats Left' },
-  { from: 'Chennai', to: 'Pondicherry', date: 'Daily Route', icon: '🌊', price: '₹299', badge: '✨ AC Seater' }
+  { from: 'Pune',      to: 'Goa',         date: 'Weekend',         icon: '🌊', price: '₹699', badge: '🌴 Beach' },
+  { from: 'Delhi',     to: 'Jaipur',      date: 'Tomorrow',        icon: '⚡', price: '₹499', badge: '🔥 Popular' },
+  { from: 'Mumbai',    to: 'Goa',         date: '24 Sep 2025',     icon: '🌴', price: '₹899', badge: '⭐ rated' },
+  { from: 'Bangalore', to: 'Chennai',     date: 'Daily Route',     icon: '🚌', price: '₹550', badge: '⚡ 4h 30m' },
+  { from: 'Ahmedabad', to: 'Mumbai',      date: 'Daily',           icon: '🏙️', price: '₹420', badge: '✅ AC' },
+  { from: 'Hyderabad', to: 'Bangalore',   date: 'Tue 23 Sep',      icon: '🕒', price: '₹799', badge: '🛡️ Sleeper' },
+  { from: 'Kanpur',    to: 'Delhi',       date: 'Today',           icon: '🚀', price: '₹620', badge: '🔥 8 left' },
+  { from: 'Chennai',   to: 'Pondicherry', date: 'Daily Route',     icon: '🌊', price: '₹299', badge: '✨ AC Seater' },
+  { from: 'Lucknow',   to: 'Delhi',       date: 'Today',           icon: '🏛️', price: '₹580', badge: '⚡ 7h' },
+  { from: 'Kochi',     to: 'Goa',         date: 'Fri 26 Sep',      icon: '🌺', price: '₹950', badge: '🌴 Scenic' },
 ];
 
-const formatDateDDMMYYYY = (isoDateStr) => {
-  if (!isoDateStr) return '';
-  const parts = isoDateStr.split('-');
-  if (parts.length !== 3) return isoDateStr;
-  const [year, month, day] = parts;
-  return `${day}-${month}-${year}`;
-};
+const HERO_BACKGROUNDS = [
+  {
+    src: '/images/hero_bus_mountain.jpg',
+    alt: 'Luxury Bus on Mountain Road at Dusk',
+  },
+  {
+    src: '/images/hero_mountain_road_clean.jpg',
+    alt: 'Scenic Curved Mountain Highway Bus Tour',
+  },
+];
 
-const getTomorrowISO = () => {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().split('T')[0];
+const formatDisplayDate = (isoDateStr) => {
+  if (!isoDateStr) return '';
+  try {
+    const parts = isoDateStr.split('-');
+    if (parts.length !== 3) return isoDateStr;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[parseInt(parts[1], 10) - 1] || parts[1];
+    return `${parts[2]} ${month} ${parts[0]}`;
+  } catch (e) {
+    return isoDateStr;
+  }
 };
 
 const Hero = () => {
   const navigate = useNavigate();
   const [showAuth, setShowAuth] = useState(false);
-
-  const [activeTab, setActiveTab] = useState('buses');
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [currentBg, setCurrentBg]   = useState(0);
+  const [from, setFrom]             = useState('');
+  const [to, setTo]                 = useState('');
+  const [date, setDate]             = useState(new Date().toISOString().split('T')[0]);
+  const [returnDate, setReturnDate] = useState('');
   const [isSwapping, setIsSwapping] = useState(false);
-
   const [showFromDropdown, setShowFromDropdown] = useState(false);
   const [showToDropdown, setShowToDropdown]     = useState(false);
 
-  const fromRef = useRef(null);
-  const toRef   = useRef(null);
+  const fromRef           = useRef(null);
+  const toRef             = useRef(null);
+  const fromInputRef      = useRef(null);
+  const toInputRef        = useRef(null);
+  const departureInputRef = useRef(null);
+  const returnInputRef    = useRef(null);
 
-  // Close dropdowns on outside click
+  // Background image animation: switches every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBg((prev) => (prev + 1) % HERO_BACKGROUNDS.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (fromRef.current && !fromRef.current.contains(e.target)) {
-        setShowFromDropdown(false);
-      }
-      if (toRef.current && !toRef.current.contains(e.target)) {
-        setShowToDropdown(false);
-      }
+      if (fromRef.current && !fromRef.current.contains(e.target)) setShowFromDropdown(false);
+      if (toRef.current   && !toRef.current.contains(e.target))   setShowToDropdown(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -124,288 +144,280 @@ const Hero = () => {
     setTimeout(() => setIsSwapping(false), 400);
   };
 
+  const handleDepartureClick = () => {
+    if (departureInputRef.current) {
+      if (typeof departureInputRef.current.showPicker === 'function') {
+        try {
+          departureInputRef.current.showPicker();
+        } catch (err) {
+          departureInputRef.current.focus();
+        }
+      } else {
+        departureInputRef.current.focus();
+      }
+    }
+  };
+
+  const handleReturnClick = () => {
+    if (returnInputRef.current) {
+      if (typeof returnInputRef.current.showPicker === 'function') {
+        try {
+          returnInputRef.current.showPicker();
+        } catch (err) {
+          returnInputRef.current.focus();
+        }
+      } else {
+        returnInputRef.current.focus();
+      }
+    }
+  };
+
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const selectedFrom = from.trim() || 'Kanpur';
-    const selectedTo = to.trim() || 'Lucknow';
-
+    const selectedTo   = to.trim()   || 'Lucknow';
     navigate('/available-buses', {
-      state: {
-        from: selectedFrom,
-        to: selectedTo,
-        date: date,
-        passengers: 1,
-        route: `${selectedFrom} → ${selectedTo}`,
+      state: { 
+        from: selectedFrom, 
+        to: selectedTo, 
+        date, 
+        returnDate,
+        passengers: 1, 
+        route: `${selectedFrom} → ${selectedTo}` 
       },
     });
   };
 
-  const setQuickDate = (type) => {
-    const d = new Date();
-    if (type === 'tomorrow') d.setDate(d.getDate() + 1);
-    setDate(d.toISOString().split('T')[0]);
-  };
+  const handleRecentSearch = (item) => { setFrom(item.from); setTo(item.to); };
 
-  const handleRecentSearch = (item) => {
-    setFrom(item.from);
-    setTo(item.to);
-  };
-
-  const filteredFromCities = ALL_INDIAN_CITIES.filter((c) =>
-    c.city.toLowerCase().includes(from.toLowerCase()) ||
-    c.state.toLowerCase().includes(from.toLowerCase())
+  const filteredFromCities = ALL_INDIAN_CITIES.filter(
+    (c) => c.city.toLowerCase().includes(from.toLowerCase()) || c.state.toLowerCase().includes(from.toLowerCase())
   );
-
-  const filteredToCities = ALL_INDIAN_CITIES.filter((c) =>
-    c.city.toLowerCase().includes(to.toLowerCase()) ||
-    c.state.toLowerCase().includes(to.toLowerCase())
+  const filteredToCities = ALL_INDIAN_CITIES.filter(
+    (c) => c.city.toLowerCase().includes(to.toLowerCase()) || c.state.toLowerCase().includes(to.toLowerCase())
   );
 
   const todayISO = new Date().toISOString().split('T')[0];
-  const tomorrowISO = getTomorrowISO();
 
   return (
     <>
       <section className={styles.heroBanner}>
-        {/* Full-section Dynamic Video Background Loop */}
-        <div className={styles.bannerImageContainer}>
-          <div className={styles.frameTrackContainer}>
-            <img
-              src="/images/city_bus_shelter_dusk.jpg"
-              alt="City Bus Shelter Station at Dusk"
-              className={`${styles.bannerImg} ${styles.frame1}`}
-            />
-            <img
-              src="/images/passenger_boarding_hero.jpg"
-              alt="Passenger Stepping Inside Modern Luxury Bus"
-              className={`${styles.bannerImg} ${styles.frame2}`}
-            />
-          </div>
-          
-          {/* Animated Light Particles & Gradient Overlay */}
-          <div className={styles.particleField}></div>
-          <div className={styles.cinematicGlowOverlay}></div>
 
-          {/* Dynamic Live Ticker Stats Overlay inside Hero */}
-          <div className={styles.heroLiveTickerBar}>
-            <div className={styles.liveStatBadge}>
-              <span className={styles.pulsingGreenDot}></span>
-              <span><strong>4,820+</strong> Live Buses Active</span>
-            </div>
-            <div className={styles.liveStatBadge}>
-              <span className={styles.statIcon}>⚡</span>
-              <span>Instant E-Ticket Booking</span>
-            </div>
-            <div className={styles.liveStatBadge}>
-              <span className={styles.statIcon}>⭐</span>
-              <span><strong>4.9/5</strong> Rating (2M+ Travelers)</span>
-            </div>
+        {/* ── Animated Background Slideshow (Cycles every 2-3s) ── */}
+        <div className={styles.leftPanel}>
+          <div className={styles.frameTrackContainer}>
+            {HERO_BACKGROUNDS.map((bg, idx) => (
+              <img
+                key={idx}
+                src={bg.src}
+                alt={bg.alt}
+                className={`${styles.bannerImg} ${
+                  idx === currentBg ? styles.bannerImgActive : styles.bannerImgHidden
+                }`}
+              />
+            ))}
+          </div>
+          <div className={styles.videoOverlay}></div>
+
+          {/* Slide indicator dots */}
+          <div className={styles.bgSlideIndicators}>
+            {HERO_BACKGROUNDS.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`${styles.bgDot} ${idx === currentBg ? styles.bgDotActive : ''}`}
+                onClick={() => setCurrentBg(idx)}
+                aria-label={`Switch to background ${idx + 1}`}
+              />
+            ))}
           </div>
         </div>
 
-        {/* Floating Multi-Transport Search Widget */}
+        {/* ── Live ticker ── */}
+        <div className={styles.heroLiveTickerBar} style={{ position: 'relative', zIndex: 10, marginBottom: 10 }}>
+          <div className={styles.liveStatBadge}>
+            <span className={styles.pulsingGreenDot}></span>
+            <span><strong>4,820+</strong> Live Buses</span>
+          </div>
+          <div className={styles.liveStatBadge}>
+            <span className={styles.statIcon}>⚡</span>
+            <span>Instant E-Ticket</span>
+          </div>
+          <div className={styles.liveStatBadge}>
+            <span className={styles.statIcon}>⭐</span>
+            <span><strong>4.9/5</strong> · 2M+ Travelers</span>
+          </div>
+        </div>
+
+        {/* ── Headline (above the row) ── */}
+        <div className={styles.videoTextBlock} style={{ position: 'relative', zIndex: 10, marginBottom: 14, textAlign: 'center' }}>
+          <h1 className={styles.videoHeadline}>
+            Travel Smarter,<br />Book <span>Faster.</span>
+          </h1>
+          <p className={styles.videoSubtext}>India's Most Trusted Bus Ticket Platform</p>
+        </div>
+
+        {/* ── Glowing Floating Search Card (Exact match to reference pic) ── */}
         <div className={styles.widgetWrapper}>
           <div className={styles.searchCard}>
-            {/* Dynamic Animated Top Accent Glow Bar */}
-            <div className={styles.accentGlowBar}></div>
-
-            {/* Top Transport Category Tabs */}
-            <div className={styles.tabHeader}>
-              <div className={styles.tabsList}>
-                <button
-                  type="button"
-                  className={`${styles.tabBtn} ${activeTab === 'buses' ? styles.tabActive : ''}`}
-                  onClick={() => setActiveTab('buses')}
-                >
-                  <span className={styles.tabIconBadge}>🚌</span> Buses
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.tabBtn} ${activeTab === 'flights' ? styles.tabActive : ''}`}
-                  onClick={() => navigate('/home')}
-                >
-                  <span className={styles.tabIconBadge}>✈️</span> Flights
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.tabBtn} ${activeTab === 'trains' ? styles.tabActive : ''}`}
-                  onClick={() => navigate('/home')}
-                >
-                  <span className={styles.tabIconBadge}>🚆</span> Trains
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.tabBtn} ${activeTab === 'hotels' ? styles.tabActive : ''}`}
-                  onClick={() => navigate('/home')}
-                >
-                  <span className={styles.tabIconBadge}>🏨</span> Hotels
-                </button>
-              </div>
-
-              <span className={styles.taglineText}>
-                <span className={styles.livePulseDot}></span> India’s Fastest Bus Ticket Booking Platform
-              </span>
-            </div>
-
-            {/* Main Search Row Form */}
             <form onSubmit={handleSearchSubmit} className={styles.searchFormRow}>
-              {/* Leaving From Input & Dropdown */}
-              <div className={styles.inputCell} ref={fromRef}>
-                <span className={styles.greenPinIcon} title="Departure Location">🟢</span>
-                <div className={styles.cellContent}>
-                  <label className={styles.cellLabel}>Leaving From</label>
+
+              {/* 1. Leaving From */}
+              <div className={styles.fieldCol} ref={fromRef}>
+                <label className={styles.fieldLabel}>Leaving From</label>
+                <div 
+                  className={styles.fieldBox}
+                  onClick={() => { fromInputRef.current?.focus(); setShowFromDropdown(true); }}
+                >
                   <input
+                    ref={fromInputRef}
                     type="text"
-                    placeholder="Departure City"
+                    placeholder="Select departure"
                     value={from}
                     onFocus={() => setShowFromDropdown(true)}
-                    onChange={(e) => {
-                      setFrom(e.target.value);
-                      setShowFromDropdown(true);
-                    }}
+                    onChange={(e) => { setFrom(e.target.value); setShowFromDropdown(true); }}
+                    className={styles.fieldInput}
                   />
+                  <span className={styles.chevronIcon}>⌵</span>
                 </div>
-
-                {/* Dropdown Menu */}
                 {showFromDropdown && (
                   <div className={styles.cityDropdownMenu}>
-                    {filteredFromCities.length > 0 ? (
-                      filteredFromCities.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className={styles.cityDropdownItem}
-                          onClick={() => {
-                            setFrom(item.city);
-                            setShowFromDropdown(false);
-                          }}
-                        >
-                          <div className={styles.cityBuildingIcon}>🏢</div>
-                          <div className={styles.cityInfo}>
-                            <div className={styles.cityName}>{item.city}</div>
-                            <div className={styles.stateName}>{item.state}</div>
-                          </div>
+                    {filteredFromCities.length > 0 ? filteredFromCities.map((item, idx) => (
+                      <div key={idx} className={styles.cityDropdownItem}
+                        onClick={() => { setFrom(item.city); setShowFromDropdown(false); }}>
+                        <div className={styles.cityBuildingIcon}>🏢</div>
+                        <div className={styles.cityInfo}>
+                          <div className={styles.cityName}>{item.city}</div>
+                          <div className={styles.stateName}>{item.state}</div>
                         </div>
-                      ))
-                    ) : (
-                      <div className={styles.noCityFound}>No matching city</div>
-                    )}
+                      </div>
+                    )) : <div className={styles.noCityFound}>No city found</div>}
                   </div>
                 )}
               </div>
 
-              {/* Centered Swap Route Button with Animated Spin */}
-              <div className={styles.swapBtnWrapper}>
-                <button
-                  type="button"
-                  className={`${styles.swapBtn} ${isSwapping ? styles.swapSpin : ''}`}
-                  onClick={handleSwap}
-                  title="Swap Source & Destination"
-                >
-                  ⇄
-                </button>
-              </div>
+              {/* Swap button between From & To */}
+              <button 
+                type="button"
+                className={`${styles.swapBtnInline} ${isSwapping ? styles.swapSpin : ''}`}
+                onClick={handleSwap}
+                title="Swap origin & destination"
+              >
+                ⇄
+              </button>
 
-              {/* Going To Input & Dropdown */}
-              <div className={styles.inputCell} ref={toRef}>
-                <span className={styles.redPinIcon} title="Arrival Location">🔴</span>
-                <div className={styles.cellContent}>
-                  <label className={styles.cellLabel}>Going To</label>
+              {/* 2. Destination */}
+              <div className={styles.fieldCol} ref={toRef}>
+                <label className={styles.fieldLabel}>Destination</label>
+                <div 
+                  className={styles.fieldBox}
+                  onClick={() => { toInputRef.current?.focus(); setShowToDropdown(true); }}
+                >
                   <input
+                    ref={toInputRef}
                     type="text"
-                    placeholder="Destination City"
+                    placeholder="Select destination"
                     value={to}
                     onFocus={() => setShowToDropdown(true)}
-                    onChange={(e) => {
-                      setTo(e.target.value);
-                      setShowToDropdown(true);
-                    }}
+                    onChange={(e) => { setTo(e.target.value); setShowToDropdown(true); }}
+                    className={styles.fieldInput}
                   />
+                  <span className={styles.chevronIcon}>⌵</span>
                 </div>
-
-                {/* Dropdown Menu */}
                 {showToDropdown && (
                   <div className={styles.cityDropdownMenu}>
-                    {filteredToCities.length > 0 ? (
-                      filteredToCities.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className={styles.cityDropdownItem}
-                          onClick={() => {
-                            setTo(item.city);
-                            setShowToDropdown(false);
-                          }}
-                        >
-                          <div className={styles.cityBuildingIcon}>🏢</div>
-                          <div className={styles.cityInfo}>
-                            <div className={styles.cityName}>{item.city}</div>
-                            <div className={styles.stateName}>{item.state}</div>
-                          </div>
+                    {filteredToCities.length > 0 ? filteredToCities.map((item, idx) => (
+                      <div key={idx} className={styles.cityDropdownItem}
+                        onClick={() => { setTo(item.city); setShowToDropdown(false); }}>
+                        <div className={styles.cityBuildingIcon}>🏢</div>
+                        <div className={styles.cityInfo}>
+                          <div className={styles.cityName}>{item.city}</div>
+                          <div className={styles.stateName}>{item.state}</div>
                         </div>
-                      ))
-                    ) : (
-                      <div className={styles.noCityFound}>No matching city</div>
-                    )}
+                      </div>
+                    )) : <div className={styles.noCityFound}>No city found</div>}
                   </div>
                 )}
               </div>
 
-              {/* Departure Date Selection with DD-MM-YYYY format preview & calendar icon */}
-              <div className={styles.inputCell}>
-                <span className={styles.calendarIcon} title="Departure Date">📅</span>
-                <div className={styles.cellContent}>
-                  <label className={styles.cellLabel}>
-                    Departure Date <span className={styles.formattedDateBadge}>({formatDateDDMMYYYY(date)})</span>
-                  </label>
+              {/* 3. Departure Date */}
+              <div className={styles.fieldCol}>
+                <label className={styles.fieldLabel}>Departure Date</label>
+                <div className={styles.fieldBox} onClick={handleDepartureClick}>
+                  <span className={styles.calendarMiniIcon}>📅</span>
+                  <span className={styles.dateDisplayText}>
+                    {date ? formatDisplayDate(date) : 'Date picker'}
+                  </span>
+                  <span className={styles.calendarMiniIconRight}>🗓️</span>
                   <input
+                    ref={departureInputRef}
                     type="date"
                     min={todayISO}
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className={styles.dateInput}
+                    className={styles.hiddenNativeDatePicker}
+                    aria-label="Departure Date"
                   />
                 </div>
               </div>
 
-              {/* Quick Date Selector Pills */}
-              <div className={styles.quickDateGroup}>
-                <button
-                  type="button"
-                  className={`${styles.dateChip} ${date === todayISO ? styles.dateChipActive : ''}`}
-                  onClick={() => setQuickDate('today')}
-                >
-                  Today
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.dateChip} ${date === tomorrowISO ? styles.dateChipActive : ''}`}
-                  onClick={() => setQuickDate('tomorrow')}
-                >
-                  Tomorrow
+              {/* 4. Return Date (optional) */}
+              <div className={styles.fieldCol}>
+                <label className={styles.fieldLabel}>
+                  Return Date <span className={styles.optionalText}>(optional)</span>
+                </label>
+                <div className={styles.fieldBox} onClick={handleReturnClick}>
+                  <span className={styles.calendarMiniIcon}>📅</span>
+                  <span className={returnDate ? styles.dateDisplayText : styles.placeholderText}>
+                    {returnDate ? formatDisplayDate(returnDate) : 'Date picker'}
+                  </span>
+                  <span className={styles.calendarMiniIconRight}>
+                    {returnDate ? (
+                      <span 
+                        className={styles.clearDateBtn} 
+                        onClick={(e) => { e.stopPropagation(); setReturnDate(''); }}
+                        title="Clear return date"
+                      >
+                        ✕
+                      </span>
+                    ) : '🗓️'}
+                  </span>
+                  <input
+                    ref={returnInputRef}
+                    type="date"
+                    min={date || todayISO}
+                    value={returnDate}
+                    onChange={(e) => setReturnDate(e.target.value)}
+                    className={styles.hiddenNativeDatePicker}
+                    aria-label="Return Date (optional)"
+                  />
+                </div>
+              </div>
+
+              {/* 5. Search Buses button */}
+              <div className={styles.buttonCol}>
+                <button type="submit" className={styles.searchBusesButton}>
+                  Search Buses
                 </button>
               </div>
 
-              {/* Dynamic Animated Pulse Search Submit Button */}
-              <button type="submit" className={styles.submitSearchBtn}>
-                <span>Search Buses</span>
-                <span className={styles.arrowIconMotion}>➔</span>
-              </button>
             </form>
           </div>
 
-          {/* Dynamic Trending Routes Grid with Live Price Badges */}
+          {/* ── Popular Routes (Positioned right after destination / search box) ── */}
           <div className={styles.recentSearchesContainer}>
             <div className={styles.recentHeaderRow}>
               <div className={styles.titleFlexGroup}>
-                <span className={styles.recentTitle}>Trending & Popular Routes</span>
-                <span className={styles.liveRoutePulseBadge}>🔥 Live Updates</span>
+                <span className={styles.recentTitle}>Popular Routes</span>
+                <span className={styles.liveRoutePulseBadge}>🔥 Live</span>
               </div>
-              <span className={styles.recentSubtext}>Click to quick-select city pairs with instant seat availability</span>
+              <span className={styles.recentSubtext}>Tap to auto-fill</span>
             </div>
             <div className={styles.recentGrid}>
               {RECENT_SEARCHES.map((item, idx) => (
                 <div key={idx} className={styles.recentCard} onClick={() => handleRecentSearch(item)}>
                   <div className={styles.cardTopRow}>
-                    <span className={styles.historyIconBadge}>{item.icon || '🕒'}</span>
+                    <span className={styles.historyIconBadge}>{item.icon}</span>
                     <span className={styles.featureBadge}>{item.badge}</span>
                   </div>
                   <div className={styles.recentCardBody}>
@@ -422,15 +434,10 @@ const Hero = () => {
             </div>
           </div>
         </div>
+
       </section>
 
-      {/* Auth Modal */}
-      {showAuth && (
-        <AuthModal
-          onClose={() => setShowAuth(false)}
-          bookingRequired={true}
-        />
-      )}
+      {showAuth && <AuthModal onClose={() => setShowAuth(false)} bookingRequired={true} />}
     </>
   );
 };
