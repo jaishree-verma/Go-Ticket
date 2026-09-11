@@ -48,6 +48,20 @@
   border: 1px solid #e2e8f0;
 }
 
+.errorBanner {
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Transport Category Tabs with AbhiBus circular badge icons */
 .tabHeader {
   display: flex;

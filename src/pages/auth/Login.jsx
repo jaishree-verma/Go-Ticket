@@ -1,56 +1,67 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import styles from '../../stylespages/login-signup.module.css';
 
 const DEMO_EMAIL    = 'demo@goticket.in';
 const DEMO_PASSWORD = 'demo123';
-const DEMO_NAME     = 'Demo User';
-const DEMO_MOBILE   = '9876543210';
 
-const Login = ({ onSwitchToSignup }) => {
-  const [email, setEmail]       = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
+const Login = ({ onSwitchToSignup, onSuccess }) => {
+  const { login, loading } = useAuth();
+  const navigate = useNavigate();
 
-  const doLogin = (name, mobile, userEmail) => {
-    localStorage.setItem('userName', name);
-    localStorage.setItem('userMobile', mobile || DEMO_MOBILE);
-    localStorage.setItem('userEmail', userEmail || email);
-    localStorage.setItem('authToken', 'token-' + Date.now());
-    window.location.reload();
+  const [email, setEmail]               = useState('');
+  const [password, setPassword]         = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg]         = useState('');
+
+  const validateForm = () => {
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      setErrorMsg('Please enter your email address.');
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      setErrorMsg('Please enter a valid email address format (e.g. user@example.com).');
+      return false;
+    }
+
+    if (!password.trim()) {
+      setErrorMsg('Please enter your password.');
+      return false;
+    }
+
+    if (password.length < 6) {
+      setErrorMsg('Password must be at least 6 characters long.');
+      return false;
+    }
+
+    setErrorMsg('');
+    return true;
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     if (e) e.preventDefault();
-    if (!email.trim())    return setErrorMsg('Please enter your email address.');
-    if (!password.trim()) return setErrorMsg('Please enter your password.');
+    if (!validateForm()) return;
 
-    const cleanEmail = email.trim().toLowerCase();
-
-    // ── Demo credentials ─────────────────────────────────────────
-    if (cleanEmail === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      doLogin(DEMO_NAME, DEMO_MOBILE, DEMO_EMAIL);
-      return;
+    try {
+      await login(email, password);
+      if (typeof onSuccess === 'function') {
+        onSuccess();
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Invalid email or password. Please try again.');
     }
+  };
 
-    // ── Locally registered users ─────────────────────────────────
-    const users = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    const found = users.find(
-      (u) => u.email === cleanEmail && u.password === password
-    );
-
-    if (found) {
-      doLogin(found.name, found.mobile, found.email);
-      return;
-    }
-
-    // Attempt mock API fallback gracefully
-    setLoading(true);
+  const handleFillDemo = () => {
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PASSWORD);
     setErrorMsg('');
-    setTimeout(() => {
-      setLoading(false);
-      setErrorMsg('Invalid email or password. Please try again or create a new account.');
-    }, 400);
   };
 
   return (
@@ -68,20 +79,37 @@ const Login = ({ onSwitchToSignup }) => {
             className={styles.input}
             placeholder="you@example.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (errorMsg) setErrorMsg('');
+            }}
           />
         </div>
 
         <div className={styles.formGroup}>
           <label className={styles.label} htmlFor="login-password">Password *</label>
-          <input
-            id="login-password"
-            type="password"
-            className={styles.input}
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className={styles.passwordWrapper}>
+            <input
+              id="login-password"
+              type={showPassword ? 'text' : 'password'}
+              className={`${styles.input} ${styles.passwordInput}`}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (errorMsg) setErrorMsg('');
+              }}
+            />
+            <button
+              type="button"
+              className={styles.passwordToggleBtn}
+              onClick={() => setShowPassword((prev) => !prev)}
+              title={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? '👁️' : '🙈'}
+            </button>
+          </div>
         </div>
 
         <div className={styles.helperRow}>
@@ -89,7 +117,11 @@ const Login = ({ onSwitchToSignup }) => {
             <input type="checkbox" defaultChecked />
             Remember me
           </label>
-          <span className={styles.link} style={{ cursor: 'pointer' }} onClick={() => alert('Password reset link sent to your registered email.')}>
+          <span
+            className={styles.link}
+            style={{ cursor: 'pointer' }}
+            onClick={() => alert('Password reset link sent to your registered email.')}
+          >
             Forgot password?
           </span>
         </div>
@@ -105,8 +137,13 @@ const Login = ({ onSwitchToSignup }) => {
 
       <div className={styles.divider}>or</div>
 
-      <div className={styles.demoNoticeBox}>
-        Quick Demo Credentials:<br />
+      <div
+        className={styles.demoNoticeBox}
+        onClick={handleFillDemo}
+        style={{ cursor: 'pointer' }}
+        title="Click to auto-fill demo credentials"
+      >
+        Quick Demo Credentials (Click to autofill):<br />
         Email: <strong>{DEMO_EMAIL}</strong> | Password: <strong>{DEMO_PASSWORD}</strong>
       </div>
 

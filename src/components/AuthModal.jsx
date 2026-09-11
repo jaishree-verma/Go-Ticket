@@ -39,9 +39,9 @@ const AuthModal = ({ onClose, bookingRequired = false }) => {
 
         {/* Dynamic Form Component */}
         {isNewUser ? (
-          <Signup onSwitchToLogin={() => setIsNewUser(false)} />
+          <Signup onSwitchToLogin={() => setIsNewUser(false)} onSuccess={onClose} />
         ) : (
-          <Login onSwitchToSignup={() => setIsNewUser(true)} />
+          <Login onSwitchToSignup={() => setIsNewUser(true)} onSuccess={onClose} />
         )}
       </div>
     </div>

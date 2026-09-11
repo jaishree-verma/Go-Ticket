@@ -67,6 +67,7 @@
 
 // export default App;
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import Layout from './components/Layout';
 
 import Hero from './components/Hero';
@@ -89,45 +90,59 @@ import Info from './components/Info';
 import Login from './pages/auth/Login';
 import Signup from './pages/auth/Signup';
 
-import BookingPage from './components/BookingSection';
 import DropPage from './pages/aboutgoticket/DropPage';
 import PaymentPage from './pages/aboutgoticket/PaymentPage';
 
+import PrivacyPolicy from './pages/Infogo-ticket/PrivacyPolicy';
+import TermsAndConditions from './pages/Infogo-ticket/Terms&Conditions';
+import NonDisclosureAgreement from './pages/Infogo-ticket/NonDisclosureAggrement';
+import Reference from './pages/Infogo-ticket/Refernce';
+import ResponsibleClosure from './pages/Infogo-ticket/ResponsibleClosure';
+import WorkingCriteria from './pages/Infogo-ticket/WorkingCriteria';
+
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route
-            index
-            element={
-              <>
-                <Hero />
-                <OffersSection />
-                <About />
-                <Booking />
-                <TrackBus />
-                <TestimonialsSection />
-                <FAQ />
-              </>
-            }
-          />
-          <Route path="home" element={<Home />} />
-          <Route path="booking" element={<BookingPage />} />
-          <Route path="eticket" element={<ETicket />} />
-          <Route path="seatbooking" element={<SeatBooking />} />
-          <Route path="select-seats" element={<SelectSeats />} />
-          <Route path="drop" element={<DropPage />} />
-          <Route path="payment" element={<PaymentPage />} />
-          <Route path="livetracking" element={<LiveTracking />} />
-          <Route path="contact" element={<ContactUs />} />
-          <Route path="networking" element={<Info />} />
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Signup />} />
-          <Route path="available-buses" element={<AvailableBuses />} />
-        </Route>
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route
+              index
+              element={
+                <>
+                  <Hero />
+                  <OffersSection />
+                  <About />
+                  <Booking />
+                  <TrackBus />
+                  <TestimonialsSection />
+                  <FAQ />
+                </>
+              }
+            />
+            <Route path="home" element={<Home />} />
+            <Route path="booking" element={<SeatBooking />} />
+            <Route path="seatbooking" element={<SeatBooking />} />
+            <Route path="eticket" element={<ETicket />} />
+            <Route path="select-seats" element={<SelectSeats />} />
+            <Route path="drop" element={<DropPage />} />
+            <Route path="payment" element={<PaymentPage />} />
+            <Route path="livetracking" element={<LiveTracking />} />
+            <Route path="contact" element={<ContactUs />} />
+            <Route path="networking" element={<Info />} />
+            <Route path="login" element={<Login />} />
+            <Route path="signup" element={<Signup />} />
+            <Route path="available-buses" element={<AvailableBuses />} />
+            <Route path="privacy" element={<PrivacyPolicy />} />
+            <Route path="terms" element={<TermsAndConditions />} />
+            <Route path="nda" element={<NonDisclosureAgreement />} />
+            <Route path="reference" element={<Reference />} />
+            <Route path="responsible-closure" element={<ResponsibleClosure />} />
+            <Route path="working-criteria" element={<WorkingCriteria />} />
+          </Route>
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
