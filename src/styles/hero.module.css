@@ -1,20 +1,21 @@
 /* ═══════════════════════════════════════════════════════════
-   Hero Module — Exact AbhiBus Style Recent Search Pill
-═══════════════════════════════════════════════════════════ */
+   Hero Module — Dynamic Interactive Travel Hub & Live Cards
+ ═══════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 .heroBanner {
   position: relative;
   width: 100%;
-  background-color: #ffffff;
-  padding-bottom: 20px;
+  background-color: #f8fafc;
+  padding-bottom: 40px;
 }
 
+/* 1. Hero Image / Video Container with Dynamic Height & Framing */
 .bannerImageContainer {
   position: relative;
   width: 100%;
-  height: 320px;
+  height: 480px;
   overflow: hidden;
   background: #0f172a;
 }
@@ -33,19 +34,42 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 40%;
+  object-position: center 18%;
   filter: brightness(1.05) contrast(1.05);
   will-change: opacity, transform;
 }
 
 .frame1 {
-  animation: frame1Motion 16s ease-in-out infinite alternate;
+  animation: frame1Motion 14s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
 }
 
 .frame2 {
-  animation: frame2Motion 16s ease-in-out infinite alternate;
+  animation: frame2Motion 14s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
 }
 
+/* Dynamic Floating Particles in Atmosphere */
+.particleField {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.4), rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, rgba(0, 240, 255, 0.3), rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 80px 120px, rgba(255, 133, 51, 0.4), rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 150px 200px, rgba(255, 255, 255, 0.3), rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 250px 250px;
+  animation: floatParticles 25s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+@keyframes floatParticles {
+  0% { background-position: 0 0; }
+  100% { background-position: 250px -250px; }
+}
+
+/* Subtle Dark Gradient Overlay for Readability */
 .cinematicGlowOverlay {
   position: absolute;
   top: 0;
@@ -54,203 +78,287 @@
   bottom: 0;
   background: linear-gradient(
     180deg,
-    rgba(15, 23, 42, 0.35) 0%,
-    rgba(15, 23, 42, 0.15) 40%,
+    rgba(15, 23, 42, 0.5) 0%,
+    rgba(15, 23, 42, 0.1) 45%,
     rgba(15, 23, 42, 0.75) 100%
   );
   pointer-events: none;
   z-index: 2;
 }
 
+/* Dynamic Live Ticker Bar over Hero Video */
+.heroLiveTickerBar {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 5;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 6px 18px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  max-width: 90%;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.liveStatBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f8fafc;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.pulsingGreenDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 10px #22c55e;
+  animation: pulseGreen 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px #22c55e; }
+  50% { transform: scale(1.4); opacity: 0.7; box-shadow: 0 0 16px #22c55e; }
+}
+
+.statIcon {
+  font-size: 0.95rem;
+}
+
 @keyframes frame1Motion {
-  0% {
-    opacity: 1;
-    transform: scale(1) translateX(0px);
-  }
-  42% {
-    opacity: 1;
-    transform: scale(1.04) translateX(-15px);
-  }
-  55% {
-    opacity: 0;
-    transform: scale(1.06) translateX(-20px);
-  }
-  92% {
-    opacity: 0;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+  0% { opacity: 1; transform: scale(1) translateX(0px); }
+  42% { opacity: 1; transform: scale(1.05) translateX(-22px); }
+  52% { opacity: 0; transform: scale(1.08) translateX(-30px); }
+  92% { opacity: 0; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 @keyframes frame2Motion {
-  0% {
-    opacity: 0;
-    transform: scale(1);
-  }
-  42% {
-    opacity: 0;
-    transform: scale(1.02);
-  }
-  55% {
-    opacity: 1;
-    transform: scale(1) translateX(0px);
-  }
-  92% {
-    opacity: 1;
-    transform: scale(1.05) translateX(15px);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.05);
-  }
+  0% { opacity: 0; transform: scale(1); }
+  42% { opacity: 0; transform: scale(1.02); }
+  52% { opacity: 1; transform: scale(1) translateX(0px); }
+  92% { opacity: 1; transform: scale(1.06) translateX(25px); }
+  100% { opacity: 0; transform: scale(1.06); }
 }
 
-/* Floating Search Card Overlay over full video background */
+/* 2. Floating Search Widget Container with Subtle Overlap */
 .widgetWrapper {
-  max-width: 1160px;
-  margin: -75px auto 0;
+  max-width: 1180px;
+  margin: -50px auto 0;
   position: relative;
   z-index: 10;
   padding: 0 20px;
 }
 
+/* Glassmorphic Search Card with Dynamic Top Accent Line */
 .searchCard {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 10px 18px 12px;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  position: relative;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 18px;
+  padding: 12px 18px 14px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  overflow: hidden;
 }
 
-.searchCard {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 10px 18px 12px;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+.accentGlowBar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #ef4444 0%, #f97316 35%, #06b6d4 70%, #ef4444 100%);
+  background-size: 200% 100%;
+  animation: glowShift 4s linear infinite;
 }
 
-/* Transport Category Tabs with AbhiBus circular badge icons */
+@keyframes glowShift {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+/* Category Tabs Header Row */
 .tabHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .tabsList {
   display: flex;
-  gap: 14px;
+  gap: 12px;
 }
 
 .tabBtn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 14px 6px;
-  border-radius: 0;
+  padding: 4px 12px;
+  border-radius: 20px;
   background: transparent;
   border: none;
   font-family: 'Poppins', sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  color: #334155;
+  color: #475569;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tabIconBadge {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #ffedd5;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+  transition: transform 0.25s ease;
+}
+
+.tabBtn:hover .tabIconBadge {
+  transform: scale(1.15) rotate(-8deg);
 }
 
 .tabBtn:hover {
-  color: #d32f2f;
+  color: #dc2626;
+  background: #fef2f2;
 }
 
 .tabActive {
   color: #0f172a !important;
+  background: #f8fafc !important;
   font-weight: 800;
+  box-shadow: inset 0 0 0 1px #cbd5e1;
 }
 
 .tabActive .tabIconBadge {
   background: #fed7aa;
 }
 
-.tabActive::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0; right: 0;
-  height: 3px;
-  background: #d32f2f;
-  border-radius: 3px 3px 0 0;
-}
-
 .taglineText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-family: 'Inter', sans-serif;
   font-size: 0.78rem;
   font-weight: 700;
   color: #0f172a;
 }
 
-/* Integrated Single-Row Light Gray Input Container matching reference screenshot */
+.livePulseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: pulseGreen 1.5s infinite;
+}
+
+/* Single-Row Search Form */
 .searchFormRow {
   display: flex;
-  align-items: stretch;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
   border-radius: 12px;
   overflow: hidden;
   padding: 0;
   gap: 0;
+  min-height: 52px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.searchFormRow:focus-within {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
 .inputCell {
   flex: 1.2;
-  min-width: 140px;
+  min-width: 130px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
+  padding: 6px 12px;
   position: relative;
-  background: #f1f5f9;
+  background: #f8fafc;
   border-right: 1px solid #e2e8f0;
+  transition: background 0.2s ease;
 }
 
-.cellIcon {
+.inputCell:hover {
+  background: #f1f5f9;
+}
+
+.greenPinIcon {
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(34, 197, 94, 0.4));
+  animation: pinFloat 3s infinite ease-in-out;
+}
+
+.redPinIcon {
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.4));
+  animation: pinFloat 3s infinite ease-in-out 1.5s;
+}
+
+@keyframes pinFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+.calendarIcon {
   font-size: 1rem;
-  color: #64748b;
+  color: #2563eb;
 }
 
 .cellContent {
   display: flex;
   flex-direction: column;
   width: 100%;
+  justify-content: center;
 }
 
-.cellContent label {
-  font-size: 0.6rem;
+.cellLabel {
+  font-size: 0.62rem;
   font-weight: 800;
   text-transform: uppercase;
   color: #64748b;
   letter-spacing: 0.5px;
-  margin-bottom: -1px;
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+
+.formattedDateBadge {
+  color: #2563eb;
+  font-weight: 700;
+  text-transform: none;
 }
 
 .cellContent input {
@@ -262,27 +370,145 @@
   font-weight: 700;
   color: #0f172a;
   padding: 0;
+  height: 20px;
 }
 
 .cellContent input::placeholder {
-  color: #64748b;
+  color: #94a3b8;
   font-weight: 600;
+}
+
+.dateInput {
+  cursor: pointer;
+  color: #0f172a;
+}
+
+/* Centered Swap Route Button with Animated Spin */
+.swapBtnWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 -12px;
+  z-index: 5;
+}
+
+.swapBtn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #334155;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.swapBtn:hover {
+  background: #ef4444;
+  color: #ffffff !important;
+  border-color: #ef4444;
+  transform: scale(1.12);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.swapSpin {
+  transform: rotate(360deg) scale(1.25) !important;
+}
+
+/* Quick Date Selector Chips */
+.quickDateGroup {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+  height: 100%;
+}
+
+.dateChip {
+  background: transparent;
+  border: none;
+  padding: 0 14px;
+  height: 100%;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #e2e8f0;
+}
+
+.dateChip:last-child {
+  border-right: none;
+}
+
+.dateChip:hover, .dateChipActive {
+  background: #fee2e2;
+  color: #dc2626;
+  font-weight: 800;
+}
+
+/* Dynamic Pulse Search Button */
+.submitSearchBtn {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff !important;
+  border: none;
+  border-radius: 0 12px 12px 0;
+  padding: 8px 24px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.submitSearchBtn:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
+  transform: translateX(2px);
+}
+
+.arrowIconMotion {
+  transition: transform 0.25s ease;
+}
+
+.submitSearchBtn:hover .arrowIconMotion {
+  transform: translateX(4px);
 }
 
 /* Dropdown Menu */
 .cityDropdownMenu {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   left: 0;
   width: 260px;
-  max-height: 260px;
+  max-height: 250px;
   overflow-y: auto;
   background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
   border: 1px solid #e2e8f0;
   z-index: 100;
   padding: 4px 0;
+  animation: dropdownSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dropdownSlideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .cityDropdownItem {
@@ -304,8 +530,8 @@
 }
 
 .cityBuildingIcon {
-  font-size: 1.1rem;
-  color: #334155;
+  font-size: 1rem;
+  color: #475569;
 }
 
 .cityInfo {
@@ -315,172 +541,206 @@
 
 .cityName {
   font-family: 'Inter', sans-serif;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #0f172a;
 }
 
 .stateName {
   font-family: 'Inter', sans-serif;
-  font-size: 0.74rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: #94a3b8;
 }
 
 .noCityFound {
-  padding: 10px 14px;
-  font-size: 0.8rem;
+  padding: 8px 12px;
+  font-size: 0.78rem;
   color: #64748b;
   text-align: center;
 }
 
-/* Swap Circle Button */
-.swapBtn {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  font-size: 0.82rem;
-  font-weight: bold;
-  color: #64748b;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: auto -13px;
-  z-index: 5;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-}
-
-.swapBtn:hover {
-  background: #d32f2f;
-  color: #ffffff !important;
-  border-color: #d32f2f;
-  transform: rotate(180deg);
-}
-
-.quickDateGroup {
-  display: flex;
-  align-items: center;
-  background: #f1f5f9;
-  border-right: 1px solid #e2e8f0;
-}
-
-.dateChip {
-  background: #f1f5f9;
-  border: none;
-  padding: 0 14px;
-  height: 100%;
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  border-right: 1px solid #e2e8f0;
-}
-
-.dateChip:last-child {
-  border-right: none;
-}
-
-.dateChip:hover {
-  background: #e2e8f0;
-  color: #d32f2f;
-}
-
-/* Coral Red Pill Search Button matching reference screenshot */
-.submitSearchBtn {
-  background: linear-gradient(135deg, #e55353 0%, #d32f2f 100%);
-  color: #ffffff !important;
-  border: none;
-  border-radius: 0 12px 12px 0;
-  padding: 10px 24px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 0.92rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  white-space: nowrap;
-}
-
-.submitSearchBtn:hover {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-}
-
-/* Recent Searches matching exact screenshot card */
+/* 3. Dynamic Trending Routes Section */
 .recentSearchesContainer {
-  margin-top: 18px;
+  margin-top: 48px;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+
+.recentHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
+}
+
+.titleFlexGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .recentTitle {
   font-family: 'Poppins', sans-serif;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: #0f172a;
 }
 
-.recentGrid {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+.liveRoutePulseBadge {
+  background: #fee2e2;
+  color: #dc2626;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.15);
 }
 
+.recentSubtext {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.recentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 12px;
+}
+
+/* Dynamic Interactive Route Cards */
 .recentCard {
   background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 16px;
-  padding: 10px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 10px 14px;
   display: flex;
-  align-items: center;
-  gap: 14px;
+  flex-direction: column;
+  gap: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+.recentCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #ef4444, #f97316);
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 
 .recentCard:hover {
-  border-color: #e15b5b;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(225, 91, 91, 0.12);
+  border-color: #ef4444;
+  transform: translateY(-4px);
+  box-shadow: 0 10px 22px rgba(239, 68, 68, 0.15);
+  background: #ffffff;
+}
+
+.recentCard:hover::before {
+  opacity: 1;
+}
+
+.cardTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .historyIconBadge {
-  font-size: 1.4rem;
-  color: #e15b5b;
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #f1f5f9;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.recentCard strong {
-  display: block;
+.featureBadge {
   font-family: 'Inter', sans-serif;
-  font-size: 0.95rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 2px 6px;
+  border-radius: 6px;
 }
 
-.recentCard small {
-  display: block;
+.recentCardBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.recentRoutePair {
   font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.routeArrowIcon {
+  color: #ef4444;
+  font-weight: bold;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.recentCard:hover .routeArrowIcon {
+  transform: translateX(3px);
+}
+
+.cardFooterFlex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.recentDatePreview {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.74rem;
   font-weight: 600;
-  color: #3b82f6;
-  margin-top: 2px;
+  color: #64748b;
+}
+
+.priceTag {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.priceTag strong {
+  color: #16a34a;
+  font-size: 0.82rem;
+  font-weight: 800;
 }
 
 @media (max-width: 900px) {
+  .heroLiveTickerBar {
+    top: 10px;
+    font-size: 0.72rem;
+    gap: 8px;
+  }
+
   .searchFormRow {
     flex-direction: column;
     align-items: stretch;
-    border-radius: 12px;
+    border-radius: 10px;
+    height: auto;
   }
 
   .inputCell, .quickDateGroup, .submitSearchBtn {
@@ -489,16 +749,25 @@
     border-radius: 0;
   }
 
+  .swapBtnWrapper {
+    margin: -10px auto;
+  }
+
   .submitSearchBtn {
     width: 100%;
-    border-radius: 0 0 12px 12px;
+    border-radius: 0 0 10px 10px;
+    padding: 10px;
   }
 
   .bannerImageContainer {
-    height: 320px;
+    height: 360px;
   }
 
   .widgetWrapper {
     margin-top: -40px;
+  }
+  
+  .recentSearchesContainer {
+    margin-top: 24px;
   }
 }

@@ -65,9 +65,27 @@ const ALL_INDIAN_CITIES = [
 ];
 
 const RECENT_SEARCHES = [
-  { from: 'Hyderabad', to: 'Bangalore', date: 'Tue 23 Sep 2025' },
-  { from: 'Kanpur', to: 'Delhi', date: 'Today' }
+  { from: 'Delhi', to: 'Jaipur', date: 'Tomorrow', icon: '⚡', price: '₹499', badge: '🔥 Popular' },
+  { from: 'Mumbai', to: 'Goa', date: '24 Sep 2025', icon: '🌴', price: '₹899', badge: '⭐ 4.9 Rated' },
+  { from: 'Bangalore', to: 'Chennai', date: 'Daily Route', icon: '🚌', price: '₹550', badge: '⚡ 4h 30m' },
+  { from: 'Hyderabad', to: 'Bangalore', date: 'Tue 23 Sep 2025', icon: '🕒', price: '₹799', badge: '🛡️ Sleeper' },
+  { from: 'Kanpur', to: 'Delhi', date: 'Today', icon: '🚀', price: '₹620', badge: '🔥 8 Seats Left' },
+  { from: 'Chennai', to: 'Pondicherry', date: 'Daily Route', icon: '🌊', price: '₹299', badge: '✨ AC Seater' }
 ];
+
+const formatDateDDMMYYYY = (isoDateStr) => {
+  if (!isoDateStr) return '';
+  const parts = isoDateStr.split('-');
+  if (parts.length !== 3) return isoDateStr;
+  const [year, month, day] = parts;
+  return `${day}-${month}-${year}`;
+};
+
+const getTomorrowISO = () => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split('T')[0];
+};
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -77,6 +95,7 @@ const Hero = () => {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isSwapping, setIsSwapping] = useState(false);
 
   const [showFromDropdown, setShowFromDropdown] = useState(false);
   const [showToDropdown, setShowToDropdown]     = useState(false);
@@ -97,6 +116,13 @@ const Hero = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleSwap = () => {
+    setIsSwapping(true);
+    setFrom(to);
+    setTo(from);
+    setTimeout(() => setIsSwapping(false), 400);
+  };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -135,29 +161,54 @@ const Hero = () => {
     c.state.toLowerCase().includes(to.toLowerCase())
   );
 
+  const todayISO = new Date().toISOString().split('T')[0];
+  const tomorrowISO = getTomorrowISO();
+
   return (
     <>
       <section className={styles.heroBanner}>
-        {/* Full-section Realistic Video Loop: Girl Stepping Inside Electric Bus */}
+        {/* Full-section Dynamic Video Background Loop */}
         <div className={styles.bannerImageContainer}>
           <div className={styles.frameTrackContainer}>
             <img
-              src="/images/girl_boarding_frame1.jpg"
-              alt="Girl Walking Toward Electric Bus at Station"
+              src="/images/city_bus_shelter_dusk.jpg"
+              alt="City Bus Shelter Station at Dusk"
               className={`${styles.bannerImg} ${styles.frame1}`}
             />
             <img
-              src="/images/girl_boarding_frame2.jpg"
-              alt="Girl Stepping Inside Illuminated Electric Bus"
+              src="/images/passenger_boarding_hero.jpg"
+              alt="Passenger Stepping Inside Modern Luxury Bus"
               className={`${styles.bannerImg} ${styles.frame2}`}
             />
           </div>
+          
+          {/* Animated Light Particles & Gradient Overlay */}
+          <div className={styles.particleField}></div>
           <div className={styles.cinematicGlowOverlay}></div>
+
+          {/* Dynamic Live Ticker Stats Overlay inside Hero */}
+          <div className={styles.heroLiveTickerBar}>
+            <div className={styles.liveStatBadge}>
+              <span className={styles.pulsingGreenDot}></span>
+              <span><strong>4,820+</strong> Live Buses Active</span>
+            </div>
+            <div className={styles.liveStatBadge}>
+              <span className={styles.statIcon}>⚡</span>
+              <span>Instant E-Ticket Booking</span>
+            </div>
+            <div className={styles.liveStatBadge}>
+              <span className={styles.statIcon}>⭐</span>
+              <span><strong>4.9/5</strong> Rating (2M+ Travelers)</span>
+            </div>
+          </div>
         </div>
 
         {/* Floating Multi-Transport Search Widget */}
         <div className={styles.widgetWrapper}>
           <div className={styles.searchCard}>
+            {/* Dynamic Animated Top Accent Glow Bar */}
+            <div className={styles.accentGlowBar}></div>
+
             {/* Top Transport Category Tabs */}
             <div className={styles.tabHeader}>
               <div className={styles.tabsList}>
@@ -191,18 +242,21 @@ const Hero = () => {
                 </button>
               </div>
 
-              <span className={styles.taglineText}>India’s Fastest Bus Ticket Booking Platform</span>
+              <span className={styles.taglineText}>
+                <span className={styles.livePulseDot}></span> India’s Fastest Bus Ticket Booking Platform
+              </span>
             </div>
 
             {/* Main Search Row Form */}
             <form onSubmit={handleSearchSubmit} className={styles.searchFormRow}>
               {/* Leaving From Input & Dropdown */}
               <div className={styles.inputCell} ref={fromRef}>
+                <span className={styles.greenPinIcon} title="Departure Location">🟢</span>
                 <div className={styles.cellContent}>
-                  <label>Leaving From</label>
+                  <label className={styles.cellLabel}>Leaving From</label>
                   <input
                     type="text"
-                    placeholder="Leaving From"
+                    placeholder="Departure City"
                     value={from}
                     onFocus={() => setShowFromDropdown(true)}
                     onChange={(e) => {
@@ -212,7 +266,7 @@ const Hero = () => {
                   />
                 </div>
 
-                {/* Dropdown Menu matching user image reference */}
+                {/* Dropdown Menu */}
                 {showFromDropdown && (
                   <div className={styles.cityDropdownMenu}>
                     {filteredFromCities.length > 0 ? (
@@ -239,23 +293,26 @@ const Hero = () => {
                 )}
               </div>
 
-              {/* Swap Button */}
-              <button
-                type="button"
-                className={styles.swapBtn}
-                onClick={() => { setFrom(to); setTo(from); }}
-                title="Swap Source & Destination"
-              >
-                ⇄
-              </button>
+              {/* Centered Swap Route Button with Animated Spin */}
+              <div className={styles.swapBtnWrapper}>
+                <button
+                  type="button"
+                  className={`${styles.swapBtn} ${isSwapping ? styles.swapSpin : ''}`}
+                  onClick={handleSwap}
+                  title="Swap Source & Destination"
+                >
+                  ⇄
+                </button>
+              </div>
 
               {/* Going To Input & Dropdown */}
               <div className={styles.inputCell} ref={toRef}>
+                <span className={styles.redPinIcon} title="Arrival Location">🔴</span>
                 <div className={styles.cellContent}>
-                  <label>Going To</label>
+                  <label className={styles.cellLabel}>Going To</label>
                   <input
                     type="text"
-                    placeholder="Going To"
+                    placeholder="Destination City"
                     value={to}
                     onFocus={() => setShowToDropdown(true)}
                     onChange={(e) => {
@@ -265,7 +322,7 @@ const Hero = () => {
                   />
                 </div>
 
-                {/* Dropdown Menu matching user image reference */}
+                {/* Dropdown Menu */}
                 {showToDropdown && (
                   <div className={styles.cityDropdownMenu}>
                     {filteredToCities.length > 0 ? (
@@ -292,47 +349,73 @@ const Hero = () => {
                 )}
               </div>
 
-              {/* Departure Date */}
+              {/* Departure Date Selection with DD-MM-YYYY format preview & calendar icon */}
               <div className={styles.inputCell}>
-                <span className={styles.cellIcon}>📅</span>
+                <span className={styles.calendarIcon} title="Departure Date">📅</span>
                 <div className={styles.cellContent}>
-                  <label>Departure Date</label>
+                  <label className={styles.cellLabel}>
+                    Departure Date <span className={styles.formattedDateBadge}>({formatDateDDMMYYYY(date)})</span>
+                  </label>
                   <input
                     type="date"
-                    min={new Date().toISOString().split('T')[0]}
+                    min={todayISO}
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
+                    className={styles.dateInput}
                   />
                 </div>
               </div>
 
-              {/* Quick Today / Tomorrow Chips */}
+              {/* Quick Date Selector Pills */}
               <div className={styles.quickDateGroup}>
-                <button type="button" className={styles.dateChip} onClick={() => setQuickDate('today')}>
+                <button
+                  type="button"
+                  className={`${styles.dateChip} ${date === todayISO ? styles.dateChipActive : ''}`}
+                  onClick={() => setQuickDate('today')}
+                >
                   Today
                 </button>
-                <button type="button" className={styles.dateChip} onClick={() => setQuickDate('tomorrow')}>
+                <button
+                  type="button"
+                  className={`${styles.dateChip} ${date === tomorrowISO ? styles.dateChipActive : ''}`}
+                  onClick={() => setQuickDate('tomorrow')}
+                >
                   Tomorrow
                 </button>
               </div>
 
-              {/* Red Pill Search Submit Button */}
+              {/* Dynamic Animated Pulse Search Submit Button */}
               <button type="submit" className={styles.submitSearchBtn}>
-                Search ➔
+                <span>Search Buses</span>
+                <span className={styles.arrowIconMotion}>➔</span>
               </button>
             </form>
           </div>
 
-          {/* Recent Searches */}
+          {/* Dynamic Trending Routes Grid with Live Price Badges */}
           <div className={styles.recentSearchesContainer}>
-            <span className={styles.recentTitle}>Recent searches</span>
+            <div className={styles.recentHeaderRow}>
+              <div className={styles.titleFlexGroup}>
+                <span className={styles.recentTitle}>Trending & Popular Routes</span>
+                <span className={styles.liveRoutePulseBadge}>🔥 Live Updates</span>
+              </div>
+              <span className={styles.recentSubtext}>Click to quick-select city pairs with instant seat availability</span>
+            </div>
             <div className={styles.recentGrid}>
               {RECENT_SEARCHES.map((item, idx) => (
                 <div key={idx} className={styles.recentCard} onClick={() => handleRecentSearch(item)}>
-                  <span className={styles.historyIconBadge}>🕒</span>
-                  <div>
-                    <strong>{item.from} ➔ {item.to}</strong>
-                    <small>{item.date}</small>
+                  <div className={styles.cardTopRow}>
+                    <span className={styles.historyIconBadge}>{item.icon || '🕒'}</span>
+                    <span className={styles.featureBadge}>{item.badge}</span>
+                  </div>
+                  <div className={styles.recentCardBody}>
+                    <strong className={styles.recentRoutePair}>
+                      {item.from} <span className={styles.routeArrowIcon}>→</span> {item.to}
+                    </strong>
+                    <div className={styles.cardFooterFlex}>
+                      <small className={styles.recentDatePreview}>{item.date}</small>
+                      <span className={styles.priceTag}>from <strong>{item.price}</strong></span>
+                    </div>
                   </div>
                 </div>
               ))}
