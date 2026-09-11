@@ -99,9 +99,9 @@
   position: fixed;
   bottom: 90px;
   right: 20px;
-  width: 420px;
-  height: 580px;
-  max-width: calc(100vw - 30px);
+  width: 450px;
+  height: 640px;
+  max-width: calc(100vw - 24px);
   max-height: calc(100vh - 110px);
   background-color: #ffffff;
   border-radius: 22px;
@@ -113,6 +113,25 @@
   overflow: hidden;
   font-family: 'Inter', 'Poppins', sans-serif;
 }
+
+/* Smaller viewports (laptops 768–1200px) */
+@media (max-width: 1200px) {
+  #chat-modal {
+    width: 410px;
+    height: 590px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  #chat-modal {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 100px);
+    bottom: 80px;
+    right: 12px;
+  }
+}
+
 
 /* Header */
 .chat-header {
@@ -257,6 +276,18 @@
   color: #ffffff !important;
   box-shadow: 0 4px 14px rgba(2, 128, 144, 0.2);
   border-bottom-right-radius: 4px;
+}
+
+.chat-status-trace {
+  font-size: 0.75rem;
+  color: #028090;
+  font-style: italic;
+  margin-bottom: 0.4rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px dashed #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Option Chip Buttons */

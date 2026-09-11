@@ -149,6 +149,38 @@
   box-sizing: border-box;
 }
 
+.passwordWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.passwordInput {
+  padding-right: 2.5rem;
+}
+
+.passwordToggleBtn {
+  position: absolute;
+  right: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.05rem;
+  color: #028090;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.passwordToggleBtn:hover {
+  color: #00a896;
+}
+
 .input:focus {
   border-color: #00a896;
   box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.2);

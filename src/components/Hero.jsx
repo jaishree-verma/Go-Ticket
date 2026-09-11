@@ -76,7 +76,9 @@ const Hero = () => {
   const [activeTab, setActiveTab] = useState('buses');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const todayStr = new Date().toISOString().split('T')[0];
+  const [date, setDate] = useState(todayStr);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [showFromDropdown, setShowFromDropdown] = useState(false);
   const [showToDropdown, setShowToDropdown]     = useState(false);
@@ -100,16 +102,37 @@ const Hero = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    const selectedFrom = from.trim() || 'Kanpur';
-    const selectedTo = to.trim() || 'Lucknow';
+    const cleanFrom = from.trim();
+    const cleanTo   = to.trim();
 
+    if (!cleanFrom) {
+      setErrorMsg('Please select or enter departure city.');
+      return;
+    }
+
+    if (!cleanTo) {
+      setErrorMsg('Please select or enter destination city.');
+      return;
+    }
+
+    if (cleanFrom.toLowerCase() === cleanTo.toLowerCase()) {
+      setErrorMsg('Departure and destination cities cannot be the same.');
+      return;
+    }
+
+    if (date && date < todayStr) {
+      setErrorMsg('Travel date cannot be in the past.');
+      return;
+    }
+
+    setErrorMsg('');
     navigate('/available-buses', {
       state: {
-        from: selectedFrom,
-        to: selectedTo,
-        date: date,
+        from: cleanFrom,
+        to: cleanTo,
+        date: date || todayStr,
         passengers: 1,
-        route: `${selectedFrom} → ${selectedTo}`,
+        route: `${cleanFrom} → ${cleanTo}`,
       },
     });
   };
@@ -123,6 +146,7 @@ const Hero = () => {
   const handleRecentSearch = (item) => {
     setFrom(item.from);
     setTo(item.to);
+    setErrorMsg('');
   };
 
   const filteredFromCities = ALL_INDIAN_CITIES.filter((c) =>
@@ -193,6 +217,13 @@ const Hero = () => {
 
               <span className={styles.taglineText}>India’s Fastest Bus Ticket Booking Platform</span>
             </div>
+
+            {/* Validation Error Banner */}
+            {errorMsg && (
+              <div className={styles.errorBanner}>
+                ⚠️ {errorMsg}
+              </div>
+            )}
 
             {/* Main Search Row Form */}
             <form onSubmit={handleSearchSubmit} className={styles.searchFormRow}>
