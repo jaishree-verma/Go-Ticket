@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # GoTicket - AI Based Bus Booking Platform
 =======
 # GoTicket — AI-Agent-Based Intercity Bus Booking Platform
