@@ -633,6 +633,94 @@
   transform: translateY(-2px);
 }
 
+.demoChip:hover {
+  border-color: #028090;
+  background: #028090;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Real-Time Delhi Govt Transit (OTD) Fleet Box */
+.liveDelhiFleetBox {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  border-radius: 14px;
+}
+
+.liveDelhiTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #065f46;
+  margin-bottom: 0.6rem;
+}
+
+.pulsingGreenDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulseDotLive 1.6s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+@keyframes pulseDotLive {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.45; }
+}
+
+.delhiChipsRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.delhiChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.35rem 0.85rem;
+  border: 1.5px solid rgba(16, 185, 129, 0.4);
+  border-radius: 20px;
+  background: #ffffff;
+  font-size: 0.76rem;
+  color: #065f46;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1);
+}
+
+.delhiChip:hover {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.delhiChip small {
+  opacity: 0.85;
+}
+
+.liveOtdBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #065f46;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  margin: 4px 0;
+  width: fit-content;
+}
+
 .locBtn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
 
 .locText {

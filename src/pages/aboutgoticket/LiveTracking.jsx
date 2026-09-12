@@ -1,6 +1,32 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
+import { fetchLiveDelhiBuses, searchDelhiBus } from '../../services/delhiTransitService';
 import styles from '../../stylespages/livetracking.module.css';
+
+const formatDelhiBusData = (b) => ({
+  name: `${b.operator}`,
+  busNo: b.registration,
+  route: `Delhi Route · ${b.route}`,
+  type: b.registration.includes('EV') ? 'Zero-Emission Electric AC' : 'DTC Low-Floor City Bus',
+  driver: 'Govt Certified Pilot',
+  phone: '1800-11-8181 (DTC Helpline)',
+  capacity: 40,
+  occupancy: 28,
+  speed: b.speedKmH || 42,
+  nextStop: 'Terminal Route Junction',
+  departedFrom: 'Kashmere Gate ISBT',
+  destination: 'Sarai Kale Khan ISBT',
+  scheduledArr: 'In Transit',
+  waypoints: [
+    { lat: b.latitude - 0.03, lng: b.longitude - 0.03, name: 'Depot Start' },
+    { lat: b.latitude, lng: b.longitude, name: `Live GPS: ${b.registration}` },
+    { lat: b.latitude + 0.03, lng: b.longitude + 0.03, name: 'Final Stop' },
+  ],
+  progress: 65,
+  status: 'En Route',
+  color: b.registration.includes('EV') ? '#10b981' : '#f59e0b',
+  isLiveOTD: true
+});
 
 /* ── Demo Bus Fleet ─────────────────────────────────────── */
 const BUS_FLEET = {
@@ -120,18 +146,24 @@ const LiveTracking = () => {
   const [lastUpdate, setLastUpdate]     = useState('');
   const [liveProgress, setLiveProgress] = useState(0);
   const [mapKey, setMapKey]             = useState(0);
+  const [delhiBuses, setDelhiBuses]     = useState([]);
+  const [isLiveOTD, setIsLiveOTD]       = useState(false);
 
   const intervalRef = useRef(null);
+
+  // Fetch real-time Delhi buses on mount
+  useEffect(() => {
+    fetchLiveDelhiBuses(6).then((data) => {
+      if (data && data.length > 0) {
+        setDelhiBuses(data);
+      }
+    });
+  }, []);
 
   // Auto trigger tracking if busNo was passed from homepage
   useEffect(() => {
     if (initialBusNo) {
-      const key = initialBusNo.trim().toUpperCase().replace(/\s/g, '');
-      setSearched(true);
-      const found = BUS_FLEET[key] || BUS_FLEET['UP32AB1234'];
-      setBusData(found);
-      setLastUpdate(new Date().toLocaleTimeString('en-IN'));
-      setMapKey((k) => k + 1);
+      handleSearch(initialBusNo);
     }
   }, [initialBusNo]);
 
@@ -166,15 +198,32 @@ const LiveTracking = () => {
     if (!busPos) {
       return 'https://www.openstreetmap.org/export/embed.html?bbox=72,18,81,29&layer=mapnik';
     }
-    const zoom = 0.15;
+    const zoom = 0.08;
     return `https://www.openstreetmap.org/export/embed.html?bbox=${busPos.lng - zoom},${busPos.lat - zoom},${busPos.lng + zoom},${busPos.lat + zoom}&layer=mapnik&marker=${busPos.lat},${busPos.lng}`;
   }, [busPos]);
 
   /* ── Search bus ─── */
-  const handleSearch = () => {
-    const key = searchInput.trim().toUpperCase().replace(/\s/g, '');
+  const handleSearch = async (overrideQuery) => {
+    const raw = typeof overrideQuery === 'string' ? overrideQuery : searchInput;
+    const query = (raw || '').trim();
+    if (!query) return;
+
+    const key = query.toUpperCase().replace(/\s/g, '');
     setSearched(true);
-    const found = BUS_FLEET[key] || null;
+    let found = BUS_FLEET[key] || null;
+
+    if (!found) {
+      const matchDelhi = await searchDelhiBus(query);
+      if (matchDelhi) {
+        found = formatDelhiBusData(matchDelhi);
+        setIsLiveOTD(true);
+      } else {
+        setIsLiveOTD(false);
+      }
+    } else {
+      setIsLiveOTD(false);
+    }
+
     setBusData(found);
     setDistKm(null);
     setLastUpdate(new Date().toLocaleTimeString('en-IN'));
@@ -253,6 +302,7 @@ const LiveTracking = () => {
                 setSearchInput(key);
                 setSearched(true);
                 setBusData(BUS_FLEET[key]);
+                setIsLiveOTD(false);
                 setMapKey((k) => k + 1);
                 setLastUpdate(new Date().toLocaleTimeString('en-IN'));
                 setDistKm(null);
@@ -262,6 +312,37 @@ const LiveTracking = () => {
             </button>
           ))}
         </div>
+
+        {/* Live Delhi Govt Transit OTD Fleet */}
+        {delhiBuses.length > 0 && (
+          <div className={styles.liveDelhiFleetBox}>
+            <div className={styles.liveDelhiTitle}>
+              <span className={styles.pulsingGreenDot}></span>
+              <span><strong>Live Delhi Govt Transit (OTD):</strong> Real-Time Active Fleet</span>
+            </div>
+            <div className={styles.delhiChipsRow}>
+              {delhiBuses.map((db) => (
+                <button
+                  key={db.id}
+                  className={styles.delhiChip}
+                  onClick={() => {
+                    setSearchInput(db.registration);
+                    setSearched(true);
+                    setBusData(formatDelhiBusData(db));
+                    setIsLiveOTD(true);
+                    setMapKey((k) => k + 1);
+                    setLastUpdate(new Date().toLocaleTimeString('en-IN'));
+                    setDistKm(null);
+                  }}
+                >
+                  <span>{db.registration.includes('EV') ? '⚡' : '🚌'}</span>
+                  <strong>{db.registration}</strong>
+                  <small>({db.route})</small>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Not Found ───────────────────────────────── */}
@@ -355,6 +436,12 @@ const LiveTracking = () => {
             <div className={styles.busHeaderCard}>
               <div className={styles.busNumberBadge}>{busData.busNo}</div>
               <div className={styles.busNameText}>{busData.name}</div>
+              {isLiveOTD && (
+                <div className={styles.liveOtdBadge}>
+                  <span className={styles.pulsingGreenDot}></span>
+                  Live Delhi Govt OTD GPS Feed
+                </div>
+              )}
               <div
                 className={styles.statusPill}
                 style={{ background: statusColor[busData.status] || '#888' }}
