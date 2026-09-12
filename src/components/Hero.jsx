@@ -218,6 +218,8 @@ const Hero = () => {
             ))}
           </div>
           <div className={styles.videoOverlay}></div>
+          <div className={styles.topWhiteFade}></div>
+          <div className={styles.bottomWhiteFade}></div>
 
           {/* Slide indicator dots */}
           <div className={styles.bgSlideIndicators}>
@@ -263,7 +265,7 @@ const Hero = () => {
             <form onSubmit={handleSearchSubmit} className={styles.searchFormRow}>
 
               {/* 1. Leaving From */}
-              <div className={styles.fieldCol} ref={fromRef}>
+              <div className={`${styles.fieldCol} ${showFromDropdown ? styles.fieldColOpen : ''}`} ref={fromRef}>
                 <label className={styles.fieldLabel}>Leaving From</label>
                 <div 
                   className={styles.fieldBox}
@@ -307,7 +309,7 @@ const Hero = () => {
               </button>
 
               {/* 2. Destination */}
-              <div className={styles.fieldCol} ref={toRef}>
+              <div className={`${styles.fieldCol} ${showToDropdown ? styles.fieldColOpen : ''}`} ref={toRef}>
                 <label className={styles.fieldLabel}>Destination</label>
                 <div 
                   className={styles.fieldBox}

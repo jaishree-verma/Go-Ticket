@@ -39,29 +39,70 @@ const OffersSection = () => {
   return (
     <>
       <section className={styles.giftBannerSection}>
-        <div className={styles.giftBanner}>
+        <div className={styles.giftBanner} onClick={() => setShowModal(true)}>
+          {/* Animated Sheen Reflection Sweep */}
+          <div className={styles.bannerShimmerLayer}></div>
+
+          {/* Top & Bottom Seamless Gradient Merges */}
+          <div className={styles.topMergeFade}></div>
+          <div className={styles.bottomMergeFade}></div>
+
+          {/* Floating Decorative Festive Sparkles */}
+          <span className={styles.sparkle1} aria-hidden="true">✨</span>
+          <span className={styles.sparkle2} aria-hidden="true">🎉</span>
+          <span className={styles.sparkle3} aria-hidden="true">⭐</span>
+          <span className={styles.sparkle4} aria-hidden="true">✨</span>
+
           <div className={styles.giftContent}>
+            {/* Interactive 3D Gift Box with Pulsing Glow */}
             <div
-              className={styles.giftIcon}
-              onClick={() => setShowModal(true)}
+              className={styles.giftIconWrapper}
               title="Click to open your gift!"
               role="button"
               tabIndex={0}
             >
-              🎁
+              <div className={styles.giftGlowAura}></div>
+              <div className={styles.giftIcon}>🎁</div>
+              <span className={styles.tapToOpenBadge}>Tap to open ✨</span>
             </div>
 
+            {/* Exciting Header & Value Proposition */}
             <div className={styles.giftTextGroup}>
-              <span className={styles.giftSubtext}>We have an exclusive gift for you</span>
-              <h3 className={styles.giftMainHeading}>Thank you for being our loyal customer</h3>
+              <div className={styles.topBadgeRow}>
+                <span className={styles.exclusiveBadge}>
+                  <span className={styles.pulsingDot}></span>
+                  EXCLUSIVE VIP GIFT UNLOCKED
+                </span>
+                <span className={styles.couponTagPreview}>
+                  🎟️ Code: <strong>FIRSTGO</strong> (Flat ₹150 OFF)
+                </span>
+                <span className={styles.timerBadge}>⚡ Limited Time</span>
+              </div>
+
+              <h3 className={styles.giftMainHeading}>
+                Thank you for being our loyal customer —{' '}
+                <span className={styles.gradientHighlight}>Claim Up to ₹200 OFF!</span>
+              </h3>
+
+              <p className={styles.giftSubtext}>
+                Instant coupon discount applied at checkout · Valid on all Sleeper, Seater &amp; Express buses
+              </p>
             </div>
 
+            {/* High-Impact Glowing Action Button */}
             <div className={styles.actionGroup}>
               <button
+                type="button"
                 className={styles.viewGiftBtn}
-                onClick={() => setShowModal(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowModal(true);
+                }}
               >
-                View your gift
+                <span className={styles.btnShimmerEffect}></span>
+                <span className={styles.btnIcon}>🎁</span>
+                <span className={styles.btnText}>Claim Your Gift</span>
+                <span className={styles.btnArrow}>→</span>
               </button>
             </div>
           </div>

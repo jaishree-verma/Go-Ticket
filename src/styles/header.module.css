@@ -9,8 +9,8 @@
   top: 0;
   z-index: 1000;
   background-color: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-bottom: none;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
   height: 68px;
   display: flex;
   align-items: center;
