@@ -59,7 +59,6 @@ export default function ChatSeatMap({
       <div className="chat-seatmap-bus">
         <div className="bus-front-indicator">
           <span>FRONT / ENTRY 🚪</span>
-          <span>STEERING 🛞</span>
         </div>
 
         {/* 8 Rows: 2 Left + Aisle + 3 Right */}

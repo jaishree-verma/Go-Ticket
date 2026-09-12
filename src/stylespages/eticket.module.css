@@ -582,17 +582,49 @@
 
 /* Print CSS */
 @media print {
-  body * { visibility: hidden; }
-  .ticketCard, .ticketCard * { visibility: visible; }
-  .ticketCard {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%;
-    padding: 2rem;
-    box-shadow: none !important;
-    border: none !important;
+  .page {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    min-height: auto !important;
+    display: block !important;
+    width: 100% !important;
   }
-  .lookupCard, .dispatchBox, .downloadBtn, .ticketActions, .noTicketBox, .footer, .sentNotification {
+
+  .heading,
+  .subText,
+  .lookupCard,
+  .dispatchBox,
+  .downloadBtn,
+  .ticketActions,
+  .noTicketBox,
+  .footer,
+  .sentNotification {
     display: none !important;
+    visibility: hidden !important;
+  }
+
+  .ticketCardWrapper {
+    width: 100% !important;
+    max-width: 660px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    float: none !important;
+    display: block !important;
+  }
+
+  .ticketCard {
+    position: static !important;
+    width: 100% !important;
+    max-width: 660px !important;
+    margin: 0 auto !important;
+    padding: 1.8rem 2rem !important;
+    box-shadow: none !important;
+    border: 1.5px solid #00a896 !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    box-sizing: border-box !important;
   }
 }

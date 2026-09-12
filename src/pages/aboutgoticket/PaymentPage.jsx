@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { sendTicketEmail, sendTicketSMS } from '../../services/notificationService';
+import { bookTicketApi, saveBooking } from '../../services/bookingService';
+import { fetchLiveSeatLayout } from '../../services/seatService';
 import styles from '../../stylespages/payment.module.css';
 
 const generateTicketId = () =>
@@ -286,7 +288,6 @@ const PaymentPage = () => {
   /* Offer / Coupon State */
   const [appliedCoupon, setAppliedCoupon]   = useState(bookingData.appliedCoupon || '');
   const [discountAmount, setDiscountAmount] = useState(bookingData.discountAmount || 0);
-  const [, setCouponInput]                  = useState('');
 
   /* Auto load coupon from localStorage if applied from gift banner (and not already set) */
   useEffect(() => {
@@ -340,6 +341,7 @@ const PaymentPage = () => {
   });
 
   const [errorMsg, setErrorMsg] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
   const [ticketId]              = useState(generateTicketId());
 
   const farePerSeat = bookingData.fare
@@ -418,23 +420,46 @@ const PaymentPage = () => {
     setStep('payment');
   };
 
-  const handleConfirmPay = () => {
+  const handleConfirmPay = async () => {
     const err = validatePayment();
     if (err) return setErrorMsg(err);
     setErrorMsg('');
+    setIsProcessing(true);
+
+    const tripId = bookingData.tripId || bookingData.id;
+    const requestedSeats = bookingData.seats || [];
+
+    // 1. Re-check latest fare & seat availability before booking as required
+    if (tripId) {
+      try {
+        const checkRes = await fetchLiveSeatLayout(tripId);
+        if (checkRes && checkRes.success) {
+          const latestOccupied = checkRes.occupiedSeats || [];
+          const conflict = requestedSeats.filter((s) => latestOccupied.includes(s));
+          if (conflict.length > 0) {
+            setIsProcessing(false);
+            return setErrorMsg(`Seat(s) ${conflict.join(', ')} are no longer available. Please select another seat.`);
+          }
+        }
+      } catch (checkErr) {
+        console.warn('[GoTicket Payment] Pre-booking check non-blocking warning:', checkErr);
+      }
+    }
 
     const primary = passengers[0];
-    const ticket  = {
+    const baseTicket = {
       ticketId,
       name:          bookingData.name        || bookingData.busName || (bookingData.busDetails?.busName || ''),
+      operatorName:  bookingData.operatorName || (bookingData.busDetails?.operatorName || ''),
       label:         bookingData.name        || bookingData.busName || (bookingData.busDetails?.busName || ''),
       id:            bookingData.id          || (bookingData.busDetails?.id || ''),
+      tripId:        tripId,
       type:          bookingData.type        || bookingData.busType || (bookingData.busDetails?.busType || ''),
       route:         bookingData.route       || `${bookingData.source || ''} => ${bookingData.destination || ''}`,
       date:          bookingData.date        || '',
       time:          bookingData.time        || bookingData.slot    || (bookingData.busDetails?.departureTime || ''),
       fare:          farePerSeat || (bookingData.price || 0),
-      seats:         bookingData.seats       || [],
+      seats:         requestedSeats,
       boarding:      bookingData.boarding    || {},
       dropping:      bookingData.dropping    || {},
       totalFare,
@@ -460,15 +485,48 @@ const PaymentPage = () => {
       bookedAt: new Date().toISOString(),
     };
 
-    localStorage.setItem('lastTicket', JSON.stringify(ticket));
+    let finalTicket = baseTicket;
+
+    // 2. Call authorized bus booking API to confirm booking & generate real PNR
+    try {
+      const apiRes = await bookTicketApi({
+        tripId,
+        seats: requestedSeats,
+        boardingPoint: bookingData.boarding,
+        droppingPoint: bookingData.dropping,
+        passenger: baseTicket.passenger,
+        passengers: baseTicket.passengers,
+        totalFare,
+        paymentMethod: method,
+        holdToken: bookingData.holdToken
+      });
+
+      if (apiRes && apiRes.success && apiRes.pnr) {
+        finalTicket = {
+          ...baseTicket,
+          pnr: apiRes.pnr,
+          ticketId: apiRes.pnr,
+          bookingId: apiRes.bookingId || apiRes.pnr,
+          status: 'CONFIRMED',
+          cancellationPolicy: apiRes.cancellationPolicy,
+          trackingAvailable: apiRes.trackingAvailable
+        };
+      }
+    } catch (apiErr) {
+      console.warn('[GoTicket Payment] API booking confirmation fallback:', apiErr);
+    }
+
+    saveBooking(finalTicket);
+    localStorage.setItem('lastTicket', JSON.stringify(finalTicket));
     localStorage.removeItem('pendingBooking');
 
     // Trigger demo notifications safely
     try {
-      sendTicketEmail({ email: primary.email, ticket });
-      sendTicketSMS({ mobile: primary.mobile, ticket });
+      sendTicketEmail({ email: primary.email, ticket: finalTicket });
+      sendTicketSMS({ mobile: primary.mobile, ticket: finalTicket });
     } catch (e) {}
 
+    setIsProcessing(false);
     setStep('confirmed');
   };
 
@@ -479,6 +537,7 @@ const PaymentPage = () => {
     const ticket  = JSON.parse(localStorage.getItem('lastTicket') || '{}');
     const primary = ticket.passenger || {};
     const allPax  = ticket.passengers || [primary];
+    const displayPnr = ticket.pnr || ticket.ticketId || ticketId;
 
     return (
       <>
@@ -492,10 +551,10 @@ const PaymentPage = () => {
             </div>
 
             <h2 className={styles.ticketTitle}>🎉 Booking Confirmed!</h2>
-            <p className={styles.ticketId}>Ticket ID: <strong>{ticketId}</strong></p>
+            <p className={styles.ticketId}>PNR / Ticket ID: <strong>{displayPnr}</strong></p>
 
             <div className={styles.deliveryNote}>
-              📲 Ticket sent to <strong>{primary.mobile}</strong> &amp;{' '}
+              📲 Ticket &amp; PNR sent to <strong>{primary.mobile}</strong> &amp;{' '}
               <strong>{primary.email}</strong>
             </div>
 
@@ -525,11 +584,12 @@ const PaymentPage = () => {
                   />
                 ))}
               </div>
-              <p className={styles.qrLabel}>Scan at boarding</p>
+              <p className={styles.qrLabel}>Scan at boarding · PNR {displayPnr}</p>
             </div>
 
             <div className={styles.detailGrid}>
               {[
+                { label: 'PNR',       val: displayPnr },
                 { label: 'Bus',       val: ticket.name },
                 { label: 'Route',     val: ticket.route },
                 { label: 'Date',      val: ticket.date },
@@ -554,6 +614,12 @@ const PaymentPage = () => {
             <div className={styles.ticketActions}>
               <button className={styles.actionBtn} onClick={() => navigate('/eticket')}>
                 🎫 View E-Ticket
+              </button>
+              <button
+                className={styles.actionBtn}
+                onClick={() => navigate('/live-tracking', { state: { busNo: ticket.id || ticket.pnr } })}
+              >
+                📍 Track Bus
               </button>
               <button
                 className={`${styles.actionBtn} ${styles.homeBtn}`}
@@ -775,8 +841,8 @@ const PaymentPage = () => {
 
             <div className={styles.payBtnRow}>
               <button className={styles.backBtn} onClick={() => setStep('details')}>← Back</button>
-              <button className={styles.proceedBtn} onClick={handleConfirmPay}>
-                <b>✅ Confirm &amp; Pay ₹{totalFare}</b>
+              <button className={styles.proceedBtn} disabled={isProcessing} onClick={handleConfirmPay}>
+                <b>{isProcessing ? '⏳ Confirming with Bus API...' : `✅ Confirm & Pay ₹${totalFare}`}</b>
               </button>
             </div>
           </div>

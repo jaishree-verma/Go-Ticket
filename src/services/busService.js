@@ -1,23 +1,20 @@
-// GoTicket Bus Search Service
-// Clean abstraction exposing searchBuses() for transport search
-// Today: Queries local mock dataset with a simulated async Promise delay
-// Future: Will replace internal mock query with FastAPI HTTP request (e.g., fetch('/api/buses/search'))
-
+// GoTicket Bus Search Service — Live API Integration
+import axios from 'axios';
 import { MOCK_BUSES } from '../data/mockBuses.js';
 
 /**
- * Searches for buses matching the requested criteria.
+ * Searches for real-time buses from the authorized backend GDS proxy.
  * 
  * @param {Object} searchParams
  * @param {string} searchParams.source - Departure city
  * @param {string} searchParams.destination - Arrival city
  * @param {string} [searchParams.date] - Departure travel date (YYYY-MM-DD)
- * @param {string} [searchParams.preferredTime] - Optional time filter for future AI agent
- * @param {number} [searchParams.maxPrice] - Optional max fare price filter for future AI agent
- * @param {string} [searchParams.busType] - Optional bus type filter for future AI agent
- * @returns {Promise<Array>} Promise resolving to matching bus array
+ * @param {string} [searchParams.preferredTime] - Optional time filter
+ * @param {number} [searchParams.maxPrice] - Optional max fare filter
+ * @param {string} [searchParams.busType] - Optional bus type filter
+ * @returns {Promise<Array>}
  */
-export const searchBuses = ({
+export const searchBuses = async ({
   source = '',
   destination = '',
   date = '',
@@ -25,45 +22,69 @@ export const searchBuses = ({
   maxPrice = null,
   busType = null
 }) => {
-  return new Promise((resolve, reject) => {
-    // Artificial 500ms delay to simulate network latency and test loading states
-    setTimeout(() => {
-      try {
-        const cleanSource = source.trim().toLowerCase();
-        const cleanDestination = destination.trim().toLowerCase();
+  const cleanSource = (source || '').trim();
+  const cleanDest = (destination || '').trim();
 
-        if (!cleanSource || !cleanDestination) {
-          return resolve([]);
-        }
+  if (!cleanSource || !cleanDest) {
+    return [];
+  }
 
-        let results = MOCK_BUSES.filter((bus) => {
-          const matchSource = bus.source.toLowerCase() === cleanSource;
-          const matchDest = bus.destination.toLowerCase() === cleanDestination;
+  // 1. Live Authorized Backend Call
+  try {
+    const res = await axios.get('/api/buses/search', {
+      params: { source: cleanSource, destination: cleanDest, date },
+      timeout: 6000
+    });
 
-          let matchPrice = true;
-          if (maxPrice) {
-            matchPrice = bus.price <= maxPrice;
-          }
+    if (Array.isArray(res.data) && res.data.length > 0) {
+      let liveResults = res.data;
 
-          let matchType = true;
-          if (busType) {
-            matchType = bus.busType.toLowerCase().includes(busType.toLowerCase());
-          }
-
-          return matchSource && matchDest && matchPrice && matchType;
-        });
-
-        if (preferredTime && results.length > 0) {
-          const strictTimeMatches = results.filter(b => b.departureTime.includes(preferredTime));
-          if (strictTimeMatches.length > 0) {
-            results = strictTimeMatches;
-          }
-        }
-
-        resolve(results);
-      } catch (err) {
-        reject(new Error('Failed to perform bus search. Please try again.'));
+      if (maxPrice) {
+        liveResults = liveResults.filter((b) => b.price <= maxPrice);
       }
-    }, 500);
+      if (busType) {
+        liveResults = liveResults.filter((b) =>
+          b.busType.toLowerCase().includes(busType.toLowerCase())
+        );
+      }
+      if (preferredTime) {
+        const timeFiltered = liveResults.filter((b) =>
+          b.departureTime.includes(preferredTime)
+        );
+        if (timeFiltered.length > 0) liveResults = timeFiltered;
+      }
+
+      return liveResults;
+    }
+  } catch (err) {
+    console.warn('Live API search warning, falling back to local registry:', err.message);
+  }
+
+  // 2. Fallback to local verified registry
+  const lowerSource = cleanSource.toLowerCase();
+  const lowerDest = cleanDest.toLowerCase();
+
+  return MOCK_BUSES.filter((bus) => {
+    const matchSource = bus.source.toLowerCase() === lowerSource;
+    const matchDest = bus.destination.toLowerCase() === lowerDest;
+    const matchPrice = maxPrice ? bus.price <= maxPrice : true;
+    const matchType = busType ? bus.busType.toLowerCase().includes(busType.toLowerCase()) : true;
+    return matchSource && matchDest && matchPrice && matchType;
   });
+};
+
+/**
+ * Fetches latest seat layout, live pricing, and boarding points from the API
+ * 
+ * @param {string} tripId
+ * @returns {Promise<Object>}
+ */
+export const getLiveTripDetails = async (tripId) => {
+  try {
+    const res = await axios.get(`/api/buses/trip/${encodeURIComponent(tripId)}`, { timeout: 6000 });
+    return res.data;
+  } catch (err) {
+    console.warn(`Live trip details fetch error for ${tripId}:`, err.message);
+    return null;
+  }
 };

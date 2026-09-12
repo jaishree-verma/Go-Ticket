@@ -465,3 +465,79 @@ export const recommendSeats = ({
     reasons: reasons.length > 0 ? reasons : ['Optimal seating near the front with quick access'],
   };
 };
+
+// =============================================================================
+// LIVE INDIAN BUS API SEAT INTEGRATION (redBus SeatSeller / AbhiBus GDS)
+// =============================================================================
+
+/**
+ * Fetches real-time seat layout, fares, and availability from the authorized bus API backend proxy.
+ *
+ * @param {string} tripId - The service/trip ID from search results
+ * @returns {Promise<Object>} Live layout data including seats, occupiedSeats, boardingPoints, droppingPoints
+ */
+export const fetchLiveSeatLayout = async (tripId) => {
+  if (!tripId) {
+    throw new Error('Trip ID is required to fetch real-time seat layout.');
+  }
+
+  try {
+    const response = await fetch(`/api/buses/trip/${encodeURIComponent(tripId)}`);
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => ({}));
+      throw new Error(errJson.error || `HTTP ${response.status}: Failed to fetch live seat layout`);
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      tripId: data.tripId,
+      busName: data.busName,
+      operatorName: data.operatorName,
+      busType: data.busType,
+      fare: data.fare,
+      availableSeatsCount: data.availableSeatsCount,
+      occupiedSeats: data.occupiedSeats || [],
+      seats: data.seats || [],
+      boardingPoints: data.boardingPoints || [],
+      droppingPoints: data.droppingPoints || [],
+      cancellationPolicy: data.cancellationPolicy || []
+    };
+  } catch (error) {
+    console.warn(`[GoTicket SeatService] Live layout API request failed for trip ${tripId}:`, error.message);
+    return {
+      success: false,
+      error: error.message,
+      occupiedSeats: DEFAULT_SOLD_SEATS,
+      seats: []
+    };
+  }
+};
+
+/**
+ * Locks selected seats on the authorized bus API to prevent double-booking.
+ *
+ * @param {string} tripId
+ * @param {Array<string>} seats
+ * @param {Object} [passenger]
+ * @returns {Promise<Object>} Hold response with holdToken and expiresAt
+ */
+export const holdSeatsApi = async (tripId, seats = [], passenger = {}) => {
+  if (!tripId || !seats || seats.length === 0) {
+    return { success: false, error: 'Trip ID and seat selection are required to hold seats.' };
+  }
+
+  try {
+    const response = await fetch('/api/buses/hold-seats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tripId, seats, passenger })
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('[GoTicket SeatService] Error calling hold-seats API:', error);
+    return { success: false, error: error.message || 'Seat lock network error' };
+  }
+};

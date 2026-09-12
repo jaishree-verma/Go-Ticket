@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TopRoutesDirectory from '../../components/TopRoutesDirectory';
 import styles from '../../stylespages/home.module.css';
 
 /* ── Cities list ────────────────────────────────────────── */
@@ -480,6 +481,9 @@ const Home = () => {
           </button>
         </div>
       </div>
+
+      {/* ══ TOP ROUTES & RTC DIRECTORY ══════════════════ */}
+      <TopRoutesDirectory />
 
       <footer className={styles.footer}>
         <p>© 2026 Go-Ticket India. All rights reserved.</p>

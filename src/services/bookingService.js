@@ -482,6 +482,93 @@ export const getLastTicket = () => {
   }
 };
 
+// =============================================================================
+// LIVE INDIAN BUS API BOOKING & PNR SERVICES (redBus SeatSeller / AbhiBus GDS)
+// =============================================================================
+
+/**
+ * Creates a verified booking with real PNR generation on the authorized GDS API.
+ *
+ * @param {Object} bookingPayload
+ * @returns {Promise<Object>} Confirmed booking with PNR
+ */
+export const bookTicketApi = async (bookingPayload) => {
+  try {
+    const response = await fetch('/api/buses/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bookingPayload)
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || `HTTP ${response.status}: Failed to confirm booking on API`);
+    }
+
+    // Persist to local storage as well for seamless offline display
+    if (data.success && data.pnr) {
+      const fullTicket = {
+        ...bookingPayload,
+        ...data,
+        ticketId: data.pnr,
+        pnr: data.pnr
+      };
+      saveBooking(fullTicket);
+      return { success: true, pnr: data.pnr, ticketId: data.pnr, ticket: fullTicket };
+    }
+
+    return data;
+  } catch (error) {
+    console.error('[GoTicket BookingService] API Booking error:', error);
+    return { success: false, error: error.message || 'API booking error' };
+  }
+};
+
+/**
+ * Queries real-time booking status and details by PNR from the API.
+ *
+ * @param {string} pnr
+ * @returns {Promise<Object>}
+ */
+export const getTicketByPnrApi = async (pnr) => {
+  if (!pnr) return { success: false, error: 'PNR is required' };
+  try {
+    const response = await fetch(`/api/buses/ticket/${encodeURIComponent(pnr)}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('[GoTicket BookingService] Get PNR API error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Cancels a booking via the authorized bus API.
+ *
+ * @param {string} pnr
+ * @param {string} [reason]
+ * @returns {Promise<Object>}
+ */
+export const cancelTicketApi = async (pnr, reason = 'User requested cancellation') => {
+  if (!pnr) return { success: false, error: 'PNR is required' };
+  try {
+    const response = await fetch('/api/buses/cancel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pnr, reason })
+    });
+    const data = await response.json();
+    if (data.success) {
+      // Also update local storage
+      cancelBooking(pnr);
+    }
+    return data;
+  } catch (error) {
+    console.error('[GoTicket BookingService] Cancel API error:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 const bookingService = {
   generateTicketId,
   createBooking,
@@ -495,7 +582,11 @@ const bookingService = {
   getLastTicket,
   saveBooking,
   recordIdempotencyKey,
-  getBookingByIdempotencyKey
+  getBookingByIdempotencyKey,
+  bookTicketApi,
+  getTicketByPnrApi,
+  cancelTicketApi
 };
 
 export default bookingService;
+

@@ -760,3 +760,41 @@
 .copyrightBar p {
   margin: 0;
 }
+
+/* ── Confirmed Ticket Print & PDF Export ── */
+@media print {
+  .page {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+    min-height: auto !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .stepIndicator,
+  .downloadBtn,
+  .ticketActions,
+  .actionBtn,
+  .homeBtn,
+  .copyrightBar {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .ticketCard {
+    position: static !important;
+    width: 100% !important;
+    max-width: 660px !important;
+    margin: 0 auto !important;
+    padding: 1.8rem 2rem !important;
+    box-shadow: none !important;
+    border: 1.5px solid #00a896 !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    box-sizing: border-box !important;
+  }
+}
+

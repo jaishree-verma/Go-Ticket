@@ -1,0 +1,116 @@
+/* ═══════════════════════════════════════════════════════════
+   Top Routes Directory & Bus Services Tabs Styling
+   Matches redBus / GoTicket comprehensive footer directories
+═══════════════════════════════════════════════════════════ */
+
+.directoryContainer {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 3rem 1.5rem 3.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.directoryInner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Tabs Bar */
+.tabsBar {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabsBar::-webkit-scrollbar {
+  display: none;
+}
+
+.tabBtn {
+  background: transparent;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+  border-radius: 6px 6px 0 0;
+}
+
+.tabBtn:hover {
+  color: #1e293b;
+}
+
+.activeTab {
+  color: #e11d48 !important; /* Soft rose / coral active text */
+  background: #fff1f2;
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #e11d48;
+  border-radius: 2px 2px 0 0;
+}
+
+/* 4-Column Grid for Links */
+.linksGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.85rem 1.5rem;
+}
+
+@media (max-width: 960px) {
+  .linksGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .linksGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 440px) {
+  .linksGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.directoryLink {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.35rem 0;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.4;
+  text-decoration: none;
+  display: block;
+}
+
+.directoryLink:hover {
+  color: #028090;
+  transform: translateX(3px);
+}

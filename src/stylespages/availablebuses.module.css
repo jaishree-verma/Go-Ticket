@@ -107,6 +107,90 @@
   color: #034f59;
 }
 
+/* Bus Type Filters Bar */
+.filterBar {
+  max-width: 960px;
+  margin: 0 auto 1.5rem;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1rem 1.4rem;
+  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.08);
+  border: 1px solid #d4eaf7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.filterLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.filterTitle {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-right: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.filterChips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filterChip {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.filterChip:hover {
+  border-color: #028090;
+  background: #e6f7f5;
+  color: #028090;
+}
+
+.filterChipActive {
+  background: #028090 !important;
+  color: #ffffff !important;
+  border-color: #028090 !important;
+  box-shadow: 0 2px 8px rgba(2, 128, 144, 0.25);
+}
+
+.clearFilterBtn {
+  background: none;
+  border: none;
+  color: #e53e3e;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.clearFilterBtn:hover {
+  background: #fff5f5;
+}
+
 /* Status Legend */
 .statusLegend {
   display: flex;

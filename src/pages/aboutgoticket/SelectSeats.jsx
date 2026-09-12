@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { DEFAULT_SOLD_SEATS as soldSeats } from '../../services/seatService';
+import { DEFAULT_SOLD_SEATS, fetchLiveSeatLayout, holdSeatsApi } from '../../services/seatService';
 import styles from '../../stylespages/selectseats.module.css';
 
 const SelectSeats = () => {
@@ -10,10 +10,29 @@ const SelectSeats = () => {
 
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [showTerms, setShowTerms]         = useState(false);
+  const [liveTrip, setLiveTrip]           = useState(null);
+  const [soldSeats, setSoldSeats]         = useState(DEFAULT_SOLD_SEATS);
+  const [isHolding, setIsHolding]         = useState(false);
+  const [, setHoldInfo]                   = useState(null);
 
-  const selectedTime = selectedSlot?.time || '05:05 PM';
-  const selectedFare = selectedSlot?.fare || '₹599';
-  const fareNumber   = parseInt(selectedFare.replace(/[^\d]/g, ''), 10) || 599;
+  const selectedTime = selectedSlot?.time || selectedBus?.departureTime || '05:05 PM';
+  const selectedFare = liveTrip?.fare ? `₹${liveTrip.fare}` : (selectedSlot?.fare || (selectedBus?.price ? `₹${selectedBus.price}` : '₹599'));
+  const fareNumber   = parseInt(String(selectedFare).replace(/[^\d]/g, ''), 10) || 599;
+
+  // Fetch real-time seat layout & occupied seats from the live Indian Bus API
+  useEffect(() => {
+    const tripId = selectedBus?.tripId || selectedBus?.id;
+    if (tripId) {
+      fetchLiveSeatLayout(tripId).then((res) => {
+        if (res && res.success) {
+          setLiveTrip(res);
+          if (res.occupiedSeats && Array.isArray(res.occupiedSeats)) {
+            setSoldSeats(res.occupiedSeats);
+          }
+        }
+      });
+    }
+  }, [selectedBus]);
 
   const toggleSeat = (seat) => {
     if (soldSeats.includes(seat)) return;
@@ -22,52 +41,86 @@ const SelectSeats = () => {
     );
   };
 
-  const handleProceedToDropPage = () => {
+  const handleProceedToDropPage = async () => {
     if (selectedSeats.length === 0) return;
+    setIsHolding(true);
+
+    const tripId = selectedBus?.tripId || selectedBus?.id;
+    let holdToken = null;
+
+    // Call API to lock seats atomically for 10 minutes
+    if (tripId) {
+      try {
+        const holdRes = await holdSeatsApi(tripId, selectedSeats);
+        if (holdRes && holdRes.success) {
+          holdToken = holdRes.holdToken;
+          setHoldInfo(holdRes);
+        }
+      } catch (err) {
+        console.warn('[GoTicket SelectSeats] Hold seats API non-blocking warning:', err);
+      }
+    }
+
+    setIsHolding(false);
     setShowTerms(false);
+
+    const defaultBoarding = [
+      {
+        time: '04:00 PM',
+        location: 'Rania Toll Plaza',
+        address: 'Towards Auraiya, Rania (UP)',
+      },
+      {
+        time: '04:30 PM',
+        location: 'Jhatkari Bus Station',
+        address: 'GT Road, Kanpur',
+        popular: true,
+      }
+    ];
+
+    const defaultDropping = [
+      {
+        time: '05:45 PM',
+        location: 'Zero Point, Greater Noida',
+        address: 'Yamuna Expressway, Towards Delhi',
+      },
+      {
+        time: '06:15 PM',
+        location: 'Transport Nagar Metro Station',
+        address: 'Near Gate No. 1, Lucknow',
+        popular: true,
+      }
+    ];
+
     navigate('/drop', {
       state: {
         ...state,
         selectedSeats,
+        holdToken,
         busDetails: {
-          name: selectedBus?.name || 'KN Speed Express',
-          label: selectedBus?.label || 'Bus 1',
+          name: liveTrip?.busName || selectedBus?.name || 'KN Speed Express',
+          operatorName: liveTrip?.operatorName || selectedBus?.operator || '',
+          label: selectedBus?.label || selectedBus?.name || 'Bus 1',
           id: selectedBus?.id || 'UP78KN1234',
-          type: selectedBus?.type || 'AC Sleeper 2+1',
+          tripId: tripId,
+          type: liveTrip?.busType || selectedBus?.type || 'AC Sleeper 2+1',
           date: state?.date || new Date().toISOString().split('T')[0],
-          route: state?.route || 'Kanpur → Lucknow',
+          route: state?.route || (liveTrip ? `${liveTrip.source || ''} → ${liveTrip.destination || ''}` : 'Kanpur → Lucknow'),
           time: selectedTime,
           fare: selectedFare,
+          price: fareNumber,
+          holdToken,
         },
-        boardingPoints: [
-          {
-            time: '04:00 PM',
-            location: 'Rania Toll Plaza',
-            address: 'Towards Auraiya, Rania (UP)',
-          },
-          {
-            time: '04:30 PM',
-            location: 'Jhatkari Bus Station',
-            address: 'GT Road, Kanpur',
-            popular: true,
-          }
-        ],
-        droppingPoints: [
-          {
-            time: '05:45 PM',
-            location: 'Zero Point, Greater Noida',
-            address: 'Yamuna Expressway, Towards Delhi',
-          },
-          {
-            time: '06:15 PM',
-            location: 'Transport Nagar Metro Station',
-            address: 'Near Gate No. 1, Lucknow',
-            popular: true,
-          }
-        ],
+        boardingPoints: (liveTrip?.boardingPoints && liveTrip.boardingPoints.length > 0)
+          ? liveTrip.boardingPoints
+          : defaultBoarding,
+        droppingPoints: (liveTrip?.droppingPoints && liveTrip.droppingPoints.length > 0)
+          ? liveTrip.droppingPoints
+          : defaultDropping,
       },
     });
   };
+
 
   const renderRows = () => {
     const rows = [];
@@ -196,10 +249,6 @@ const SelectSeats = () => {
 
       {/* Bus Frame Layout */}
       <div className={styles.busFrameCard}>
-        <div className={styles.driverSection}>
-          <span className={styles.steeringIcon}>⭕ DRIVER CABIN</span>
-        </div>
-
         <div className={styles.seatLayout}>{renderRows()}</div>
 
         <div className={styles.rearSection}>REAR CABIN</div>
@@ -238,8 +287,12 @@ const SelectSeats = () => {
               <button className={styles.cancelModalBtn} onClick={() => setShowTerms(false)}>
                 Cancel
               </button>
-              <button className={styles.proceedModalBtn} onClick={handleProceedToDropPage}>
-                Select Boarding & Dropping Points →
+              <button
+                className={styles.proceedModalBtn}
+                disabled={isHolding}
+                onClick={handleProceedToDropPage}
+              >
+                {isHolding ? 'Locking Seats on API...' : 'Select Boarding & Dropping Points →'}
               </button>
             </div>
           </div>
