@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { searchBuses } from '../../services/busService';
+import { getRealRouteData } from '../../services/routeService';
 import styles from '../../stylespages/availablebuses.module.css';
 
 const AvailableBuses = () => {
@@ -14,9 +15,10 @@ const AvailableBuses = () => {
 
   const travelRoute = state?.route || `${fromCity} → ${toCity}`;
 
-  const [buses, setBuses]     = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
+  const [buses, setBuses]         = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(null);
+  const [routeInfo, setRouteInfo] = useState(null);
 
   const fetchBuses = () => {
     setLoading(true);
@@ -39,6 +41,9 @@ const AvailableBuses = () => {
 
   useEffect(() => {
     fetchBuses();
+    getRealRouteData(fromCity, toCity).then((info) => {
+      if (info) setRouteInfo(info);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromCity, toCity, travelDate]);
 
@@ -67,6 +72,12 @@ const AvailableBuses = () => {
           <span className={styles.dateText}>
             Date: {travelDate} {ampmFilter ? `(${ampmFilter} Filter)` : ''}
           </span>
+          {routeInfo && (
+            <span className={styles.realtimeTelemetryBadge}>
+              <span className={styles.pulsingGreenDot}></span>
+              Live Highway Data: {routeInfo.distanceKm} km · ~{routeInfo.durationFormatted} transit
+            </span>
+          )}
         </div>
         <button className={styles.modifyBtn} onClick={() => navigate('/seatbooking')}>
           Modify Search
