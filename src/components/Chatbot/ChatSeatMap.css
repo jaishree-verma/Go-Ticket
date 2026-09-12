@@ -1,0 +1,239 @@
+/* ChatSeatMap.css — Compact Interactive Seat Map for Chatbot */
+
+.chat-seatmap-card {
+  margin-top: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-family: inherit;
+  color: #1e293b;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.chat-seatmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.chat-seatmap-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.chat-seatmap-sub {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.chat-seatmap-fare {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6366f1;
+}
+
+/* Legend */
+.chat-seatmap-legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 10px;
+  margin-bottom: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #475569;
+}
+
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.legend-swatch.available {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+
+.legend-swatch.selected {
+  background: #6366f1;
+}
+
+.legend-swatch.recommended {
+  background: #ecfdf5;
+  border: 1.5px solid #10b981;
+}
+
+.legend-swatch.occupied {
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+}
+
+/* Bus Layout Container */
+.chat-seatmap-bus {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 8px;
+  position: relative;
+}
+
+.bus-front-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed #cbd5e1;
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Seat Rows Grid */
+.chat-seatmap-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chat-seatmap-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-seats-side {
+  display: flex;
+  gap: 5px;
+}
+
+.chat-seats-aisle {
+  font-size: 8px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0 4px;
+}
+
+/* Individual Seat Button */
+.chat-seat-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease-in-out;
+  padding: 0;
+  user-select: none;
+}
+
+.chat-seat-btn:hover:not(:disabled) {
+  border-color: #6366f1;
+  background: #f5f3ff;
+  transform: translateY(-1px);
+}
+
+.chat-seat-btn.occupied {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.chat-seat-btn.selected {
+  background: #6366f1 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);
+}
+
+.chat-seat-btn.recommended:not(.selected) {
+  background: #ecfdf5;
+  border: 1.5px solid #10b981;
+  color: #065f46;
+}
+
+.seat-rec-star {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  font-size: 9px;
+  line-height: 1;
+}
+
+.seat-window-tag {
+  font-size: 7px;
+  line-height: 1;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+.chat-seat-btn.selected .seat-window-tag {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Footer / Action Bar */
+.chat-seatmap-footer {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.seatmap-summary-text {
+  font-size: 11px;
+  color: #334155;
+}
+
+.seatmap-summary-text strong {
+  color: #6366f1;
+}
+
+.seatmap-confirm-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.seatmap-confirm-btn:hover {
+  opacity: 0.95;
+}

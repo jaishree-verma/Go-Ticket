@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { processAgentMessage } from '../../services/travelAgent';
 import { useAuth } from '../../context/AuthContext';
+import ChatSeatMap from './ChatSeatMap';
 import './Chatbot.css';
 
 export default function ChatModal({ onClose, onMinimize }) {
@@ -114,7 +115,7 @@ export default function ChatModal({ onClose, onMinimize }) {
 
     // PROCESS QUERY WITH GO TICKET TRAVEL AGENT
     try {
-      const response = await processAgentMessage(query, agentState);
+      const response = await processAgentMessage(query, agentState, { user });
       setAgentState(response.agentState);
 
       const botMsg = {
@@ -123,6 +124,7 @@ export default function ChatModal({ onClose, onMinimize }) {
         text: response.text,
         statusTrace: response.statusTrace || [],
         chips: response.chips || [],
+        seatMap: response.seatMap || null,
         actionCard: response.actionCard
           ? {
               title: response.actionCard.title,
@@ -164,6 +166,30 @@ export default function ChatModal({ onClose, onMinimize }) {
       ]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleSeat = (seatId, seatMap) => {
+    if (loading) return;
+    const current = seatMap?.selectedSeats || [];
+    let next;
+    if (current.includes(seatId)) {
+      next = current.filter((s) => s !== seatId);
+    } else {
+      next = [...current, seatId];
+    }
+
+    if (next.length === 0) {
+      handleSend('Show available seats');
+    } else {
+      handleSend(`Select ${next.join(' and ')}`);
+    }
+  };
+
+  const handleConfirmSeats = (seats) => {
+    if (loading) return;
+    if (seats && seats.length > 0) {
+      handleSend(`Book ${seats.join(' and ')}`);
     }
   };
 
@@ -214,6 +240,15 @@ export default function ChatModal({ onClose, onMinimize }) {
             )}
 
             <div style={{ whiteSpace: 'pre-line' }}>{m.text}</div>
+
+            {/* Interactive Visual Seat Map */}
+            {m.seatMap && (
+              <ChatSeatMap
+                seatMap={m.seatMap}
+                onToggleSeat={(seatId) => handleToggleSeat(seatId, m.seatMap)}
+                onConfirmSeats={handleConfirmSeats}
+              />
+            )}
 
             {/* Action Trigger Card */}
             {m.actionCard && (

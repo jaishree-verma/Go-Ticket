@@ -1,9 +1,34 @@
 // GoTicket Travel Agent Orchestrator
 // Master AI Travel Agent ("Tixie") — Multi-turn NLU, State Machine, Atomic Seat Validation & Confirmation Gate
 
-import { search_buses, get_bus_details, check_seat_availability, hold_select_seats, prepare_booking } from './agentTools.js';
-import { rankBuses } from './recommendationEngine.js';
+import {
+  search_buses,
+  get_bus_details,
+  check_seat_availability,
+  hold_select_seats,
+  create_booking,
+  cancel_booking,
+  get_booking_details
+} from './agentTools.js';
+import { rankBuses, findBestAndAlternativeBuses } from './recommendationEngine.js';
 import { getPendingBooking, clearPendingBooking, getLastTicket } from './bookingService.js';
+import { getBusSeatLayout, recommendSeats, findAdjacentSeats } from './seatService.js';
+import { maskEmail, maskMobile } from './notificationService.js';
+import authService from './authService.js';
+// NLU Layer — Step 1: Natural Language Understanding Foundation
+import { parseUserMessage } from './nluService.js';
+import { INTENTS } from './intentDefinitions.js';
+// Context Manager — Step 2: Multi-turn Context Management
+import {
+  buildAgentContextFromState,
+  buildNLUContext,
+  mergeTravelRequest,
+  updateSearchContext,
+  updateSeatsContext,
+  updateConversation,
+  resetTravelContext,
+  shouldInvalidateSearch,
+} from './contextManager.js';
 
 // Known cities for NLU parsing
 const CITIES = [
@@ -213,11 +238,13 @@ const findSelectedBusFromQuery = (queryText, searchResults = [], recommendation 
  * @param {Object} agentState - Conversation context state
  * @returns {Promise<Object>} Agent response object
  */
-export const processAgentMessage = async (userMessage = '', agentState = {}) => {
+export const processAgentMessage = async (userMessage = '', agentState = {}, options = {}) => {
   const q = userMessage.trim();
   const qLower = q.toLowerCase();
 
-  // Context preservation
+  const activeUser = options.user || agentState.user || (typeof authService !== 'undefined' ? authService.getCurrentUser() : null);
+
+  // Context preservation & AgentContext initialization
   let params = { ...(agentState.params || {}) };
   let currentState = agentState.state || 'IDLE';
   let searchResults = agentState.searchResults || params.searchResults || [];
@@ -225,6 +252,15 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
   let selectedBus = agentState.selectedBus || params.selectedBus || null;
   let selectedSlot = agentState.selectedSlot || params.selectedSlot || null;
   let selectedSeats = agentState.selectedSeats || params.selectedSeats || [];
+
+  let agentCtx = buildAgentContextFromState({
+    agentState,
+    params,
+    searchResults,
+    selectedBus,
+    selectedSlot,
+    selectedSeats,
+  });
 
   const statusTrace = [];
 
@@ -238,6 +274,131 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
       text: '⏳ Your booking is already being processed. Please wait a moment...',
       chips: []
     };
+  }
+
+  // CANCELLATION INTENT & CONFIRMATION WORKFLOW
+  const cancelTicketMatch = q.match(/\b(?:cancel|abort)\s+(?:my\s+)?(?:booking|ticket)?\s*([A-Z0-9]{6,10})\b/i) ||
+                            q.match(/\b([A-Z0-9]{6,10})\s+(?:cancel|abort)\b/i) ||
+                            (qLower.includes('cancel') && q.match(/\b(GT[A-Z0-9]{6,8})\b/i));
+
+  if (currentState === 'WAITING_FOR_CANCEL_CONFIRMATION') {
+    const ticketIdToCancel = agentState.cancelTicketId;
+    const CONFIRM_CANCEL = ['yes', 'yes cancel', 'yes, cancel', 'confirm', 'confirm cancellation', 'proceed', 'cancel it', 'yes do it'];
+    const ABORT_CANCEL = ['no', "don't cancel", 'dont cancel', 'keep ticket', 'keep it', 'never mind', 'stop', 'back'];
+
+    if (CONFIRM_CANCEL.some((p) => qLower === p || qLower.startsWith(p))) {
+      statusTrace.push('Verifying authorization and processing cancellation...');
+      const cancelRes = await cancel_booking({ ticketId: ticketIdToCancel, user: activeUser });
+      if (!cancelRes.success) {
+        return {
+          agentState: { ...agentState, state: 'IDLE', cancelTicketId: null },
+          statusTrace: ['Cancellation failed.'],
+          text: `⚠️ **Cancellation Notice:**\n${cancelRes.error}`,
+          chips: ['Find buses from Kanpur to Delhi tomorrow', 'Contact Support 📞']
+        };
+      }
+      return {
+        agentState: { state: 'IDLE', params: {}, agentCtx: resetTravelContext(agentCtx) },
+        statusTrace: ['Ticket cancelled successfully.', 'Refund initiated.'],
+        text: `✅ **Ticket ${ticketIdToCancel} has been successfully cancelled.**\n\nA full refund has been initiated to your original payment method (Demo Mode).\n\nFeel free to book another trip whenever you're ready!`,
+        chips: ['Find buses from Kanpur to Delhi tomorrow', 'Search Kanpur to Lucknow']
+      };
+    }
+
+    if (ABORT_CANCEL.some((p) => qLower === p || qLower.startsWith(p))) {
+      return {
+        agentState: { ...agentState, state: 'IDLE', cancelTicketId: null },
+        statusTrace: [],
+        text: `Cancellation aborted. Your ticket **${ticketIdToCancel}** remains active and confirmed. 🎫`,
+        actionCard: {
+          title: `View E-Ticket (${ticketIdToCancel})`,
+          btnText: 'Open E-Ticket 🎫',
+          navigateTo: '/eticket'
+        },
+        chips: ['Find buses from Kanpur to Delhi tomorrow', 'View E-Ticket']
+      };
+    }
+  }
+
+  if (cancelTicketMatch) {
+    const rawId = cancelTicketMatch[1].toUpperCase();
+    const ticketId = rawId.startsWith('GT') ? rawId : `GT${rawId}`;
+    const checkRes = await get_booking_details({ ticketId });
+
+    if (!checkRes.success || !checkRes.ticket) {
+      return {
+        agentState,
+        statusTrace: [],
+        text: `No active booking found for Ticket ID **${ticketId}**. Please verify your ticket number.`,
+        chips: ['Find buses from Kanpur to Delhi tomorrow']
+      };
+    }
+
+    const t = checkRes.ticket;
+    if (t.status === 'CANCELLED') {
+      return {
+        agentState,
+        statusTrace: [],
+        text: `Ticket **${ticketId}** has already been cancelled.`,
+        chips: ['Find buses from Kanpur to Delhi tomorrow']
+      };
+    }
+
+    // Authorization check against activeUser
+    if (activeUser) {
+      const uEmail = (activeUser.email || '').toLowerCase().trim();
+      const uMobile = (activeUser.mobile || '').replace(/\D/g, '');
+      const uName = (activeUser.name || activeUser.fullName || '').toLowerCase().trim();
+
+      const bEmail = (t.passenger?.email || '').toLowerCase().trim();
+      const bMobile = (t.passenger?.mobile || '').replace(/\D/g, '');
+      const bName = (t.passenger?.fullName || '').toLowerCase().trim();
+
+      const isOwner =
+        (uEmail && bEmail && uEmail === bEmail) ||
+        (uMobile && bMobile && uMobile === bMobile) ||
+        (uName && bName && (uName.includes(bName) || bName.includes(uName)));
+
+      if (!isOwner) {
+        return {
+          agentState,
+          statusTrace: [],
+          text: `⚠️ **Unauthorized:** Ticket **${ticketId}** is registered to another passenger. You can only cancel bookings associated with your registered account.`,
+          chips: ['Find buses from Kanpur to Delhi tomorrow']
+        };
+      }
+    }
+
+    return {
+      agentState: { ...agentState, state: 'WAITING_FOR_CANCEL_CONFIRMATION', cancelTicketId: ticketId },
+      statusTrace: ['Loaded ticket for cancellation.'],
+      text: `📋 **Cancellation Request for Ticket ${ticketId}**\n\n` +
+        `• **Bus:** ${t.name} (${t.type || ''})\n` +
+        `• **Route:** ${t.route}\n` +
+        `• **Date & Time:** ${t.date} at ${t.time}\n` +
+        `• **Seats:** ${(t.seats || []).join(', ')}\n` +
+        `• **Refundable Amount:** ₹${t.totalFare}\n\n` +
+        `⚠️ **Are you sure you want to cancel this booking?** This action is irreversible.`,
+      chips: ['Yes, confirm cancellation', 'Keep my ticket']
+    };
+  }
+
+  // ALREADY CONFIRMED DUPLICATE PROTECTION
+  if (currentState === 'CONFIRMED' && (qLower.includes('confirm') || qLower.includes('book'))) {
+    const existingTicket = agentState.confirmedTicket || getLastTicket();
+    if (existingTicket && existingTicket.ticketId) {
+      return {
+        agentState,
+        statusTrace: [],
+        text: `Your booking has already been confirmed! Your ticket ID is **${existingTicket.ticketId}**.\n\n🚌 **${existingTicket.name}** | 💺 Seats: ${(existingTicket.seats || []).join(', ')}\n\nYou can view your official digital ticket below:`,
+        actionCard: {
+          title: `View E-Ticket (${existingTicket.ticketId})`,
+          btnText: 'View E-Ticket 🎫',
+          navigateTo: '/eticket'
+        },
+        chips: ['View E-Ticket 🎫', 'Book another trip']
+      };
+    }
   }
 
   if (currentState === 'PAYMENT_PENDING') {
@@ -335,24 +496,167 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
     };
   }
 
+  // =========================================================================
+  // NLU & Context Manager: Parse message and merge into structured context
+  // The NLU layer never mutates params or agentState — the state machine
+  // remains the sole authority for all state transitions.
+  // =========================================================================
+  const nluContext = buildNLUContext(agentCtx);
+  const nlu = parseUserMessage(q, nluContext);
+
+  const oldTravelReq = { ...agentCtx.travelRequest };
+  agentCtx = mergeTravelRequest(agentCtx, nlu);
+  agentCtx = updateConversation(agentCtx, { intent: nlu.intent, message: q });
+
+  // Invalidate search if route or date changed
+  const { shouldInvalidate } = shouldInvalidateSearch(
+    oldTravelReq,
+    agentCtx.travelRequest
+  );
+
+  if (shouldInvalidate && searchResults.length > 0) {
+    searchResults = [];
+    selectedBus = null;
+    selectedSlot = null;
+    recommendation = null;
+    agentCtx = updateSearchContext(agentCtx, { results: [], selectedBus: null, selectedSlot: null });
+  }
+
+  // Persist updated agentCtx into agentState
+  agentState = { ...agentState, agentCtx };
+
   // Check if query is a fresh search request
-  const newlyExtracted = extractTravelParams(q);
-  const isFreshSearch = (newlyExtracted.source && newlyExtracted.destination) || (qLower.includes('search') && !qLower.includes('seat')) || (qLower.includes('find bus') && !qLower.includes('seat'));
+  // NLU intent takes priority; legacy keyword fallbacks preserved for safety
+  const newlyExtracted = extractTravelParams(q); // kept for seat ID extraction & backward compat
+  const isFreshSearch =
+    nlu.intent === INTENTS.SEARCH_BUS ||
+    nlu.intent === INTENTS.SEARCH_AND_RECOMMEND ||
+    (nlu.entities.source && nlu.entities.destination) ||
+    (shouldInvalidate && agentCtx.travelRequest.source && agentCtx.travelRequest.destination) ||
+    (qLower.includes('search') && !qLower.includes('seat')) ||
+    (qLower.includes('find bus') && !qLower.includes('seat'));
+
+  // =========================================================================
+  // 1.5 FILTER / REFINE EXISTING SEARCH RESULTS
+  // Follow-up refinement on current results (e.g. "show cheaper ones", "only AC")
+  // =========================================================================
+  const isFilterIntent =
+    !isFreshSearch &&
+    searchResults.length > 0 &&
+    (nlu.intent === INTENTS.FILTER_RESULTS ||
+      qLower.includes('cheaper') ||
+      qLower.includes('faster') ||
+      qLower.includes('only ac') ||
+      qLower.includes('only sleeper') ||
+      (agentCtx.travelRequest.bus_type && agentCtx.travelRequest.bus_type !== oldTravelReq.bus_type) ||
+      (agentCtx.travelRequest.priority && agentCtx.travelRequest.priority !== oldTravelReq.priority) ||
+      (agentCtx.travelRequest.max_price && agentCtx.travelRequest.max_price !== oldTravelReq.max_price));
+
+  if (isFilterIntent) {
+    let filtered = [...searchResults];
+
+    if (agentCtx.travelRequest.bus_type) {
+      const bt = agentCtx.travelRequest.bus_type.toLowerCase();
+      const typeMatches = filtered.filter((b) => b.busType && b.busType.toLowerCase().includes(bt));
+      if (typeMatches.length > 0) {
+        filtered = typeMatches;
+      }
+    }
+
+    if (agentCtx.travelRequest.max_price) {
+      const priceMatches = filtered.filter((b) => b.price <= agentCtx.travelRequest.max_price);
+      if (priceMatches.length > 0) {
+        filtered = priceMatches;
+      }
+    }
+
+    if (agentCtx.travelRequest.priority === 'price') {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (agentCtx.travelRequest.priority === 'time') {
+      filtered.sort((a, b) => parseFloat(a.duration) - parseFloat(b.duration));
+    }
+
+    const ranking = rankBuses(filtered, agentCtx.travelRequest);
+    const topBus = ranking.bestBus || filtered[0];
+
+    params = {
+      ...params,
+      searchResults: filtered,
+      recommendation: ranking,
+      selectedBus: topBus,
+      selectedSlot: topBus?.slots?.[0] || { time: topBus?.departureTime || '08:30 PM', fare: `₹${topBus?.price || 680}`, status: 'available' }
+    };
+    agentCtx = updateSearchContext(agentCtx, { results: filtered, selectedBus: topBus, selectedSlot: params.selectedSlot });
+    agentState = { ...agentState, agentCtx };
+
+    const srcCity = params.source || agentCtx.travelRequest.source;
+    const dstCity = params.destination || agentCtx.travelRequest.destination;
+    let responseText = `Here are the filtered buses for **${srcCity} → ${dstCity}**:\n\n`;
+    filtered.slice(0, 3).forEach((b, idx) => {
+      const isTop = topBus && b.id === topBus.id;
+      responseText += `${idx + 1}. **${b.operator} - ${b.busName}** (${b.busType}) ${isTop ? '⭐ *Recommended*' : ''}\n`;
+      responseText += `   • Dep: **${b.departureTime}** → Arr: **${b.arrivalTime}** (${b.duration}) | Fare: **₹${b.price}** | Seats: **${b.availableSeats} open**\n`;
+    });
+
+    if (topBus && ranking.reasons && ranking.reasons.length > 0) {
+      responseText += `\n💡 **Why ${topBus.busName}?** ${ranking.reasons.join('. ')}.\n`;
+    }
+    if (ranking.warnings && ranking.warnings.length > 0) {
+      responseText += `\n⚠️ *Note:* ${ranking.warnings.join('. ')}.\n`;
+    }
+
+    responseText += `\nWhich bus would you like to select? (e.g. "Select the first one" or "Show available seats")`;
+
+    return {
+      agentState: {
+        ...agentState,
+        state: 'WAITING_FOR_BUS_SELECTION',
+        params,
+        searchResults: filtered,
+        recommendation: ranking,
+        selectedBus: topBus,
+        agentCtx
+      },
+      statusTrace: ['Applied your filters to available buses.'],
+      text: responseText,
+      searchResults: filtered,
+      recommendation: ranking,
+      actionCard: {
+        title: `Select Recommended Bus (${topBus ? topBus.busName : 'Bus'})`,
+        btnText: 'Select Recommended Bus & Check Seats 🪑',
+        chatQuery: 'Select the recommended one'
+      },
+      chips: [
+        'Select the recommended one',
+        'Select the cheapest one',
+        'Show available seats'
+      ]
+    };
+  }
 
   // =========================================================================
   // 1. ROUTE / BUS SEARCH INTENT
   // =========================================================================
   if (isFreshSearch || currentState === 'IDLE' || currentState === 'COLLECTING_INFORMATION') {
-    const source = newlyExtracted.source || params.source || null;
-    const destination = newlyExtracted.destination || params.destination || null;
-    const date = newlyExtracted.date || params.date || new Date().toISOString().split('T')[0];
-    const preferredTime = newlyExtracted.preferredTime || params.preferredTime || null;
+    // NLU and contextManager take priority over old extractTravelParams results
+    const source = agentCtx.travelRequest.source || nlu.entities.source || newlyExtracted.source || params.source || null;
+    const destination = agentCtx.travelRequest.destination || nlu.entities.destination || newlyExtracted.destination || params.destination || null;
+    const date = agentCtx.travelRequest.date || nlu.entities.date || newlyExtracted.date || params.date || new Date().toISOString().split('T')[0];
+    const preferredTime = agentCtx.travelRequest.departure_after || nlu.constraints.departure_after || newlyExtracted.preferredTime || params.preferredTime || null;
 
-    params = { source, destination, date, preferredTime };
+    params = {
+      ...params,
+      source,
+      destination,
+      date,
+      preferredTime,
+      bus_type: agentCtx.travelRequest.bus_type,
+      max_price: agentCtx.travelRequest.max_price
+    };
 
     if (!destination && !source) {
       return {
-        agentState: { ...agentState, state: 'COLLECTING_INFORMATION', params },
+        agentState: { ...agentState, state: 'COLLECTING_INFORMATION', params, agentCtx },
         statusTrace: [],
         text: 'I can help you search and compare available buses! 🚌\n\nWhere would you like to travel from and to? (e.g. "Find buses from Kanpur to Delhi tomorrow")',
         chips: ['Find buses from Kanpur to Delhi tomorrow', 'Find buses from Kanpur to Delhi around 9 PM', 'Search Kanpur to Lucknow']
@@ -361,7 +665,7 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
 
     if (destination && !source) {
       return {
-        agentState: { ...agentState, state: 'COLLECTING_INFORMATION', params },
+        agentState: { ...agentState, state: 'COLLECTING_INFORMATION', params, agentCtx },
         statusTrace: [],
         text: `Sure, I can find buses heading to ${destination}! 📍\n\nWhere will you be traveling from?`,
         chips: [`From Kanpur to ${destination}`, `From Lucknow to ${destination}`, `From Jaipur to ${destination}`]
@@ -370,7 +674,7 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
 
     if (source && !destination) {
       return {
-        agentState: { ...agentState, state: 'COLLECTING_INFORMATION', params },
+        agentState: { ...agentState, state: 'COLLECTING_INFORMATION', params, agentCtx },
         statusTrace: [],
         text: `Got it! Starting from ${source}. 🚌\n\nWhere are you heading to?`,
         chips: [`To Delhi`, `To Lucknow`, `To Agra`]
@@ -380,12 +684,17 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
     statusTrace.push('Understanding your travel request...');
     statusTrace.push('Searching available buses...');
 
-    const toolResult = await search_buses({ source, destination, date, preferredTime });
+    const toolResult = await search_buses({
+      source,
+      destination,
+      date,
+      preferredTime
+    });
     statusTrace.push('Comparing the available options...');
 
     if (!toolResult.success || !toolResult.results || toolResult.results.length === 0) {
       return {
-        agentState: { ...agentState, state: 'COLLECTING_INFORMATION', params },
+        agentState: { ...agentState, state: 'COLLECTING_INFORMATION', params, agentCtx },
         statusTrace,
         text: `I couldn't find any buses operating for **${source} → ${destination}** on ${date}.\n\nTry searching another date or route!`,
         actionCard: {
@@ -397,8 +706,15 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
       };
     }
 
-    const ranking = rankBuses(toolResult.results, { preferredTime });
-    const topBus = ranking.bestBus;
+    const decision = findBestAndAlternativeBuses(toolResult.results, agentCtx.travelRequest);
+    const topBus = decision.bestBus;
+    const ranking = {
+      bestBus: topBus,
+      score: decision.score,
+      reasons: decision.reasons,
+      warnings: decision.warnings,
+      rankedBuses: decision.rankedBuses,
+    };
 
     params = {
       ...params,
@@ -407,18 +723,41 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
       selectedBus: topBus,
       selectedSlot: topBus?.slots?.[0] || { time: topBus?.departureTime || '08:30 PM', fare: `₹${topBus?.price || 680}`, status: 'available' }
     };
-
-    let responseText = `I found **${toolResult.results.length} bus(es)** for **${source} → ${destination}** on ${date}:\n\n`;
-    toolResult.results.slice(0, 3).forEach((b, idx) => {
-      const isTop = topBus && b.id === topBus.id;
-      responseText += `${idx + 1}. **${b.operator} - ${b.busName}** (${b.busType}) ${isTop ? '⭐ *Recommended*' : ''}\n`;
-      responseText += `   • Dep: **${b.departureTime}** → Arr: **${b.arrivalTime}** (${b.duration}) | Fare: **₹${b.price}** | Seats: **${b.availableSeats} open**\n`;
+    agentCtx = updateSearchContext(agentCtx, {
+      results: toolResult.results,
+      selectedBus: topBus,
+      selectedSlot: params.selectedSlot
     });
+    agentState = { ...agentState, agentCtx };
 
-    if (topBus && ranking.reasons && ranking.reasons.length > 0) {
-      responseText += `\n💡 **Why ${topBus.busName}?** ${ranking.reasons.join(', ')}.\n`;
+    let responseText = '';
+
+    if (decision.hasExactMatches) {
+      responseText = `I found **${decision.rankedBuses.length} bus(es)** for **${source} → ${destination}** on ${date}:\n\n`;
+      decision.rankedBuses.slice(0, 3).forEach((item, idx) => {
+        const b = item.bus;
+        const isTop = topBus && b.id === topBus.id;
+        responseText += `${idx + 1}. **${b.operator} - ${b.busName}** (${b.busType}) ${isTop ? '⭐ *Recommended*' : ''}\n`;
+        responseText += `   • Dep: **${b.departureTime}** → Arr: **${b.arrivalTime}** (${b.duration}) | Fare: **₹${b.price}** | Seats: **${b.availableSeats} open**\n`;
+      });
+
+      if (topBus && decision.reasons && decision.reasons.length > 0) {
+        responseText += `\n💡 **Why ${topBus.busName}?** ${decision.reasons.join('. ')}.\n`;
+      }
+      if (decision.warnings && decision.warnings.length > 0) {
+        responseText += `\n⚠️ *Note:* ${decision.warnings.join('. ')}.\n`;
+      }
+      responseText += `\nWhich bus would you like to select? (e.g. "I want the recommended one", "Select the second one", or "Show available seats")`;
+    } else {
+      // Impossible / conflicting constraints handling
+      responseText = `⚠️ **Goal Analysis:** ${decision.conflictSummary}.\n\nHere are the closest matching alternatives:\n\n`;
+      decision.alternatives.forEach((alt, idx) => {
+        const b = alt.bus;
+        responseText += `${idx + 1}. **${b.operator} - ${b.busName}** (${b.busType}) | Fare: **₹${b.price}** | Dep: **${b.departureTime}** → Arr: **${b.arrivalTime}**\n`;
+        responseText += `   👉 *Trade-off:* ${alt.tradeOffReason}\n\n`;
+      });
+      responseText += `Which option would you prefer to select? (e.g. "Select the first one" or "Show seats")`;
     }
-    responseText += `\nWhich bus would you like to select? (e.g. "I want the recommended one", "Select the second one", or "Cheapest")`;
 
     return {
       agentState: {
@@ -427,7 +766,8 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
         params,
         searchResults: toolResult.results,
         recommendation: ranking,
-        selectedBus: topBus
+        selectedBus: topBus,
+        agentCtx
       },
       statusTrace,
       text: responseText,
@@ -487,8 +827,34 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
     params.availableSeats = seatData.availableSeats;
     params.occupiedSeats = seatData.occupiedSeats;
 
+    agentCtx = updateSearchContext(agentCtx, { selectedBus: busObj, selectedSlot: defaultSlot });
+    agentCtx = updateSeatsContext(agentCtx, { available: seatData.availableSeats });
+    agentState = { ...agentState, agentCtx };
+
     const openCount = seatData.availableSeats.length;
-    const previewSeats = seatData.availableSeats.slice(0, 12).join(', ');
+
+    // Step 3: Compute recommended seats & layout for interactive chatbot seat map
+    const recSeatResult = recommendSeats({
+      busId: busObj.id,
+      busType: busObj.busType,
+      seatPreference: agentCtx.travelRequest.seat_preference,
+      passengers: agentCtx.travelRequest.passengers || 1,
+      availableSeats: seatData.availableSeats,
+    });
+    const recommendedSeats = recSeatResult.recommendedSeats || [];
+    const seatLayout = getBusSeatLayout(
+      busObj.id,
+      params.date,
+      slotTime,
+      params.selectedSeats || [],
+      recommendedSeats,
+      busObj.busType
+    );
+
+    let recReasonText = '';
+    if (recommendedSeats.length > 0 && recSeatResult.reasons.length > 0) {
+      recReasonText = `\n\n💡 **Tixie's Recommendation:** I recommend seat **${recommendedSeats.join(' and ')}** (${recSeatResult.reasons.join(', ')}).`;
+    }
 
     return {
       agentState: {
@@ -497,14 +863,28 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
         params,
         selectedBus: busObj,
         selectedSlot: defaultSlot,
-        availableSeats: seatData.availableSeats
+        availableSeats: seatData.availableSeats,
+        agentCtx
       },
       statusTrace: ['Bus selected.', 'Seats verified.'],
       text: `Selected **${busObj.operator} - ${busObj.busName}** (${busObj.busType}) for ${params.source} → ${params.destination}.\n` +
         `• Departure: **${busObj.departureTime}** | Fare: **₹${busObj.price}/seat**\n\n` +
-        `💺 **Available Seats (${openCount}/${seatData.totalSeats}):**\n${previewSeats}...\n` +
-        `*Occupied Seats:* ${seatData.occupiedSeats.join(', ')}\n\n` +
-        `Which seats would you like to book? (e.g. "Book S3 and S4" or "Select S5")`,
+        `💺 **Available Seats (${openCount}/${seatData.totalSeats}):**\n` +
+        `Click any seat on the map below to select or change.${recReasonText}`,
+      seatMap: {
+        busId: busObj.id,
+        busName: busObj.busName,
+        operator: busObj.operator,
+        fare: busObj.price,
+        date: params.date,
+        slotTime,
+        totalSeats: seatData.totalSeats,
+        availableSeats: seatData.availableSeats,
+        occupiedSeats: seatData.occupiedSeats,
+        selectedSeats: params.selectedSeats || [],
+        recommendedSeats,
+        rows: seatLayout.rows,
+      },
       actionCard: {
         title: `Seat Map (${busObj.busName})`,
         btnText: 'Open Interactive Seat Map 🗺️',
@@ -517,14 +897,16 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
           selectedSlot: defaultSlot
         }
       },
-      chips: ['Book S3 and S4', 'Select S5 and S6', 'Book S1', 'Select another bus']
+      chips: recommendedSeats.length > 0
+        ? [`Select ${recommendedSeats.join(' and ')}`, 'Show available seats', 'Select another bus']
+        : ['Book S3 and S4', 'Select S5 and S6', 'Select another bus']
     };
   }
 
   // =========================================================================
   // 3. SEAT AVAILABILITY CHECK INTENT
   // =========================================================================
-  const isSeatCheckIntent = qLower.includes('seat') && (qLower.includes('show') || qLower.includes('check') || qLower.includes('available') || qLower.includes('what'));
+  const isSeatCheckIntent = qLower.includes('seat') && (qLower.includes('show') || qLower.includes('check') || qLower.includes('available') || qLower.includes('what') || qLower.includes('map'));
 
   if (isSeatCheckIntent || currentState === 'BUS_SELECTED') {
     if (!selectedBus) {
@@ -554,20 +936,56 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
     };
 
     const openCount = seatData.availableSeats.length;
-    const previewSeats = seatData.availableSeats.slice(0, 16).join(', ');
+
+    // Step 3: Compute recommended seats & layout
+    const recSeatResult = recommendSeats({
+      busId: selectedBus.id,
+      busType: selectedBus.busType,
+      seatPreference: agentCtx.travelRequest.seat_preference,
+      passengers: agentCtx.travelRequest.passengers || 1,
+      availableSeats: seatData.availableSeats,
+    });
+    const recommendedSeats = recSeatResult.recommendedSeats || [];
+    const seatLayout = getBusSeatLayout(
+      selectedBus.id,
+      params.date,
+      slotTime,
+      params.selectedSeats || [],
+      recommendedSeats,
+      selectedBus.busType
+    );
+
+    let recReasonText = '';
+    if (recommendedSeats.length > 0 && recSeatResult.reasons.length > 0) {
+      recReasonText = `\n\n💡 **Tixie's Recommendation:** I recommend seat **${recommendedSeats.join(' and ')}** (${recSeatResult.reasons.join(', ')}).`;
+    }
 
     return {
       agentState: {
         ...agentState,
         state: 'WAITING_FOR_SEAT_SELECTION',
         params,
-        availableSeats: seatData.availableSeats
+        availableSeats: seatData.availableSeats,
+        agentCtx
       },
       statusTrace,
       text: `Checked seat map for **${selectedBus.busName}** (${slotTime}):\n\n` +
-        `💺 **Available Seats (${openCount}/${seatData.totalSeats}):**\n${previewSeats}...\n\n` +
-        `*Occupied Seats:* ${seatData.occupiedSeats.join(', ')}.\n\n` +
-        `Which seat numbers would you like to select? (e.g. "Book S3 and S4" or "Select S5")`,
+        `💺 **Available Seats (${openCount}/${seatData.totalSeats}):**\n` +
+        `Click any seat below to select or deselect.${recReasonText}`,
+      seatMap: {
+        busId: selectedBus.id,
+        busName: selectedBus.busName,
+        operator: selectedBus.operator,
+        fare: selectedBus.price,
+        date: params.date,
+        slotTime,
+        totalSeats: seatData.totalSeats,
+        availableSeats: seatData.availableSeats,
+        occupiedSeats: seatData.occupiedSeats,
+        selectedSeats: params.selectedSeats || [],
+        recommendedSeats,
+        rows: seatLayout.rows,
+      },
       actionCard: {
         title: `Interactive Seat Map (${selectedBus.busName})`,
         btnText: 'Open Interactive Seat Map 🗺️',
@@ -580,12 +998,9 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
           selectedSlot: selectedSlot || { time: slotTime, fare: `₹${selectedBus.price}` }
         }
       },
-      chips: [
-        'Book S3 and S4',
-        'Select S5 and S6',
-        'Choose best seats for 2 people',
-        'Select another bus'
-      ]
+      chips: recommendedSeats.length > 0
+        ? [`Select ${recommendedSeats.join(' and ')}`, 'Choose best seats for 2 people', 'Select another bus']
+        : ['Book S3 and S4', 'Select S5 and S6', 'Select another bus']
     };
   }
 
@@ -593,7 +1008,7 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
   // 4. SEAT SELECTION & ATOMIC VALIDATION INTENT
   // =========================================================================
   const extractedSeats = extractSeatIDs(q);
-  const isSeatSelectIntent = extractedSeats.length > 0 || (qLower.includes('seat') && (qLower.includes('choose') || qLower.includes('select') || qLower.includes('book') || qLower.includes('people') || qLower.includes('passenger')));
+  const isSeatSelectIntent = extractedSeats.length > 0 || (qLower.includes('seat') && (qLower.includes('choose') || qLower.includes('select') || qLower.includes('book') || qLower.includes('people') || qLower.includes('passenger') || qLower.includes('adjacent') || qLower.includes('together') || qLower.includes('window') || qLower.includes('lower') || qLower.includes('upper') || qLower.includes('recommend')));
 
   if (isSeatSelectIntent && (currentState === 'WAITING_FOR_SEAT_SELECTION' || currentState === 'WAITING_FOR_BUS_SELECTION' || currentState === 'BUS_SELECTED' || currentState === 'BOOKING_SUMMARY')) {
     if (!selectedBus) {
@@ -611,9 +1026,13 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
 
     let targetSeats = extractedSeats;
 
+    // Goal-based natural language seat preferences (adjacent, window, berth, etc.)
     if (targetSeats.length === 0) {
+      const isAdjacentReq = qLower.includes('adjacent') || qLower.includes('together') || (agentCtx.travelRequest.seat_preference?.type === 'adjacent');
+      const isWindowReq = qLower.includes('window') || (agentCtx.travelRequest.seat_preference?.type === 'window');
+
       const numMatch = q.match(/(\d+)\s*(?:people|passengers|seats)?/i);
-      const countNeeded = numMatch ? parseInt(numMatch[1], 10) : 2;
+      const countNeeded = numMatch ? parseInt(numMatch[1], 10) : (agentCtx.travelRequest.passengers || 2);
 
       const { availableSeats } = await check_seat_availability({
         busId: selectedBus.id,
@@ -621,7 +1040,30 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
         slot: slotTime
       });
 
-      targetSeats = availableSeats.slice(0, countNeeded);
+      if (isAdjacentReq) {
+        const found = findAdjacentSeats(availableSeats, countNeeded, { front: true });
+        if (found) targetSeats = found;
+      } else if (isWindowReq) {
+        const rec = recommendSeats({
+          busId: selectedBus.id,
+          busType: selectedBus.busType,
+          seatPreference: { type: 'window' },
+          passengers: countNeeded,
+          availableSeats
+        });
+        if (rec.recommendedSeats.length > 0) targetSeats = rec.recommendedSeats;
+      }
+
+      if (targetSeats.length === 0) {
+        const rec = recommendSeats({
+          busId: selectedBus.id,
+          busType: selectedBus.busType,
+          seatPreference: agentCtx.travelRequest.seat_preference,
+          passengers: countNeeded,
+          availableSeats
+        });
+        targetSeats = rec.recommendedSeats.slice(0, countNeeded);
+      }
     }
 
     // ATOMIC TOOL CALL: hold_select_seats
@@ -633,21 +1075,48 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
       farePerSeat
     });
 
-    // ATOMICITY REJECTION HANDLER
+    // ATOMICITY REJECTION HANDLER (with smart conflict recovery)
     if (!holdResult.success) {
+      const altSeats = holdResult.suggestedAlternatives || [];
+      const chips = [];
+      if (altSeats.length > 0) {
+        chips.push(`Select ${altSeats.join(' and ')}`);
+      }
+      chips.push('Show available seats', 'Select another bus');
+
+      const layout = getBusSeatLayout(
+        selectedBus.id,
+        params.date,
+        slotTime,
+        [],
+        altSeats,
+        selectedBus.busType
+      );
+
       return {
         agentState: {
           ...agentState,
           state: 'WAITING_FOR_SEAT_SELECTION',
-          params
+          params,
+          agentCtx
         },
         statusTrace,
-        text: `⚠️ **Seat Validation Notice:**\n${holdResult.error}\n\n*No seats were committed due to atomic availability checks. Please choose from open seats.*`,
-        chips: [
-          'Book S3 and S4',
-          'Select S5 and S6',
-          'Show available seats'
-        ]
+        text: `⚠️ **Seat Selection Notice:**\n${holdResult.error}\n\n*No seats were committed due to atomic availability checks.*`,
+        seatMap: {
+          busId: selectedBus.id,
+          busName: selectedBus.busName,
+          operator: selectedBus.operator,
+          fare: selectedBus.price,
+          date: params.date,
+          slotTime,
+          totalSeats: 40,
+          availableSeats: params.availableSeats || [],
+          occupiedSeats: params.occupiedSeats || [],
+          selectedSeats: [],
+          recommendedSeats: altSeats,
+          rows: layout.rows
+        },
+        chips
       };
     }
 
@@ -662,24 +1131,52 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
       totalFare: baseFare
     };
 
-    // Check if user ALSO provided passenger details in this message
+    agentCtx = updateSeatsContext(agentCtx, { selected: validatedSeats });
+    agentState = { ...agentState, agentCtx };
+
+    const successLayout = getBusSeatLayout(
+      selectedBus.id,
+      params.date,
+      slotTime,
+      validatedSeats,
+      [],
+      selectedBus.busType
+    );
+
+    // Check if user ALSO provided passenger details in this message or if activeUser is logged in
     let pd = { ...(agentState.passengerDetails || {}) };
-    
-    // Check name
+
+    if (activeUser) {
+      if (!pd.name && (activeUser.name || activeUser.fullName)) {
+        pd.name = (activeUser.name || activeUser.fullName).trim();
+      }
+      if (!pd.email && activeUser.email) {
+        pd.email = activeUser.email.toLowerCase().trim();
+      }
+      if (!pd.mobile && activeUser.mobile) {
+        pd.mobile = activeUser.mobile.replace(/\D/g, '');
+      }
+    }
+
+    // Check name from query
     const nameMatch = q.match(/(?:my name is|i['']?m|name is|passenger(?:'s)? name is|call me)\s+([A-Za-z][A-Za-z\s]{1,39})/i);
     if (nameMatch) pd.name = nameMatch[1].trim();
 
-    // Check email
+    // Check email from query
     const emailMatch = q.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
     if (emailMatch) pd.email = emailMatch[0].toLowerCase();
 
-    // Check mobile
+    // Check mobile from query
     const cleaned = q.replace(/[\s\-().]/g, '');
     const mobileMatch = cleaned.match(/(?:\+91)?([6-9]\d{9})/);
     if (mobileMatch) pd.mobile = mobileMatch[1];
 
+    const isNameValid = pd.name && pd.name.trim().length >= 3 && /^[a-zA-Z\s]+$/.test(pd.name.trim());
+    const isEmailValid = pd.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pd.email);
+    const isMobileValid = pd.mobile && /^[6-9]\d{9}$/.test(pd.mobile.replace(/\D/g, ''));
+
     // If all passenger details already provided:
-    if (pd.name && pd.email && pd.mobile) {
+    if (isNameValid && isEmailValid && isMobileValid) {
       return buildBookingSummaryResponse({
         agentState,
         params,
@@ -688,11 +1185,17 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
         selectedSeats: validatedSeats,
         pd,
         slotTime,
-        statusTrace: ['Seats validated atomically.', 'Passenger info parsed.']
+        statusTrace: ['Seats validated atomically.', 'Passenger info ready.']
       });
     }
 
-    // Otherwise prompt for passenger info
+    let firstPrompt = "Great, your seats are selected. What name should I use for the passenger?";
+    if (isNameValid && !isEmailValid) {
+      firstPrompt = `Thanks, **${pd.name}**! What email address should I use for the ticket?`;
+    } else if (isNameValid && isEmailValid && !isMobileValid) {
+      firstPrompt = "What 10-digit Indian mobile number should I use for ticket notifications?";
+    }
+
     return {
       agentState: {
         ...agentState,
@@ -700,15 +1203,30 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
         params,
         selectedSeats: validatedSeats,
         passengerDetails: pd,
-        totalFare: baseFare
+        totalFare: baseFare,
+        agentCtx
       },
       statusTrace: ['Seats reserved atomically.'],
       text: `🎉 **Seats ${validatedSeats.join(', ')} validated successfully!**\n\n` +
         `• **Bus:** ${selectedBus.operator} - ${selectedBus.busName}\n` +
         `• **Route:** ${params.source} → ${params.destination} (${params.date} at ${slotTime})\n` +
         `• **Fare:** ₹${baseFare} (${validatedSeats.length} seat${validatedSeats.length > 1 ? 's' : ''})\n\n` +
-        `To complete your booking, what is the passenger's **full name**?`,
-      chips: ['Anshika Verma', 'Rahul Sharma', 'Cancel']
+        firstPrompt,
+      seatMap: {
+        busId: selectedBus.id,
+        busName: selectedBus.busName,
+        operator: selectedBus.operator,
+        fare: selectedBus.price,
+        date: params.date,
+        slotTime,
+        totalSeats: 40,
+        availableSeats: params.availableSeats || [],
+        occupiedSeats: params.occupiedSeats || [],
+        selectedSeats: validatedSeats,
+        recommendedSeats: [],
+        rows: successLayout.rows
+      },
+      chips: isNameValid ? (isEmailValid ? ['9876543210', 'Cancel'] : ['Cancel']) : ['Anshika Verma', 'Rahul Sharma', 'Change seats', 'Cancel']
     };
   }
 
@@ -721,14 +1239,26 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
     currentState === 'BOOKING_SUMMARY'
   ) {
     let pd = { ...(agentState.passengerDetails || {}) };
+    if (activeUser) {
+      if (!pd.name && (activeUser.name || activeUser.fullName)) {
+        pd.name = (activeUser.name || activeUser.fullName).trim();
+      }
+      if (!pd.email && activeUser.email) {
+        pd.email = activeUser.email.toLowerCase().trim();
+      }
+      if (!pd.mobile && activeUser.mobile) {
+        pd.mobile = activeUser.mobile.replace(/\D/g, '');
+      }
+    }
+
     const slotTime = selectedSlot?.time || selectedBus?.departureTime || '08:30 PM';
 
     // Cancel / abort handler
     const CANCEL_PHRASES = ['cancel', 'abort', "don't book", 'dont book', 'not now', 'stop', 'never mind', 'no thanks'];
     const isCancelNow = qLower === 'no' || CANCEL_PHRASES.some((p) => qLower === p || qLower.startsWith(p));
-    if (isCancelNow) {
+    if (isCancelNow && currentState !== 'WAITING_FOR_CANCEL_CONFIRMATION') {
       return {
-        agentState: { state: 'IDLE', params: {} },
+        agentState: { state: 'IDLE', params: {}, agentCtx: resetTravelContext(agentCtx) },
         statusTrace: [],
         text: "❌ Booking cancelled. No problem, I haven't charged or created any booking.\n\nFeel free to search for another trip anytime!",
         chips: ['Find buses from Kanpur to Delhi tomorrow', 'Search Kanpur to Lucknow', 'Search Delhi to Jaipur']
@@ -736,16 +1266,70 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
     }
 
     // Change request handlers
-    if (qLower.includes('change seat') || qLower.includes('different seat') || qLower.includes('another seat')) {
-      return {
-        agentState: { ...agentState, state: 'WAITING_FOR_SEAT_SELECTION', params, passengerDetails: pd },
-        statusTrace: [],
-        text: "No problem! Which seats would you like instead? (e.g. S5 and S6)",
-        chips: ['Book S5 and S6', 'Book S8 and S9', 'Show available seats']
-      };
-    }
+    if (qLower.includes('change bus') || qLower.includes('different bus') || qLower.includes('another bus') || qLower.includes('second bus') || qLower.includes('cheaper bus') || qLower.includes('choose the other')) {
+      const newlySelected = findSelectedBusFromQuery(q, searchResults, recommendation);
+      if (newlySelected && newlySelected.id !== selectedBus?.id) {
+        selectedBus = newlySelected;
+        selectedSeats = [];
+        params = { ...params, selectedBus: newlySelected, selectedSeats: [] };
+        agentCtx = updateSearchContext(agentCtx, { selectedBus: newlySelected });
+        agentCtx = updateSeatsContext(agentCtx, { selected: [] });
 
-    if (qLower.includes('change bus') || qLower.includes('different bus') || qLower.includes('another bus')) {
+        const seatData = await check_seat_availability({
+          busId: selectedBus.id,
+          date: params.date,
+          slot: selectedBus.departureTime
+        });
+
+        const recSeats = recommendSeats({
+          busId: selectedBus.id,
+          busType: selectedBus.busType,
+          seatPreference: agentCtx.travelRequest.seat_preference,
+          passengers: agentCtx.travelRequest.passengers || 1,
+          availableSeats: seatData.availableSeats
+        });
+
+        const layout = getBusSeatLayout(
+          selectedBus.id,
+          params.date,
+          selectedBus.departureTime,
+          [],
+          recSeats.recommendedSeats || [],
+          selectedBus.busType
+        );
+
+        return {
+          agentState: {
+            ...agentState,
+            state: 'WAITING_FOR_SEAT_SELECTION',
+            params,
+            selectedBus,
+            selectedSeats: [],
+            passengerDetails: pd,
+            agentCtx
+          },
+          statusTrace: ['Updated bus selection.'],
+          text: `Updated bus to **${selectedBus.busName}** (${selectedBus.operator}, ₹${selectedBus.price}).\n\nPrevious seat selection was reset for the new bus. Please choose your seats on the seat map below:`,
+          seatMap: {
+            busId: selectedBus.id,
+            busName: selectedBus.busName,
+            operator: selectedBus.operator,
+            fare: selectedBus.price,
+            date: params.date,
+            slotTime: selectedBus.departureTime,
+            totalSeats: seatData.totalSeats,
+            availableSeats: seatData.availableSeats,
+            occupiedSeats: seatData.occupiedSeats,
+            selectedSeats: [],
+            recommendedSeats: recSeats.recommendedSeats || [],
+            rows: layout.rows
+          },
+          chips: recSeats.recommendedSeats?.length > 0
+            ? [`Select ${recSeats.recommendedSeats.join(' and ')}`, 'Show available seats']
+            : ['Show available seats', 'Select another bus']
+        };
+      }
+
       return {
         agentState: { ...agentState, state: 'WAITING_FOR_BUS_SELECTION', params, passengerDetails: pd },
         statusTrace: [],
@@ -754,7 +1338,53 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
       };
     }
 
-    if (qLower.includes('change passenger') || qLower.includes('change name') || qLower.includes('different name') || qLower.includes('update name')) {
+    if (qLower.includes('change seat') || qLower.includes('different seat') || qLower.includes('another seat') || qLower.includes('change to s') || qLower.includes('choose seats')) {
+      const explicitNewSeats = extractSeatIDs(q);
+      if (explicitNewSeats.length > 0 && selectedBus) {
+        const holdResult = await hold_select_seats({
+          busId: selectedBus.id,
+          date: params.date,
+          slot: slotTime,
+          seats: explicitNewSeats,
+          farePerSeat: selectedBus.price || 599
+        });
+
+        if (!holdResult.success) {
+          return {
+            agentState: { ...agentState, state: 'WAITING_FOR_SEAT_SELECTION', params },
+            statusTrace: [],
+            text: `⚠️ **Seat Selection Notice:**\n${holdResult.error}\n\nWould you like to choose different seats?`,
+            chips: ['Show available seats', 'Cancel']
+          };
+        }
+
+        selectedSeats = holdResult.seats;
+        params = { ...params, selectedSeats, baseFare: holdResult.totalFare, totalFare: holdResult.totalFare };
+        agentCtx = updateSeatsContext(agentCtx, { selected: selectedSeats });
+
+        if (pd.name && pd.email && pd.mobile) {
+          return buildBookingSummaryResponse({
+            agentState,
+            params,
+            selectedBus,
+            selectedSlot,
+            selectedSeats,
+            pd,
+            slotTime,
+            statusTrace: [`Seats updated to ${selectedSeats.join(', ')}.`]
+          });
+        }
+      }
+
+      return {
+        agentState: { ...agentState, state: 'WAITING_FOR_SEAT_SELECTION', params, passengerDetails: pd },
+        statusTrace: [],
+        text: "No problem! Which seats would you like instead? (e.g. S5 and S6)",
+        chips: ['Book S5 and S6', 'Book S8 and S9', 'Show available seats']
+      };
+    }
+
+    if (qLower.includes('change passenger') || qLower.includes('change name') || qLower.includes('different name') || qLower.includes('use another name') || qLower.includes('update name')) {
       const nameMatch = q.match(/(?:to|is)\s+([A-Za-z][A-Za-z\s]{1,39})/i);
       if (nameMatch && !nameMatch[1].toLowerCase().includes('change')) {
         pd = { ...pd, name: nameMatch[1].trim() };
@@ -766,7 +1396,7 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
           selectedSeats,
           pd,
           slotTime,
-          statusTrace: ['Passenger name updated.']
+          statusTrace: [`Passenger name updated to ${pd.name}.`]
         });
       }
       pd = { ...pd, name: undefined };
@@ -778,7 +1408,7 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
       };
     }
 
-    if (qLower.includes('change email') || qLower.includes('different email') || qLower.includes('update email')) {
+    if (qLower.includes('change email') || qLower.includes('different email') || qLower.includes('use another email') || qLower.includes('update email')) {
       const emailMatch = q.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
       if (emailMatch) {
         pd = { ...pd, email: emailMatch[0].toLowerCase() };
@@ -802,7 +1432,7 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
       };
     }
 
-    if (qLower.includes('change phone') || qLower.includes('change mobile') || qLower.includes('different number') || qLower.includes('update phone') || qLower.includes('update mobile')) {
+    if (qLower.includes('change phone') || qLower.includes('change mobile') || qLower.includes('different number') || qLower.includes('use another number') || qLower.includes('update phone') || qLower.includes('update mobile')) {
       const cleaned = q.replace(/[\s\-().]/g, '');
       const mobileMatch = cleaned.match(/(?:\+91)?([6-9]\d{9})/);
       if (mobileMatch) {
@@ -830,31 +1460,92 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
     // =======================================================================
     // 6. CONFIRMATION GATE (Strict Explicit Confirmation Check)
     // =======================================================================
-    const CONFIRM_PHRASES = [
-      'confirm', 'yes', 'yes confirm', 'yes, confirm', 'yes please',
-      'yes book it', 'yes, book it', 'book it', 'confirm booking',
-      'go ahead', 'proceed', 'proceed with booking', 'i want to book it',
-      'please book it', 'do it', 'confirm it', 'yes do it'
+    const CASUAL_AFFIRMATIONS = ['okay', 'ok', 'looks good', 'continue', 'next', 'show me the ticket', 'cool', 'fine', 'sure', 'sounds good'];
+    const isCasualAffirmation = CASUAL_AFFIRMATIONS.some((p) => qLower === p || qLower.startsWith(p + ' '));
+
+    if (isCasualAffirmation && currentState === 'BOOKING_SUMMARY') {
+      const fareToShow = agentState.totalFare || (selectedSeats.length * (selectedBus?.price || 0));
+      return {
+        agentState,
+        statusTrace: [],
+        text: 'To prevent accidental reservations, please explicitly confirm by typing **"Confirm booking"** or **"Yes, book it"**, or tap **Confirm Booking** below.',
+        actionCard: {
+          title: `Confirm Booking for ${selectedSeats.join(', ')} (₹${fareToShow})`,
+          btnText: 'Confirm Booking ✅',
+          chatQuery: 'Confirm booking'
+        },
+        chips: ['Confirm booking', 'Change details', 'Cancel']
+      };
+    }
+
+    const EXPLICIT_CONFIRM_PHRASES = [
+      'confirm', 'confirm booking', 'yes, confirm', 'yes confirm',
+      'yes, book it', 'yes book it', 'book it', 'book now',
+      'please confirm', 'confirm it', 'yes, please confirm'
     ];
 
-    const isConfirmIntent = CONFIRM_PHRASES.some((p) => {
+    const isExplicitConfirm = EXPLICIT_CONFIRM_PHRASES.some((p) => {
       if (qLower === p) return true;
       const regex = new RegExp(`\\b${p.replace(',', '')}\\b`, 'i');
       return regex.test(qLower.replace(/[.,!]/g, ' '));
     });
 
-    if (isConfirmIntent && currentState === 'BOOKING_SUMMARY') {
+    if (isExplicitConfirm && currentState === 'BOOKING_SUMMARY') {
+      // 1. Check Authentication Gate
+      if (!activeUser) {
+        return {
+          agentState: { ...agentState, state: 'BOOKING_SUMMARY', params },
+          statusTrace: ['Authentication required before booking commitment.'],
+          text: '⚠️ **Sign In Required:** Please sign in before I complete your booking. Your selected seats and details are saved.',
+          actionCard: {
+            title: 'Sign In to GoTicket',
+            btnText: 'Sign In Now 👤',
+            navigateTo: '/login',
+            openAuth: true
+          },
+          chips: ['Sign In', 'Cancel']
+        };
+      }
+
+      // 2. Validate Passenger Details
       if (!pd.name || !pd.email || !pd.mobile) {
         return {
           agentState: { ...agentState, state: 'COLLECTING_PASSENGER_INFO', params },
           statusTrace: [],
-          text: 'I still need passenger details before booking. What name should I use?',
+          text: 'I still need complete passenger details before booking. What name should I use?',
           chips: []
         };
       }
 
-      statusTrace.push('Validating seat availability...');
-      statusTrace.push('Preparing booking details for payment...');
+      // 3. Duplicate / Idempotency Protection
+      const idempotencyKey = `GT_BOOK_${selectedBus?.id}_${params.date}_${slotTime}_${selectedSeats.slice().sort().join('_')}_${pd.mobile}`;
+      if (agentState.isBookingInProgress) {
+        return {
+          agentState,
+          statusTrace: [],
+          text: '⏳ Your booking is already being processed. Please wait a moment...',
+          chips: []
+        };
+      }
+
+      if (agentState.state === 'CONFIRMED' && agentState.confirmedTicket) {
+        const existing = agentState.confirmedTicket;
+        return {
+          agentState,
+          statusTrace: [],
+          text: `Your booking has already been confirmed! Your ticket ID is **${existing.ticketId}**.\n\n🚌 **${existing.name}** | 💺 Seats: ${(existing.seats || []).join(', ')}`,
+          actionCard: {
+            title: `View E-Ticket (${existing.ticketId})`,
+            btnText: 'View E-Ticket 🎫',
+            navigateTo: '/eticket'
+          },
+          chips: ['View E-Ticket 🎫', 'Book another trip']
+        };
+      }
+
+      statusTrace.push('Validating final seat availability...');
+      statusTrace.push('Processing demo payment authorization...');
+      statusTrace.push('Committing ticket with booking service...');
 
       const farePerSeat = selectedBus?.price || 0;
       const baseFare = selectedSeats.length * farePerSeat;
@@ -880,7 +1571,7 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
         mobile: pd.mobile
       };
 
-      const prepResult = await prepare_booking({
+      const bookingResult = await create_booking({
         busDetails: selectedBus,
         slot: slotTime,
         seats: selectedSeats,
@@ -891,109 +1582,163 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
         destination: params.destination,
         appliedCoupon: couponCode,
         discountAmount,
-        totalFare
+        totalFare,
+        idempotencyKey
       });
 
-      if (!prepResult.success) {
+      if (!bookingResult.success) {
+        if (bookingResult.seatValidationFailed) {
+          const alt = bookingResult.suggestedAlternatives || [];
+          const altText = alt.length > 0 ? ` I found **${alt.join(' and ')}** as available alternatives.` : '';
+          return {
+            agentState: { ...agentState, state: 'WAITING_FOR_SEAT_SELECTION', params, selectedSeats: [] },
+            statusTrace: ['Atomic seat check rejected booking.'],
+            text: `⚠️ **Seat Availability Notice:**\n${selectedSeats.join(', ')} is no longer available, so I haven't completed the booking.${altText}\n\nWould you like to select available seats?`,
+            chips: alt.length > 0 ? [`Select ${alt.join(' and ')}`, 'Show available seats', 'Cancel'] : ['Show available seats', 'Select another bus']
+          };
+        }
+
+        if (bookingResult.reconciliationRequired) {
+          return {
+            agentState: { ...agentState, state: 'RECONCILIATION_PENDING', params },
+            statusTrace: ['Payment authorized; downstream booking synchronization pending.'],
+            text: `⚠️ **Transaction Reconciliation Notice:**\n${bookingResult.error}\n\nReference: ${bookingResult.transactionId}`,
+            chips: ['Contact Support 📞', 'Book another trip']
+          };
+        }
+
         return {
           agentState: { ...agentState, state: 'BOOKING_SUMMARY', params },
-          statusTrace,
-          text: `⚠️ **Booking could not be prepared:**\n${prepResult.error}\n\nWould you like to choose different seats or try again?`,
-          chips: ['Show available seats', 'Select another bus', 'Cancel']
+          statusTrace: ['Booking could not be created.'],
+          text: `⚠️ **Booking could not be completed:**\n${bookingResult.error}\n\nWould you like to try again or change details?`,
+          chips: ['Confirm booking', 'Change seats', 'Cancel']
         };
       }
 
-      const emailParts = pd.email.split('@');
-      const maskedEmail = emailParts[0].slice(0, 2) + '***@' + emailParts[1];
-      const maskedMobile = '•'.repeat(pd.mobile.length - 4) + pd.mobile.slice(-4);
-
-      const confirmedHandoffText =
-        `✅ **Your booking details are confirmed!**\n\n` +
-        `🚌 **Bus:** ${selectedBus?.operator || ''} - ${selectedBus?.busName || ''} (${selectedBus?.busType || ''})\n` +
-        `📍 **Route:** ${params.source} → ${params.destination}\n` +
-        `📅 **Date:** ${params.date}  ⏰ **Departure:** ${slotTime}\n` +
-        `💺 **Seats:** ${selectedSeats.join(', ')}\n` +
-        `👤 **Passenger:** ${pd.name} (${maskedEmail} | ${maskedMobile})\n` +
-        `💰 **Total Payable:** ₹${totalFare}\n\n` +
-        `👉 **Please complete the payment on the Payment Page to finalize your ticket.**`;
+      const ticket = bookingResult.ticket;
+      const maskedEmail = maskEmail(pd.email);
+      const maskedMobile = maskMobile(pd.mobile);
 
       return {
         agentState: {
           ...agentState,
-          state: 'PAYMENT_PENDING',
+          state: 'CONFIRMED',
           params,
+          confirmedTicket: ticket,
+          ticketId: ticket.ticketId,
           passengerDetails: pd,
-          pendingBooking: prepResult.pendingBooking,
           totalFare
         },
-        statusTrace: ['Booking details confirmed.', 'Ready for payment handoff.'],
-        text: confirmedHandoffText,
-        pendingBooking: prepResult.pendingBooking,
+        statusTrace: ['Payment authorized (Demo).', 'Ticket confirmed.', 'Demo notifications prepared.'],
+        text: `🎉 **Your booking is confirmed!**\n\n` +
+          `Your ticket ID is **${ticket.ticketId}**.\n\n` +
+          `🚌 **Bus:** ${ticket.name} (${ticket.type || 'AC'})\n` +
+          `📍 **Route:** ${ticket.route}\n` +
+          `📅 **Date:** ${ticket.date}  ⏰ **Departure:** ${ticket.time}\n` +
+          `💺 **Seats:** ${(ticket.seats || []).join(', ')}\n` +
+          `👤 **Passenger:** ${pd.name} (${maskedEmail} | ${maskedMobile})\n` +
+          `💰 **Total Fare:** ₹${ticket.totalFare}\n\n` +
+          `📩 *Demo notification prepared for ${maskedEmail} and ${maskedMobile}.*`,
         actionCard: {
-          title: `Proceed to Payment (₹${totalFare})`,
-          btnText: 'Proceed to Payment 💳',
-          navigateTo: '/payment',
-          state: {
-            bookingData: prepResult.pendingBooking
-          }
+          title: `Official E-Ticket (${ticket.ticketId})`,
+          btnText: 'View E-Ticket 🎫',
+          navigateTo: '/eticket'
         },
-        chips: ['Proceed to Payment 💳', 'Change seats', 'Cancel']
+        chips: ['View E-Ticket 🎫', 'Book another trip']
       };
     }
 
-    // If user says "maybe", "not sure", "how much", etc. in BOOKING_SUMMARY:
     if (currentState === 'BOOKING_SUMMARY') {
+      const fareToShow = agentState.totalFare || (selectedSeats.length * (selectedBus?.price || 0));
       return {
         agentState,
         statusTrace: [],
-        text: 'Would you like me to confirm this booking?\n\n• Type **"Yes, confirm"** or tap **Confirm Booking** to finalize.\n• Type **"Change seat"**, **"Change passenger"**, or **"Cancel"** to abort.',
-        chips: ['Yes, confirm', 'Change seats', 'Change passenger', 'Cancel']
+        text: 'Would you like me to confirm this booking?\n\n• Type **"Confirm booking"** or tap **[ Confirm Booking ]** below.\n• Type **"Change seats"**, **"Change passenger"**, or **"Cancel"** to abort.',
+        actionCard: {
+          title: `Confirm Booking for ${selectedSeats.join(', ')} (₹${fareToShow})`,
+          btnText: 'Confirm Booking ✅',
+          chatQuery: 'Confirm booking'
+        },
+        chips: ['Confirm booking', 'Change seats', 'Change passenger', 'Cancel']
       };
     }
 
     // =======================================================================
-    // MULTI-FIELD & SEQUENTIAL PASSENGER EXTRACTION
+    // SEQUENTIAL PASSENGER EXTRACTION (ONE AT A TIME)
     // =======================================================================
-    // 1. Extract Name if not set
     if (!pd.name) {
-      const namePatterns = [
-        /(?:my name is|i['']?m|name is|passenger(?:'s)? name is|call me)\s+([A-Za-z][A-Za-z\s]{1,39})/i,
-        /^([A-Za-z][A-Za-z\s]{1,39})$/
-      ];
-      for (const pattern of namePatterns) {
-        const m = q.match(pattern);
-        if (m) {
-          const val = m[1].trim();
-          if (!['yes', 'no', 'cancel', 'confirm', 'book', 'stop', 'done'].includes(val.toLowerCase())) {
-            pd.name = val;
-            break;
-          }
-        }
+      const nameMatch = q.match(/(?:my name is|i['']?m|name is|call me)\s+([A-Za-z][A-Za-z\s]{1,39})/i) ||
+                        q.match(/^([A-Za-z][A-Za-z\s]{1,39})$/);
+      const candidateName = nameMatch ? nameMatch[1].trim() : q.trim();
+      const reserved = ['yes', 'no', 'cancel', 'confirm', 'book', 'stop', 'done', 'help', 'hi', 'hello', 'okay', 'ok'];
+
+      if (
+        !candidateName ||
+        candidateName.length < 3 ||
+        !/^[a-zA-Z\s]+$/.test(candidateName) ||
+        reserved.includes(candidateName.toLowerCase())
+      ) {
+        return {
+          agentState: { ...agentState, state: 'COLLECTING_PASSENGER_INFO', params, passengerDetails: pd },
+          statusTrace: [],
+          text: 'Please enter a valid passenger full name (at least 3 letters, e.g. "Anshika Verma").',
+          chips: ['Anshika Verma', 'Rahul Sharma', 'Cancel']
+        };
+      }
+
+      pd.name = candidateName;
+
+      if (!pd.email) {
+        return {
+          agentState: { ...agentState, state: 'COLLECTING_PASSENGER_INFO', params, passengerDetails: pd },
+          statusTrace: ['Name received.'],
+          text: `Thanks, **${pd.name}**! 👤\n\nWhat email address should I use for the ticket?`,
+          chips: ['Cancel']
+        };
       }
     }
 
-    // 2. Extract Email if not set
     if (!pd.email) {
       const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
       const emailMatch = q.match(emailPattern);
-      if (emailMatch) {
-        pd.email = emailMatch[0].toLowerCase();
+
+      if (!emailMatch || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(q.trim())) {
+        return {
+          agentState: { ...agentState, state: 'COLLECTING_PASSENGER_INFO', params, passengerDetails: pd },
+          statusTrace: [],
+          text: 'Please provide a valid email address (e.g. anshika@example.com).',
+          chips: ['Cancel']
+        };
+      }
+
+      pd.email = emailMatch[0].toLowerCase();
+
+      if (!pd.mobile) {
+        return {
+          agentState: { ...agentState, state: 'COLLECTING_PASSENGER_INFO', params, passengerDetails: pd },
+          statusTrace: ['Email received.'],
+          text: `Got it! 📧\n\nWhat 10-digit Indian mobile number should I use for ticket notifications?`,
+          chips: ['Cancel']
+        };
       }
     }
 
-    // 3. Extract Mobile if not set
     if (!pd.mobile) {
-      const cleaned = q.replace(/[\s\-().]/g, '');
-      const mobilePattern = /(?:\+91)?([6-9]\d{9})/;
-      const mobileMatch = cleaned.match(mobilePattern);
-      if (mobileMatch) {
-        pd.mobile = mobileMatch[1];
+      const digits = q.replace(/\D/g, '');
+      if (digits.length !== 10 || !/^[6-9]\d{9}$/.test(digits)) {
+        return {
+          agentState: { ...agentState, state: 'COLLECTING_PASSENGER_INFO', params, passengerDetails: pd },
+          statusTrace: [],
+          text: 'Please provide a valid 10-digit Indian mobile number starting with 6-9 (e.g. 9876543210).',
+          chips: ['Cancel']
+        };
       }
+
+      pd.mobile = digits;
     }
 
-    // Check if ALL 3 fields are now satisfied:
+    // ALL 3 ARE NOW PRESENT AND VALID
     if (pd.name && pd.email && pd.mobile) {
-      const slotTime = selectedSlot?.time || selectedBus?.departureTime || '08:30 PM';
       return buildBookingSummaryResponse({
         agentState,
         params,
@@ -1002,46 +1747,8 @@ export const processAgentMessage = async (userMessage = '', agentState = {}) => 
         selectedSeats,
         pd,
         slotTime,
-        statusTrace: ['All passenger information collected.']
+        statusTrace: ['All passenger details validated.']
       });
-    }
-
-    // If still missing name:
-    if (!pd.name) {
-      return {
-        agentState: { ...agentState, state: 'COLLECTING_PASSENGER_INFO', params, passengerDetails: pd },
-        statusTrace: ['Collecting passenger information...'],
-        text: 'What name should I use for the passenger? (e.g. "Anshika Verma")',
-        chips: ['Anshika Verma', 'Rahul Sharma', 'Cancel']
-      };
-    }
-
-    // If still missing email:
-    if (!pd.email) {
-      const hasAt = q.includes('@');
-      const textPrompt = hasAt
-        ? "That doesn't look like a valid email address (e.g. anshika@example.com). Please try again."
-        : `Thanks, **${pd.name}**! 👤\n\nWhat email address should I send the ticket to?`;
-      return {
-        agentState: { ...agentState, state: 'COLLECTING_PASSENGER_INFO', params, passengerDetails: pd },
-        statusTrace: ['Name received.'],
-        text: textPrompt,
-        chips: []
-      };
-    }
-
-    // If still missing mobile:
-    if (!pd.mobile) {
-      const hasDigits = /\d/.test(q);
-      const textPrompt = hasDigits
-        ? "Please provide a valid 10-digit Indian mobile number (e.g. 9876543210)."
-        : `Got it! 📧\n\nWhat 10-digit mobile number should I use for ticket notifications?`;
-      return {
-        agentState: { ...agentState, state: 'COLLECTING_PASSENGER_INFO', params, passengerDetails: pd },
-        statusTrace: ['Email received.'],
-        text: textPrompt,
-        chips: ['9876543210', '9123456789']
-      };
     }
   }
 
@@ -1081,32 +1788,25 @@ function buildBookingSummaryResponse({ agentState, params, selectedBus, selected
 
   const totalFare = Math.max(0, baseFare - discountAmount);
 
-  const emailParts = pd.email.split('@');
-  const maskedEmail = emailParts[0].slice(0, 2) + '***@' + emailParts[1];
-  const maskedMobile = '•'.repeat(pd.mobile.length - 4) + pd.mobile.slice(-4);
-
-  let fareText = `• **Base Fare:** ₹${baseFare}`;
-  if (discountAmount > 0) {
-    fareText += `\n• **Discount (${couponCode}):** -₹${discountAmount}`;
-  }
-  fareText += `\n• **Total Amount:** ₹${totalFare}`;
+  const maskedEmail = maskEmail(pd.email);
+  const maskedMobile = maskMobile(pd.mobile);
 
   const summaryText =
-    `📋 **Booking Summary**\n\n` +
-    `🚌 **Bus:** ${selectedBus?.operator || ''} — ${selectedBus?.busName || ''} (${selectedBus?.busType || ''})\n` +
-    `📍 **Route:** ${params.source} → ${params.destination}\n` +
-    `📅 **Date:** ${params.date}  ⏰ **Departure:** ${slotTime}\n` +
-    `💺 **Seats:** ${selectedSeats.join(', ')} (${selectedSeats.length} seat${selectedSeats.length > 1 ? 's' : ''})\n\n` +
-    `👤 **Passenger Details:**\n` +
-    `• **Name:** ${pd.name}\n` +
-    `• **Email:** ${maskedEmail}\n` +
-    `• **Mobile:** ${maskedMobile}\n\n` +
-    `💰 **Fare Details:**\n` +
-    `${fareText}\n\n` +
+    `📋 **BOOKING SUMMARY**\n\n` +
+    `📍 **${params.source} → ${params.destination}**\n` +
+    `📅 **${params.date}**\n\n` +
+    `🚌 **${selectedBus?.operator || ''} - ${selectedBus?.busName || ''}**\n` +
+    `⏰ **Departure:** ${slotTime}\n` +
+    (selectedBus?.arrivalTime ? `🏁 **Arrival:** ${selectedBus.arrivalTime}\n` : '') +
+    `\n💺 **Seats:**\n${selectedSeats.join(', ')}\n\n` +
+    `👤 **Passenger:**\n${pd.name}\n\n` +
+    `📧 **Email:**\n${maskedEmail}\n\n` +
+    `📱 **Mobile:**\n${maskedMobile}\n\n` +
+    `💰 **Fare:**\n₹${totalFare}${discountAmount > 0 ? ` (Promo ${couponCode}: -₹${discountAmount})` : ''}\n\n` +
     `──────────────────────\n` +
     `Would you like me to confirm this booking?\n\n` +
-    `• Tap **"Confirm Booking"** or type **"Yes, confirm"**.\n` +
-    `• To change details, type **"Change seat"** or **"Cancel"**.`;
+    `• Tap **[ Confirm Booking ]** or type **"Confirm booking"**.\n` +
+    `• To change details, type **"Change seats"**, **"Change passenger"**, or **"Cancel"**.`;
 
   return {
     agentState: {
@@ -1122,8 +1822,8 @@ function buildBookingSummaryResponse({ agentState, params, selectedBus, selected
     actionCard: {
       title: `Confirm Booking for ${selectedSeats.join(', ')} (₹${totalFare})`,
       btnText: 'Confirm Booking ✅',
-      chatQuery: 'Yes, confirm'
+      chatQuery: 'Confirm booking'
     },
-    chips: ['Yes, confirm', 'Change seats', 'Change passenger', 'Cancel']
+    chips: ['Confirm booking', 'Change seats', 'Change passenger', 'Cancel']
   };
 }

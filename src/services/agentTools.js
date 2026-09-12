@@ -4,7 +4,9 @@
 import { searchBuses } from './busService.js';
 import { MOCK_BUSES } from '../data/mockBuses.js';
 import { getAvailableSeats, validateAndHoldSeats } from './seatService.js';
-import { createAgentBooking, preparePendingBooking } from './bookingService.js';
+import { createBooking, preparePendingBooking, getBooking, cancelBooking } from './bookingService.js';
+import { processPayment, createReconciliationRecord } from './paymentService.js';
+import { sendTicketEmail, sendTicketSMS } from './notificationService.js';
 
 /**
  * Tool: search_buses
@@ -262,8 +264,8 @@ export const prepare_booking = async ({
 
 /**
  * Tool: create_booking
- * FINAL atomic seat check + actual booking creation via bookingService.
- * Called when committing booking directly.
+ * FINAL atomic seat check + payment processing + booking commitment via bookingService + notifications.
+ * Called when committing booking directly after user confirmation.
  *
  * @param {Object} params
  * @returns {Promise<Object>}
@@ -274,51 +276,173 @@ export const create_booking = async ({
   seats = [],
   farePerSeat = 0,
   passenger,
-  date = ''
+  date = '',
+  source = '',
+  destination = '',
+  appliedCoupon = null,
+  discountAmount = 0,
+  totalFare = null,
+  idempotencyKey = null,
+  simulatePaymentFailure = false,
+  simulateBookingFailure = false
 }) => {
+  if (!busDetails || !busDetails.id) {
+    return { success: false, tool: 'create_booking', error: 'Bus details are required.' };
+  }
+  if (!seats || seats.length === 0) {
+    return { success: false, tool: 'create_booking', error: 'At least one seat must be selected.' };
+  }
+  if (!passenger || !passenger.fullName || !passenger.email || !passenger.mobile) {
+    return { success: false, tool: 'create_booking', error: 'Passenger fullName, email, and mobile are required.' };
+  }
+
+  // 1. FINAL ATOMIC SEAT REVALIDATION
+  const finalCheck = validateAndHoldSeats(
+    busDetails.id,
+    date,
+    slot,
+    seats,
+    farePerSeat || busDetails.price || 0
+  );
+
+  if (!finalCheck.success) {
+    return {
+      success: false,
+      tool: 'create_booking',
+      seatValidationFailed: true,
+      error: `Seat availability changed: ${finalCheck.error}. Booking was not created.`,
+      suggestedAlternatives: finalCheck.suggestedAlternatives || []
+    };
+  }
+
+  const effectiveFare = typeof totalFare === 'number' ? totalFare : Math.max(0, finalCheck.totalFare - (discountAmount || 0));
+
+  // 2. PAYMENT SERVICE BOUNDARY
+  const paymentResult = await processPayment({
+    amount: effectiveFare,
+    currency: 'INR',
+    bookingContext: {
+      busId: busDetails.id,
+      route: `${source || busDetails.source} to ${destination || busDetails.destination}`,
+      seats: finalCheck.seats
+    },
+    method: 'demo',
+    simulateFailure: simulatePaymentFailure
+  });
+
+  if (!paymentResult.success) {
+    return {
+      success: false,
+      tool: 'create_booking',
+      paymentFailed: true,
+      error: paymentResult.error || 'Payment authorization failed.',
+      payment: paymentResult
+    };
+  }
+
+  // 3. SIMULATED DOWNSTREAM RECONCILIATION FAILURE (if requested)
+  if (simulateBookingFailure) {
+    const recRecord = createReconciliationRecord({
+      transactionId: paymentResult.transactionId,
+      amount: effectiveFare,
+      reason: 'Simulated bus operator inventory sync failed after payment authorization.'
+    });
+    return {
+      success: false,
+      tool: 'create_booking',
+      reconciliationRequired: true,
+      transactionId: paymentResult.transactionId,
+      error: recRecord.userNotice,
+      reconciliationRecord: recRecord
+    };
+  }
+
+  // 4. BOOKING SERVICE COMMITMENT
+  const enrichedBus = { ...busDetails, date: date || busDetails.date || '' };
+
+  const bookingResult = createBooking({
+    busDetails: enrichedBus,
+    slot,
+    seats: finalCheck.seats,
+    farePerSeat: farePerSeat || busDetails.price || 0,
+    passenger,
+    date,
+    source: source || busDetails.source,
+    destination: destination || busDetails.destination,
+    appliedCoupon,
+    discountAmount,
+    totalFare: effectiveFare,
+    paymentMethod: 'demo',
+    paymentDetails: paymentResult,
+    idempotencyKey
+  });
+
+  if (!bookingResult.success) {
+    const recRecord = createReconciliationRecord({
+      transactionId: paymentResult.transactionId,
+      amount: effectiveFare,
+      reason: bookingResult.error || 'BookingService failed to finalize ticket.'
+    });
+    return {
+      success: false,
+      tool: 'create_booking',
+      reconciliationRequired: true,
+      transactionId: paymentResult.transactionId,
+      error: recRecord.userNotice,
+      reconciliationRecord: recRecord
+    };
+  }
+
+  // 5. DEMO NOTIFICATIONS (Simulated)
+  try {
+    sendTicketEmail({ email: passenger.email, ticket: bookingResult.ticket });
+    sendTicketSMS({ mobile: passenger.mobile, ticket: bookingResult.ticket });
+  } catch (e) {}
+
+  return {
+    tool: 'create_booking',
+    success: true,
+    ticketId: bookingResult.ticketId,
+    ticket: bookingResult.ticket,
+    isDuplicate: bookingResult.isDuplicate || false,
+    payment: paymentResult
+  };
+};
+
+/**
+ * Tool: cancel_booking
+ * Cancels a booking via bookingService with user authorization checks.
+ *
+ * @param {Object} params
+ * @param {string} params.ticketId
+ * @param {Object} [params.user]
+ * @returns {Promise<Object>}
+ */
+export const cancel_booking = async ({ ticketId, user = null }) => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      if (!busDetails || !busDetails.id) {
-        return resolve({ success: false, tool: 'create_booking', error: 'Bus details are required.' });
+      const result = cancelBooking(ticketId, user);
+      resolve({ tool: 'cancel_booking', ...result });
+    }, 300);
+  });
+};
+
+/**
+ * Tool: get_booking_details
+ * Retrieves ticket info by ID via bookingService.
+ *
+ * @param {Object} params
+ * @param {string} params.ticketId
+ * @returns {Promise<Object>}
+ */
+export const get_booking_details = async ({ ticketId }) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const ticket = getBooking(ticketId);
+      if (!ticket) {
+        return resolve({ success: false, tool: 'get_booking_details', error: `Ticket "${ticketId}" not found.`, ticket: null });
       }
-      if (!seats || seats.length === 0) {
-        return resolve({ success: false, tool: 'create_booking', error: 'At least one seat must be selected.' });
-      }
-      if (!passenger || !passenger.fullName || !passenger.email || !passenger.mobile) {
-        return resolve({ success: false, tool: 'create_booking', error: 'Passenger fullName, email, and mobile are required.' });
-      }
-
-      // Final atomic seat availability check before committing booking
-      const finalCheck = validateAndHoldSeats(
-        busDetails.id,
-        date,
-        slot,
-        seats,
-        farePerSeat || busDetails.price || 0
-      );
-
-      if (!finalCheck.success) {
-        return resolve({
-          success: false,
-          tool: 'create_booking',
-          error: `Seat availability changed: ${finalCheck.error}. Booking was not created.`
-        });
-      }
-
-      // Enrich busDetails with date for the ticket record
-      const enrichedBus = { ...busDetails, date: date || busDetails.date || '' };
-
-      const result = createAgentBooking({
-        busDetails: enrichedBus,
-        slot,
-        seats: finalCheck.seats,
-        boarding: {},
-        dropping: {},
-        passenger,
-        totalFare: finalCheck.totalFare
-      });
-
-      resolve({ tool: 'create_booking', ...result });
-    }, 500);
+      resolve({ success: true, tool: 'get_booking_details', ticket });
+    }, 200);
   });
 };
