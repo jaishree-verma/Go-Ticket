@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { DEFAULT_SOLD_SEATS as soldSeats } from '../../services/seatService';
 import styles from '../../stylespages/selectseats.module.css';
 
 const SelectSeats = () => {
@@ -13,9 +14,6 @@ const SelectSeats = () => {
   const selectedTime = selectedSlot?.time || '05:05 PM';
   const selectedFare = selectedSlot?.fare || '₹599';
   const fareNumber   = parseInt(selectedFare.replace(/[^\d]/g, ''), 10) || 599;
-
-  // Mock sold seats
-  const soldSeats = ['S2', 'S7', 'S12', 'S18', 'S24', 'S31'];
 
   const toggleSeat = (seat) => {
     if (soldSeats.includes(seat)) return;

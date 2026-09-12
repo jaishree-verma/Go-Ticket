@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { sendTicketEmail, sendTicketSMS } from '../../services/notificationService';
 import styles from '../../stylespages/payment.module.css';
 
 const generateTicketId = () =>
@@ -268,29 +269,40 @@ const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
 const PaymentPage = () => {
   const { state }   = useLocation();
   const navigate    = useNavigate();
-  const bookingData = state?.bookingData || {};
+
+  // Retrieve bookingData from router state or fallback to pendingBooking in localStorage
+  const bookingData = state?.bookingData || (() => {
+    try {
+      const stored = localStorage.getItem('pendingBooking');
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  })();
 
   const [step, setStep]     = useState('summary');
   const [method, setMethod] = useState('');
 
   /* Offer / Coupon State */
-  const [appliedCoupon, setAppliedCoupon] = useState('');
-  const [discountAmount, setDiscountAmount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon]   = useState(bookingData.appliedCoupon || '');
+  const [discountAmount, setDiscountAmount] = useState(bookingData.discountAmount || 0);
+  const [, setCouponInput]                  = useState('');
 
-
-  /* Auto load coupon from localStorage if applied from gift banner */
+  /* Auto load coupon from localStorage if applied from gift banner (and not already set) */
   useEffect(() => {
-    const stored = localStorage.getItem('appliedCoupon');
-    if (stored) {
-      try {
-        const c = JSON.parse(stored);
-        if (c?.code) {
-          setAppliedCoupon(c.code);
-          setDiscountAmount(150);
-        }
-      } catch (e) {}
+    if (!appliedCoupon) {
+      const stored = localStorage.getItem('appliedCoupon');
+      if (stored) {
+        try {
+          const c = JSON.parse(stored);
+          if (c?.code) {
+            setAppliedCoupon(c.code);
+            setDiscountAmount(150);
+          }
+        } catch (e) {}
+      }
     }
-  }, []);
+  }, [appliedCoupon]);
 
   /* Payment fields */
   const [upiId, setUpiId]       = useState('');
@@ -299,15 +311,43 @@ const PaymentPage = () => {
   const [expiry, setExpiry]     = useState('');
   const [cvv, setCvv]           = useState('');
 
-  const [passengers, setPassengers] = useState([emptyPassenger()]);
+  const [passengers, setPassengers] = useState(() => {
+    if (bookingData.passengers && bookingData.passengers.length > 0) {
+      return bookingData.passengers.map(p => ({
+        ...emptyPassenger(),
+        fullName: p.fullName || '',
+        email: p.email || '',
+        mobile: p.mobile || '',
+        gender: p.gender || 'Male',
+        age: p.age || '25',
+        aadhaar: p.aadhaar || '123456789012',
+        mobileVerified: true
+      }));
+    }
+    if (bookingData.passenger && bookingData.passenger.fullName) {
+      return [{
+        ...emptyPassenger(),
+        fullName: bookingData.passenger.fullName || '',
+        email: bookingData.passenger.email || '',
+        mobile: bookingData.passenger.mobile || '',
+        gender: bookingData.passenger.gender || 'Male',
+        age: bookingData.passenger.age || '25',
+        aadhaar: bookingData.passenger.aadhaar || '123456789012',
+        mobileVerified: true
+      }];
+    }
+    return [emptyPassenger()];
+  });
+
   const [errorMsg, setErrorMsg] = useState('');
   const [ticketId]              = useState(generateTicketId());
 
-  const subTotal = bookingData.fare
-    ? parseInt(bookingData.fare.replace(/[^\d]/g, ''), 10) *
-      (bookingData.seats?.length || 1)
-    : 0;
+  const farePerSeat = bookingData.fare
+    ? parseInt(String(bookingData.fare).replace(/[^\d]/g, ''), 10)
+    : (bookingData.price || 0);
 
+  const seatCount = bookingData.seats?.length || 1;
+  const subTotal = bookingData.baseFare || (farePerSeat ? farePerSeat * seatCount : (bookingData.totalFare || 0));
   const totalFare = Math.max(0, subTotal - discountAmount);
 
   const applyPromo = (code, amount) => {
@@ -386,7 +426,17 @@ const PaymentPage = () => {
     const primary = passengers[0];
     const ticket  = {
       ticketId,
-      ...bookingData,
+      name:          bookingData.name        || bookingData.busName || (bookingData.busDetails?.busName || ''),
+      label:         bookingData.name        || bookingData.busName || (bookingData.busDetails?.busName || ''),
+      id:            bookingData.id          || (bookingData.busDetails?.id || ''),
+      type:          bookingData.type        || bookingData.busType || (bookingData.busDetails?.busType || ''),
+      route:         bookingData.route       || `${bookingData.source || ''} => ${bookingData.destination || ''}`,
+      date:          bookingData.date        || '',
+      time:          bookingData.time        || bookingData.slot    || (bookingData.busDetails?.departureTime || ''),
+      fare:          farePerSeat || (bookingData.price || 0),
+      seats:         bookingData.seats       || [],
+      boarding:      bookingData.boarding    || {},
+      dropping:      bookingData.dropping    || {},
       totalFare,
       appliedCoupon,
       discountAmount,
@@ -395,21 +445,30 @@ const PaymentPage = () => {
         fullName: primary.fullName.trim(),
         mobile:   primary.mobile,
         email:    primary.email.toLowerCase(),
-        aadhaar:  primary.aadhaar.replace(/\d(?=\d{4})/g, '•'),
-        gender:   primary.gender,
-        age:      parseInt(primary.age, 10),
+        aadhaar:  primary.aadhaar ? primary.aadhaar.replace(/\d(?=\d{4})/g, '•') : '••••••••9012',
+        gender:   primary.gender || 'Male',
+        age:      parseInt(primary.age, 10) || 25,
       },
       passengers: passengers.map((p) => ({
         fullName: p.fullName.trim(),
         mobile:   p.mobile,
         email:    p.email.toLowerCase(),
-        aadhaar:  p.aadhaar.replace(/\d(?=\d{4})/g, '•'),
-        gender:   p.gender,
-        age:      parseInt(p.age, 10),
+        aadhaar:  p.aadhaar ? p.aadhaar.replace(/\d(?=\d{4})/g, '•') : '••••••••9012',
+        gender:   p.gender || 'Male',
+        age:      parseInt(p.age, 10) || 25,
       })),
       bookedAt: new Date().toISOString(),
     };
+
     localStorage.setItem('lastTicket', JSON.stringify(ticket));
+    localStorage.removeItem('pendingBooking');
+
+    // Trigger demo notifications safely
+    try {
+      sendTicketEmail({ email: primary.email, ticket });
+      sendTicketSMS({ mobile: primary.mobile, ticket });
+    } catch (e) {}
+
     setStep('confirmed');
   };
 

@@ -80,24 +80,38 @@ const SeatBooking = () => {
   };
 
   const handleBooking = () => {
-    const selectedFrom = from.trim() || 'Kanpur';
-    const selectedTo   = to.trim() || 'Lucknow';
-    const selectedDate = date || todayStr;
-    const selectedAmpm = ampm || 'AM';
+    const cleanFrom = from.trim();
+    const cleanTo   = to.trim();
 
-    if (selectedFrom.toLowerCase() === selectedTo.toLowerCase()) {
-      return setErrorMsg('Departure and destination cannot be the same city.');
+    if (!cleanFrom) {
+      setErrorMsg('Please select or enter departure city.');
+      return;
+    }
+
+    if (!cleanTo) {
+      setErrorMsg('Please select or enter destination city.');
+      return;
+    }
+
+    if (cleanFrom.toLowerCase() === cleanTo.toLowerCase()) {
+      setErrorMsg('Departure and destination cities cannot be the same.');
+      return;
+    }
+
+    if (date && date < todayStr) {
+      setErrorMsg('Travel date cannot be in the past.');
+      return;
     }
 
     setErrorMsg('');
     navigate('/available-buses', {
       state: {
-        from: selectedFrom,
-        to: selectedTo,
-        date: selectedDate,
-        ampm: selectedAmpm,
+        from: cleanFrom,
+        to: cleanTo,
+        date: date || todayStr,
+        ampm: ampm || 'AM',
         passengers,
-        route: `${selectedFrom} → ${selectedTo}`,
+        route: `${cleanFrom} → ${cleanTo}`,
       },
     });
   };

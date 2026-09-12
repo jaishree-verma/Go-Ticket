@@ -107,9 +107,11 @@ const Hero = () => {
   const [currentBg, setCurrentBg]   = useState(0);
   const [from, setFrom]             = useState('');
   const [to, setTo]                 = useState('');
-  const [date, setDate]             = useState(new Date().toISOString().split('T')[0]);
+  const todayStr = new Date().toISOString().split('T')[0];
+  const [date, setDate]             = useState(todayStr);
   const [returnDate, setReturnDate] = useState('');
   const [isSwapping, setIsSwapping] = useState(false);
+  const [errorMsg, setErrorMsg]     = useState('');
   const [showFromDropdown, setShowFromDropdown] = useState(false);
   const [showToDropdown, setShowToDropdown]     = useState(false);
 
@@ -174,21 +176,47 @@ const Hero = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    const selectedFrom = from.trim() || 'Kanpur';
-    const selectedTo   = to.trim()   || 'Lucknow';
+    const cleanFrom = from.trim();
+    const cleanTo   = to.trim();
+
+    if (!cleanFrom) {
+      setErrorMsg('Please select or enter departure city.');
+      return;
+    }
+
+    if (!cleanTo) {
+      setErrorMsg('Please select or enter destination city.');
+      return;
+    }
+
+    if (cleanFrom.toLowerCase() === cleanTo.toLowerCase()) {
+      setErrorMsg('Departure and destination cities cannot be the same.');
+      return;
+    }
+
+    if (date && date < todayStr) {
+      setErrorMsg('Travel date cannot be in the past.');
+      return;
+    }
+
+    setErrorMsg('');
     navigate('/available-buses', {
-      state: { 
-        from: selectedFrom, 
-        to: selectedTo, 
-        date, 
+      state: {
+        from: cleanFrom,
+        to: cleanTo,
+        date: date || todayStr,
         returnDate,
-        passengers: 1, 
-        route: `${selectedFrom} → ${selectedTo}` 
+        passengers: 1,
+        route: `${cleanFrom} → ${cleanTo}`,
       },
     });
   };
 
-  const handleRecentSearch = (item) => { setFrom(item.from); setTo(item.to); };
+  const handleRecentSearch = (item) => {
+    setFrom(item.from);
+    setTo(item.to);
+    setErrorMsg('');
+  };
 
   const filteredFromCities = ALL_INDIAN_CITIES.filter(
     (c) => c.city.toLowerCase().includes(from.toLowerCase()) || c.state.toLowerCase().includes(from.toLowerCase())
@@ -262,6 +290,12 @@ const Hero = () => {
         {/* ── Glowing Floating Search Card (Exact match to reference pic) ── */}
         <div className={styles.widgetWrapper}>
           <div className={styles.searchCard}>
+            {/* Validation Error Banner */}
+            {errorMsg && (
+              <div className={styles.errorBanner}>
+                ⚠️ {errorMsg}
+              </div>
+            )}
             <form onSubmit={handleSearchSubmit} className={styles.searchFormRow}>
 
               {/* 1. Leaving From */}

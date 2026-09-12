@@ -2,43 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthModal from './AuthModal';
 import styles from '../styles/header.module.css';
+import { useAuth } from '../context/AuthContext';
 
 const Header = () => {
-  const [showAuth, setShowAuth]     = useState(false);
-  const [userName, setUserName]     = useState('');
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [autoDismissed, setAutoDismissed] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
+  const [showAuth, setShowAuth]             = useState(false);
+  const [mobileOpen, setMobileOpen]         = useState(false);
+  const [autoDismissed, setAutoDismissed]   = useState(false);
 
   const location = useLocation();
   const navigate  = useNavigate();
 
   useEffect(() => {
-    const name = localStorage.getItem('userName');
-    if (name) {
-      setUserName(name);
-    } else if (!autoDismissed) {
+    if (!isAuthenticated && !autoDismissed) {
       const timer = setTimeout(() => setShowAuth(true), 800);
       return () => clearTimeout(timer);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, autoDismissed]);
 
   const handleCloseAuth = () => {
     setShowAuth(false);
     setAutoDismissed(true);
-    const name = localStorage.getItem('userName');
-    if (name) setUserName(name);
   };
 
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('userName');
-    localStorage.removeItem('authToken');
-    setUserName('');
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
+
+  const displayName = user?.name ? user.name.split(' ')[0] : '';
 
   return (
     <>
@@ -112,11 +108,11 @@ const Header = () => {
               <span className={styles.actionLabel}>Help</span>
             </Link>
 
-            {userName ? (
+            {isAuthenticated ? (
               <div className={styles.userSection}>
                 <span className={styles.actionItem}>
                   <span className={styles.actionIcon}>👤</span>
-                  <span className={styles.actionLabel}>{userName.split(' ')[0]}</span>
+                  <span className={styles.actionLabel}>{displayName}</span>
                 </span>
                 <button onClick={handleLogout} className={styles.logoutBtn}>
                   Logout
@@ -157,8 +153,8 @@ const Header = () => {
         <Link to="/seatbooking" className={styles.mobileNavLink}>📋 Bookings</Link>
         <Link to="/contact" className={styles.mobileNavLink}>❓ Help &amp; Support</Link>
 
-        {userName ? (
-          <button onClick={handleLogout} className={styles.mobileLogoutBtn}>Logout ({userName})</button>
+        {isAuthenticated ? (
+          <button onClick={handleLogout} className={styles.mobileLogoutBtn}>Logout ({displayName})</button>
         ) : (
           <button onClick={() => { setMobileOpen(false); setShowAuth(true); }} className={styles.mobileNavLink}>
             👤 Account (Login / Signup)
@@ -167,7 +163,7 @@ const Header = () => {
       </div>
 
       {/* Auth Modal */}
-      {showAuth && <AuthModal onClose={handleCloseAuth} />}
+      {showAuth && !isAuthenticated && <AuthModal onClose={handleCloseAuth} />}
     </>
   );
 };
