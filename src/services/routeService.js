@@ -33,7 +33,11 @@ export const CITY_COORDINATES = {
   'amritsar': [74.8723, 31.6340],
   'patna': [85.1376, 25.5941],
   'prayagraj': [81.8463, 25.4358],
-  'allahabad': [81.8463, 25.4358]
+  'allahabad': [81.8463, 25.4358],
+  'kashmir': [74.7973, 34.0837],
+  'srinagar': [74.7973, 34.0837],
+  'jammu': [74.8570, 32.7266],
+  'katra': [74.9520, 32.9921]
 };
 
 const ORS_API_KEY = process.env.REACT_APP_ORS_API_KEY || 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImUzYzE3YjBkZTllMDRkNjFiNDdkZGVhYTM1YmEyMGQ2IiwiaCI6Im11cm11cjY0In0=';

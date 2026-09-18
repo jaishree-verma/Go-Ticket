@@ -29,14 +29,16 @@ import {
   resetTravelContext,
   shouldInvalidateSearch,
 } from './contextManager.js';
+import { INDIAN_CITIES } from '../data/indianCities.js';
 
-// Known cities for NLU parsing
-const CITIES = [
+// Known cities for NLU parsing across India (A to Z)
+const CITIES = Array.from(new Set([
   'Kanpur', 'Delhi', 'Lucknow', 'Agra', 'Jaipur', 'Mumbai',
   'Pune', 'Bangalore', 'Bengaluru', 'Hyderabad', 'Chennai',
   'Kolkata', 'Dehradun', 'Chandigarh', 'Ahmedabad', 'Surat',
-  'Varanasi', 'Goa', 'Bhopal', 'Indore', 'Patna', 'Ranchi'
-];
+  'Varanasi', 'Goa', 'Bhopal', 'Indore', 'Patna', 'Ranchi',
+  ...INDIAN_CITIES
+])).sort((a, b) => b.length - a.length);
 
 /**
  * Normalizes city name matching

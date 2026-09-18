@@ -13,7 +13,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
   font-family: 'Inter', sans-serif;
   background-color: #ffffff;
 }
@@ -23,6 +23,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
+  overflow: hidden;
 }
 
 .frameTrackContainer {
@@ -111,39 +112,79 @@
   z-index: 1;
 }
 
-/* Top fade overlay — seamlessly dissolves top of background into the white navbar */
+/* Top fade overlay — softly and blurrily merges top of background into the white navbar */
 .topWhiteFade {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 65px;
+  height: 120px;
   background: linear-gradient(
     to bottom,
     #ffffff 0%,
-    rgba(255, 255, 255, 0.82) 18%,
-    rgba(255, 255, 255, 0.45) 45%,
-    rgba(255, 255, 255, 0.12) 72%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(255, 255, 255, 0.96) 20%,
+    rgba(255, 255, 255, 0.82) 40%,
+    rgba(255, 255, 255, 0.55) 60%,
+    rgba(255, 255, 255, 0.25) 80%,
+    rgba(255, 255, 255, 0.08) 92%,
+    transparent 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.88) 25%,
+    rgba(0, 0, 0, 0.5) 60%,
+    rgba(0, 0, 0, 0.15) 85%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.88) 25%,
+    rgba(0, 0, 0, 0.5) 60%,
+    rgba(0, 0, 0, 0.15) 85%,
+    transparent 100%
   );
   pointer-events: none;
   z-index: 2;
 }
 
-/* Bottom fade overlay — tight, low merge right at bottom edge so image stays clear */
+/* Bottom fade overlay — softly and blurrily merges bottom edge into white section below */
 .bottomWhiteFade {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 65px;
+  height: 120px;
   background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.12) 35%,
-    rgba(255, 255, 255, 0.45) 65%,
-    rgba(255, 255, 255, 0.82) 85%,
-    #ffffff 100%
+    to top,
+    #ffffff 0%,
+    rgba(255, 255, 255, 0.96) 20%,
+    rgba(255, 255, 255, 0.82) 40%,
+    rgba(255, 255, 255, 0.55) 60%,
+    rgba(255, 255, 255, 0.25) 80%,
+    rgba(255, 255, 255, 0.08) 92%,
+    transparent 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  -webkit-mask-image: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.88) 25%,
+    rgba(0, 0, 0, 0.5) 60%,
+    rgba(0, 0, 0, 0.15) 85%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.88) 25%,
+    rgba(0, 0, 0, 0.5) 60%,
+    rgba(0, 0, 0, 0.15) 85%,
+    transparent 100%
   );
   pointer-events: none;
   z-index: 2;
@@ -160,6 +201,7 @@
   width: 100%;
   max-width: 1100px;
   padding: 0 20px;
+  overflow: visible;
 }
 
 /* Side route columns */
@@ -199,6 +241,7 @@
   gap: 12px;
   position: relative;
   z-index: 15;
+  overflow: visible;
 }
 
 /* Side route mini-cards */
@@ -399,6 +442,7 @@
   gap: 12px;
   width: 100%;
   position: relative;
+  overflow: visible;
 }
 
 /* Each Field Column */
@@ -406,10 +450,15 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
-  flex: 1;
-  min-width: 0;
+  flex: 1.25;
+  min-width: 175px;
   position: relative;
   z-index: 10;
+  overflow: visible;
+}
+
+.fieldCol:focus-within {
+  z-index: 60;
 }
 
 .fieldColOpen {
@@ -593,7 +642,51 @@
   transform: rotate(360deg) scale(1.2) !important;
 }
 
-/* Button Column & Search Buses Button */
+/* Toast Warning Banner for Origin/Destination conflict */
+.toastBanner {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.95), rgba(194, 65, 12, 0.95));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(234, 88, 12, 0.4);
+  animation: bannerSlideDown 0.22s ease-out;
+}
+
+.toastIcon {
+  font-size: 1.05rem;
+}
+
+.closeToastBtn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  opacity: 0.8;
+  padding: 0 4px;
+  transition: opacity 0.15s;
+}
+
+.closeToastBtn:hover {
+  opacity: 1;
+}
+
+@keyframes bannerSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Button Column & Search Buses Button — Central Visual Focus */
 .buttonCol {
   display: flex;
   flex-direction: column;
@@ -602,35 +695,73 @@
 }
 
 .searchBusesButton {
-  height: 44px;
-  padding: 0 22px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(30, 58, 95, 0.75) 50%, rgba(88, 28, 135, 0.65) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  height: 48px;
+  padding: 0 26px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ff5722 0%, #ff6d00 45%, #e65100 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
   color: #ffffff;
   font-family: 'Poppins', -apple-system, sans-serif;
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: 0.96rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 14px rgba(56, 189, 248, 0.25);
+  gap: 9px;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 6px 22px rgba(255, 87, 34, 0.5), 0 0 20px rgba(255, 109, 0, 0.35);
+  animation: ctaPulseGlow 3s infinite ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes ctaPulseGlow {
+  0%, 100% {
+    box-shadow: 0 4px 18px rgba(255, 87, 34, 0.45), 0 0 16px rgba(255, 109, 0, 0.25);
+    transform: translateY(0);
+  }
+  50% {
+    box-shadow: 0 8px 30px rgba(255, 87, 34, 0.75), 0 0 32px rgba(255, 109, 0, 0.55);
+    transform: translateY(-2px);
+  }
 }
 
 .searchBusesButton:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0%, rgba(56, 189, 248, 0.8) 50%, rgba(168, 85, 247, 0.8) 100%);
-  border-color: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 0 24px rgba(56, 189, 248, 0.5), 0 0 30px rgba(168, 85, 247, 0.35);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #ff6e40 0%, #ff7d00 45%, #f4511e 100%);
+  border-color: #ffffff;
+  box-shadow: 0 12px 34px rgba(255, 87, 34, 0.8), 0 0 38px rgba(255, 109, 0, 0.7);
+  transform: translateY(-3px) scale(1.02);
 }
 
 .searchBusesButton:active {
-  transform: translateY(1px);
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 2px 10px rgba(255, 87, 34, 0.4);
+}
+
+.btnBusIcon {
+  font-size: 1.15rem;
+  transition: transform 0.2s ease;
+}
+
+.searchBusesButton:hover .btnBusIcon {
+  transform: translateX(2px) rotate(-6deg);
+}
+
+.btnText {
+  letter-spacing: 0.8px;
+}
+
+.btnArrow {
+  font-size: 1rem;
+  transition: transform 0.2s ease;
+}
+
+.searchBusesButton:hover .btnArrow {
+  transform: translateX(3px);
 }
 
 /* City Dropdown Menu */
@@ -713,6 +844,7 @@
 }
 
 /* Responsive adjustments */
+/* Responsive adjustments */
 @media (max-width: 960px) {
   .searchFormRow {
     flex-wrap: wrap;
@@ -724,18 +856,33 @@
   }
   .buttonCol {
     flex: 1 1 100%;
+    width: 100%;
+    margin-top: 4px;
   }
   .searchBusesButton {
     width: 100%;
+    height: 52px;
+    font-size: 1.05rem;
   }
   .swapBtnInline {
-    display: none;
+    display: flex;
+    align-self: center;
+    margin-bottom: 0;
   }
 }
 
-@media (max-width: 580px) {
+@media (max-width: 640px) {
   .fieldCol {
     flex: 1 1 100%;
+    width: 100%;
+  }
+  .swapBtnInline {
+    align-self: center;
+    margin: 2px auto;
+  }
+  .searchBusesButton {
+    height: 54px;
+    font-size: 1.08rem;
   }
 }
 

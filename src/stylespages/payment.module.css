@@ -536,7 +536,8 @@
 
 .methodBtn:hover {
   border-color: #028090;
-  background: #ffffff;
+  background: #028090;
+  color: #ffffff !important;
 }
 
 .methodActive {

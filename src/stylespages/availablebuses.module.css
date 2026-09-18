@@ -164,8 +164,8 @@
 
 .filterChip:hover {
   border-color: #028090;
-  background: #e6f7f5;
-  color: #028090;
+  background: #028090;
+  color: #ffffff !important;
 }
 
 .filterChipActive {
@@ -384,13 +384,32 @@
 .timeBubble:hover:not(.filled) {
   transform: translateY(-2px);
   background: #028090;
-  color: #000000;
+  color: #ffffff !important;
+}
+
+.timeBubble:hover:not(.filled) .timeText,
+.timeBubble:hover:not(.filled) .fareTag {
+  color: #ffffff !important;
+}
+
+.timeBubble.activeSlot,
+.timeBubble:active:not(.filled) {
+  background: #028090;
+  color: #ffffff !important;
+}
+
+.timeBubble.activeSlot .timeText,
+.timeBubble.activeSlot .fareTag,
+.timeBubble:active:not(.filled) .timeText,
+.timeBubble:active:not(.filled) .fareTag {
+  color: #ffffff !important;
 }
 
 .timeText {
   display: block;
   font-size: 0.88rem;
   font-weight: 800;
+  transition: color 0.15s ease;
 }
 
 .fareTag {
@@ -399,6 +418,7 @@
   font-weight: 800;
   color: #000000;
   margin-top: 0.15rem;
+  transition: color 0.15s ease;
 }
 
 .tooltipFare {

@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import TopRoutesDirectory from '../../components/TopRoutesDirectory';
+import AlphabeticalCityPicker from '../../components/AlphabeticalCityPicker';
 import styles from '../../stylespages/seatbooking.module.css';
 
 const BUS_TYPES = [
@@ -91,16 +92,6 @@ const BUS_TYPES = [
   },
 ];
 
-const CITIES = [
-  'Agra', 'Ahmedabad', 'Allahabad', 'Amritsar', 'Bengaluru', 'Bhopal',
-  'Bhubaneswar', 'Chandigarh', 'Chennai', 'Coimbatore', 'Dehradun', 'Delhi',
-  'Faridabad', 'Ghaziabad', 'Gurgaon', 'Guwahati', 'Hyderabad', 'Indore',
-  'Jaipur', 'Jammu', 'Jodhpur', 'Kanpur', 'Kochi', 'Kolkata', 'Lucknow',
-  'Ludhiana', 'Mathura', 'Mumbai', 'Mysuru', 'Nagpur', 'Nashik', 'Noida',
-  'Patna', 'Pune', 'Raipur', 'Rajkot', 'Ranchi', 'Surat', 'Varanasi',
-  'Visakhapatnam', 'Prayagraj', 'Greater Noida', 'Meerut', 'Moradabad',
-];
-
 const SeatBooking = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -126,42 +117,10 @@ const SeatBooking = () => {
     navigate('/livetracking', { state: { busNo: clean } });
   };
 
-  const [fromSuggestions, setFromSuggestions] = useState([]);
-  const [toSuggestions, setToSuggestions]     = useState([]);
-
-  const fromRef = useRef(null);
-  const toRef   = useRef(null);
-
-  // Close suggestions on outside click
-  useEffect(() => {
-    const handler = (e) => {
-      if (fromRef.current && !fromRef.current.contains(e.target)) setFromSuggestions([]);
-      if (toRef.current   && !toRef.current.contains(e.target))   setToSuggestions([]);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const getSuggestions = (val) =>
-    val.length < 1
-      ? []
-      : CITIES.filter((c) => c.toLowerCase().startsWith(val.toLowerCase())).slice(0, 6);
-
-  const handleFromChange = (e) => {
-    setFrom(e.target.value);
-    setFromSuggestions(getSuggestions(e.target.value));
-  };
-
-  const handleToChange = (e) => {
-    setTo(e.target.value);
-    setToSuggestions(getSuggestions(e.target.value));
-  };
-
   const handleSwap = () => {
+    const temp = from;
     setFrom(to);
-    setTo(from);
-    setFromSuggestions([]);
-    setToSuggestions([]);
+    setTo(temp);
   };
 
   const handleBooking = () => {
@@ -218,58 +177,42 @@ const SeatBooking = () => {
         <div className={styles.searchBox}>
           {/* Row 1: From / Swap / To */}
           <div className={styles.routeRow}>
-            <div className={styles.inputWrapper} ref={fromRef}>
+            <div className={styles.inputWrapper}>
               <label className={styles.inputLabel}>FROM</label>
-              <input
-                className={styles.cityInput}
-                type="text"
-                placeholder="Departure city"
+              <AlphabeticalCityPicker
+                label="Leaving From"
                 value={from}
-                autoComplete="off"
-                onChange={handleFromChange}
+                onChange={(val) => { setFrom(val); setErrorMsg(''); }}
+                opposingValue={to}
+                onSameCitySelected={(cityName) => {
+                  setErrorMsg(`Origin and Destination cannot both be "${cityName}".`);
+                  setTo('');
+                }}
+                icon="🟢"
+                placeholder="Departure city"
+                theme="light"
               />
-              {fromSuggestions.length > 0 && (
-                <div className={styles.suggestions}>
-                  {fromSuggestions.map((c) => (
-                    <div
-                      key={c}
-                      className={styles.suggestion}
-                      onMouseDown={() => { setFrom(c); setFromSuggestions([]); }}
-                    >
-                      {c}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
-            <button className={styles.swapBtn} onClick={handleSwap} title="Swap cities">
+            <button className={styles.swapBtn} onClick={handleSwap} title="Swap cities" type="button">
               ⇄
             </button>
 
-            <div className={styles.inputWrapper} ref={toRef}>
+            <div className={styles.inputWrapper}>
               <label className={styles.inputLabel}>TO</label>
-              <input
-                className={styles.cityInput}
-                type="text"
-                placeholder="Destination city"
+              <AlphabeticalCityPicker
+                label="Going To"
                 value={to}
-                autoComplete="off"
-                onChange={handleToChange}
+                onChange={(val) => { setTo(val); setErrorMsg(''); }}
+                opposingValue={from}
+                onSameCitySelected={(cityName) => {
+                  setErrorMsg(`Origin and Destination cannot both be "${cityName}".`);
+                  setFrom('');
+                }}
+                icon="🔴"
+                placeholder="Destination city"
+                theme="light"
               />
-              {toSuggestions.length > 0 && (
-                <div className={styles.suggestions}>
-                  {toSuggestions.map((c) => (
-                    <div
-                      key={c}
-                      className={styles.suggestion}
-                      onMouseDown={() => { setTo(c); setToSuggestions([]); }}
-                    >
-                      {c}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 

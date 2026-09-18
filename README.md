@@ -5,6 +5,16 @@
 
 ## 🌟 Key Highlights & Features
 
+### ⚡ Core Features Successfully Built & Tested
+
+| Feature | Architectural Implementation & Capabilities | Verification Status |
+| :--- | :--- | :---: |
+| **🔍 Smart Route Search** | Supports multi-city corridor filtering (50+ Indian cities), relative/absolute date picking, departure time slots, and deterministic 5-factor ranking for sub-second route discovery. | `✓ TESTED & VERIFIED` |
+| **💺 Interactive Seat Picker** | Dual-layout interactive canvas supporting both **Seater (2+2)** and **Sleeper (Upper/Lower berths)** with real-time selection, atomic collision checks, and live fare updates. | `✓ TESTED & VERIFIED` |
+| **🏷️ Automated Discounts** | Intelligent checkout promo validation engine that evaluates eligible coupons (`FIRSTGO`, `GTWEEKEND`, `UPIPAY`) with instantaneous total recomputation. | `✓ TESTED & VERIFIED` |
+| **📍 Live Bus Tracking** | Real-time vehicle telemetry rendered on OpenStreetMap with waypoint interpolation, driver details, and browser Geolocation distance calculations using the **Haversine formula**. | `✓ TESTED & VERIFIED` |
+| **🎫 Digital QR Tickets** | Instant paperless pass generation featuring scannable high-resolution digital QR codes, unique booking references (`GTXXXXXX`), and one-click print/download capabilities. | `✓ TESTED & VERIFIED` |
+
 ### 1. 🤖 Tixie — Autonomous Conversational AI Travel Agent
 * **Natural Language Route Search:** Recognizes 22+ Indian cities, relative dates (*"tomorrow"*, *"next Friday"*, *"day after tomorrow"*), and departure preferences (*"evening"*, *"around 9 PM"*, *"cheapest"*, *"fastest"*).
 * **Deterministic Multi-Criteria Ranking:** Ranks search results using a 5-factor scoring engine (Time fit: 30%, Price: 25%, Duration: 20%, Availability: 15%, Operator rating: 10%).

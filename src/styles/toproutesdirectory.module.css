@@ -111,6 +111,10 @@
 }
 
 .directoryLink:hover {
-  color: #028090;
+  color: #ffffff !important;
+  background: #028090;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 6px;
   transform: translateX(3px);
 }

@@ -1,0 +1,850 @@
+/* ═══════════════════════════════════════════════════════════
+   Alphabetical City Picker Module — A to Z Grouped Selector
+   Adaptive Light (Default) & Dark (Hero Glassmorphic) Themes
+═══════════════════════════════════════════════════════════ */
+
+.pickerContainer {
+  position: relative;
+  width: 100%;
+  user-select: none;
+  z-index: 10;
+}
+
+.pickerContainerOpen {
+  z-index: 1050;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   1. Base Trigger Box (Light Theme Default)
+═══════════════════════════════════════════════════════════ */
+.triggerBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  background: #ffffff;
+  border: 1.5px solid #bce0ff;
+  border-radius: 14px;
+  padding: 0 10px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(2, 128, 144, 0.06);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.triggerBox:hover {
+  border-color: #028090;
+  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.16);
+}
+
+.triggerBoxActive {
+  background: #ffffff !important;
+  border-color: #028090 !important;
+  box-shadow: 0 0 0 3px rgba(2, 128, 144, 0.2) !important;
+}
+
+.triggerContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+}
+
+.triggerIcon {
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', sans-serif;
+  font-style: normal;
+  font-variant-emoji: emoji;
+  line-height: 1;
+}
+
+.triggerTextGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  overflow: hidden;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+}
+
+.triggerInput {
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  padding: 0;
+  margin: 0;
+  text-shadow: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.triggerInput::placeholder {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #64748b;
+  text-shadow: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.triggerCity {
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 100%;
+  text-shadow: none;
+}
+
+.triggerPlaceholder {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #64748b;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.triggerState {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #028090;
+  margin-top: -1px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.triggerActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.clearBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.clearBtn:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  transform: scale(1.15);
+}
+
+.chevronBtn {
+  background: transparent;
+  border: none;
+  font-size: 0.72rem;
+  color: #475569;
+  cursor: pointer;
+  padding: 4px;
+  transition: transform 0.2s ease, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.chevronBtn:hover {
+  color: #0f172a;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2. Dropdown Popover Menu (Light Theme Default)
+═══════════════════════════════════════════════════════════ */
+.dropdownPopover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: auto;
+  min-width: 100%;
+  width: max(100%, 350px);
+  max-width: min(420px, calc(100vw - 24px));
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1.5px solid #bce0ff;
+  box-shadow: 0 20px 50px rgba(2, 128, 144, 0.18), 0 4px 16px rgba(0, 0, 0, 0.08);
+  z-index: 1100;
+  overflow: hidden;
+  animation: popoverFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  max-height: min(320px, 60vh);
+}
+
+@keyframes popoverFadeIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Sticky Header Area */
+.stickyHeader {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 8px 12px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Sticky Search Input */
+.searchBarWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 5px 10px;
+  transition: all 0.2s;
+  min-height: 35px;
+  box-sizing: border-box;
+}
+
+.searchBarWrapper:focus-within {
+  background: #ffffff;
+  border-color: #028090;
+  box-shadow: 0 0 0 3px rgba(2, 128, 144, 0.15);
+}
+
+.searchIcon {
+  font-size: 0.9rem;
+  color: #028090;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', sans-serif;
+  font-style: normal;
+  font-variant-emoji: emoji;
+  line-height: 1;
+}
+
+.stickySearchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #0f172a;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  min-width: 0;
+}
+
+.stickySearchInput::placeholder {
+  color: #94a3b8;
+}
+
+.clearSearchBtn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.clearSearchBtn:hover {
+  color: #0f172a;
+}
+
+/* A-Z Alphabet Quick Jump Pill Strip */
+.alphabetRail {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 0 4px;
+}
+
+.alphabetRail::-webkit-scrollbar {
+  display: none;
+}
+
+.alphabetPill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.alphabetPill:hover {
+  background: #028090;
+  color: #ffffff;
+  border-color: #028090;
+  transform: scale(1.1);
+}
+
+.alphabetPillDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Popular Hubs Row */
+.popularHubsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 0 2px;
+}
+
+.popularHubsRow::-webkit-scrollbar {
+  display: none;
+}
+
+.hubTagTitle {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #d97706;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+}
+
+.hubChip {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 999px;
+  padding: 2px 9px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #0f766e;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  transition: all 0.15s ease;
+}
+
+.hubChip:hover {
+  background: #00a896;
+  color: #ffffff;
+  border-color: #00a896;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. Scrollable Grouped Cities Body
+═══════════════════════════════════════════════════════════ */
+.citiesScrollBody {
+  flex: 1 1 auto;
+  max-height: 180px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0 8px;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #028090 #f1f5f9;
+}
+
+.citiesScrollBody::-webkit-scrollbar {
+  width: 6px;
+}
+
+.citiesScrollBody::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.citiesScrollBody::-webkit-scrollbar-thumb {
+  background: #028090;
+  border-radius: 4px;
+}
+
+.citiesScrollBody::-webkit-scrollbar-thumb:hover {
+  background: #00a896;
+}
+
+/* Letter Section Header */
+.letterHeader {
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 6px 16px;
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #028090;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 5;
+}
+
+.letterBadgeCount {
+  font-size: 0.68rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* City Item Row */
+.cityItemRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid #f1f5f9;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cityItemRow:hover {
+  background: #028090;
+  color: #ffffff !important;
+}
+
+.cityItemRow:hover .cityItemName,
+.cityItemRow:hover .cityItemState,
+.cityItemRow:hover .cityBulletIcon {
+  color: #ffffff !important;
+}
+
+.cityLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.cityBulletIcon {
+  font-size: 0.85rem;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', sans-serif;
+  font-style: normal;
+  font-variant-emoji: emoji;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.cityItemText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-align: left;
+}
+
+.cityItemName {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: block;
+  transition: color 0.15s;
+}
+
+.cityItemState {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #64748b;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  display: block;
+  transition: color 0.15s;
+}
+
+.selectedCityBadge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: #00a896;
+  color: #ffffff;
+  padding: 2px 7px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.opposingCityBadge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  padding: 2px 7px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: 8px;
+}
+
+.resultsInfoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  padding-top: 4px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.resetFilterBtn {
+  background: transparent;
+  border: none;
+  color: #028090;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.resetFilterBtn:hover {
+  color: #00a896;
+}
+
+.cityItemRowSelected {
+  background: #e6f7f5;
+  border-left: 3px solid #00a896;
+}
+
+.noCitiesIcon {
+  font-size: 2rem;
+  margin-bottom: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', sans-serif;
+  font-style: normal;
+  font-variant-emoji: emoji;
+  line-height: 1;
+}
+
+.noCitiesText {
+  font-weight: 600;
+  color: #334155;
+}
+
+.browseAllBtn {
+  margin-top: 8px;
+  background: #028090;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.browseAllBtn:hover {
+  background: #00a896;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. Dark Theme Overrides (Hero Banner & Dark Glassmorphic Contexts)
+═══════════════════════════════════════════════════════════ */
+.themeDark .triggerBox {
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  border-radius: 12px;
+  padding: 0 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.themeDark .triggerBox:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22), 0 0 14px rgba(255, 255, 255, 0.2);
+}
+
+.themeDark .triggerBoxActive {
+  background: rgba(255, 255, 255, 0.28) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.45) !important;
+}
+
+.themeDark .triggerInput {
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.themeDark .triggerInput::placeholder {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.86rem;
+  text-shadow: none;
+}
+
+.themeDark .triggerCity {
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.themeDark .triggerPlaceholder {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.themeDark .triggerState {
+  color: #7dd3fc;
+}
+
+.themeDark .chevronBtn {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.themeDark .chevronBtn:hover {
+  color: #ffffff;
+}
+
+.themeDark .clearBtn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: none;
+}
+
+.themeDark .dropdownPopover {
+  background: rgba(15, 23, 42, 0.97);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 28px rgba(56, 189, 248, 0.25);
+}
+
+.themeDark .stickyHeader {
+  background: rgba(15, 23, 42, 0.98);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 8px 12px 6px;
+  gap: 6px;
+}
+
+.themeDark .searchBarWrapper {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 5px 10px;
+  min-height: 35px;
+}
+
+.themeDark .searchBarWrapper:focus-within {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+}
+
+.themeDark .searchIcon {
+  color: #38bdf8;
+}
+
+.themeDark .stickySearchInput {
+  color: #ffffff;
+}
+
+.themeDark .stickySearchInput::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.themeDark .clearSearchBtn {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.themeDark .clearSearchBtn:hover {
+  color: #ffffff;
+}
+
+.themeDark .alphabetPill {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.themeDark .alphabetPill:hover {
+  background: #028090;
+  color: #ffffff;
+  border-color: #028090;
+}
+
+.themeDark .hubTagTitle {
+  color: #f59e0b;
+}
+
+.themeDark .hubChip {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+}
+
+.themeDark .hubChip:hover {
+  background: #00a896;
+  color: #ffffff;
+  border-color: #00a896;
+}
+
+.themeDark .resultsInfoRow {
+  color: #94a3b8;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.themeDark .resetFilterBtn {
+  color: #38bdf8;
+}
+
+.themeDark .resetFilterBtn:hover {
+  color: #7dd3fc;
+}
+
+.themeDark .letterHeader {
+  background: rgba(30, 41, 59, 0.96);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #38bdf8;
+}
+
+.themeDark .letterBadgeCount {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.themeDark .cityItemRow {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.themeDark .cityItemRow:hover {
+  background: #028090;
+  color: #ffffff !important;
+}
+
+.themeDark .cityItemRow:hover .cityItemName,
+.themeDark .cityItemRow:hover .cityItemState,
+.themeDark .cityItemRow:hover .cityBulletIcon {
+  color: #ffffff !important;
+}
+
+.themeDark .cityItemName {
+  color: #ffffff;
+}
+
+.themeDark .cityItemState {
+  color: #94a3b8;
+}
+
+.themeDark .cityBulletIcon {
+  color: #94a3b8;
+}
+
+.themeDark .cityItemRowSelected {
+  background: rgba(2, 128, 144, 0.25);
+  border-left: 3px solid #00a896;
+}
+
+.themeDark .selectedCityBadge {
+  background: #00a896;
+  color: #ffffff;
+}
+
+.themeDark .opposingCityBadge {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.themeDark .noCitiesText {
+  color: #e2e8f0;
+}
+
+.themeDark .citiesScrollBody {
+  scrollbar-color: rgba(56, 189, 248, 0.45) rgba(255, 255, 255, 0.05);
+}
+
+.themeDark .citiesScrollBody::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.themeDark .citiesScrollBody::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. Mobile Responsive
+═══════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .dropdownPopover {
+    width: calc(100vw - 24px);
+    max-width: calc(100vw - 24px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}

@@ -1,21 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopRoutesDirectory from '../../components/TopRoutesDirectory';
+import AlphabeticalCityPicker from '../../components/AlphabeticalCityPicker';
 import styles from '../../stylespages/home.module.css';
 
-/* ── Cities list ────────────────────────────────────────── */
-const CITIES = [
-  'Agra', 'Ahmedabad', 'Allahabad', 'Amritsar', 'Bengaluru', 'Bhopal',
-  'Bhubaneswar', 'Chandigarh', 'Chennai', 'Coimbatore', 'Dehradun', 'Delhi',
-  'Faridabad', 'Ghaziabad', 'Gurgaon', 'Guwahati', 'Hyderabad', 'Indore',
-  'Jaipur', 'Jammu', 'Jodhpur', 'Kanpur', 'Kochi', 'Kolkata', 'Lucknow',
-  'Ludhiana', 'Mathura', 'Mumbai', 'Mysuru', 'Nagpur', 'Nashik', 'Noida',
-  'Patna', 'Pune', 'Raipur', 'Rajkot', 'Ranchi', 'Surat', 'Varanasi',
-  'Visakhapatnam', 'Prayagraj', 'Greater Noida', 'Meerut', 'Moradabad',
-];
-
-/* ── Popular routes data ────────────────────────────────── */
+/* ── Popular routes data across India ───────────────────── */
 const POPULAR_ROUTES = [
+  {
+    from: 'Delhi', to: 'Manali',
+    distance: '535 km', duration: '13h 30m',
+    minFare: '₹1,150', buses: 22,
+    tag: 'Mountain Special',
+    tagColor: '#028090',
+    desc: 'Himalayan scenic corridor with premium Volvo 9600 sleepers.',
+    stops: ['Chandigarh', 'Mandi', 'Kullu'],
+  },
   {
     from: 'Delhi', to: 'Agra',
     distance: '206 km', duration: '3h 30m',
@@ -24,6 +23,15 @@ const POPULAR_ROUTES = [
     tagColor: '#e74c3c',
     desc: 'India\'s busiest heritage corridor — Delhi to the Taj Mahal city.',
     stops: ['Mathura', 'Vrindavan'],
+  },
+  {
+    from: 'Mumbai', to: 'Goa',
+    distance: '590 km', duration: '12h 30m',
+    minFare: '₹999', buses: 20,
+    tag: 'Holiday Express',
+    tagColor: '#e67e22',
+    desc: 'Coastal highway luxury sleeper service to North and South Goa.',
+    stops: ['Pune', 'Satara', 'Kolhapur', 'Mapusa'],
   },
   {
     from: 'Mumbai', to: 'Pune',
@@ -35,13 +43,40 @@ const POPULAR_ROUTES = [
     stops: ['Lonavala', 'Khandala'],
   },
   {
+    from: 'Bangalore', to: 'Hyderabad',
+    distance: '570 km', duration: '8h 30m',
+    minFare: '₹890', buses: 28,
+    tag: 'Tech Corridor',
+    tagColor: '#8e44ad',
+    desc: 'Tech corridor overnight express between two major IT hubs.',
+    stops: ['Anantapur', 'Kurnool'],
+  },
+  {
+    from: 'Bangalore', to: 'Chennai',
+    distance: '346 km', duration: '6h 00m',
+    minFare: '₹550', buses: 30,
+    tag: 'Airavat Special',
+    tagColor: '#16a085',
+    desc: 'High-frequency Volvo multi-axle service connecting South capitals.',
+    stops: ['Hosur', 'Krishnagiri', 'Vellore'],
+  },
+  {
     from: 'Lucknow', to: 'Kanpur',
     distance: '84 km', duration: '1h 45m',
-    minFare: '₹149', buses: 30,
+    minFare: '₹149', buses: 35,
     tag: 'Frequent',
     tagColor: '#27ae60',
     desc: 'UP\'s twin-city corridor with the highest bus frequency.',
     stops: ['Unnao'],
+  },
+  {
+    from: 'Delhi', to: 'Dehradun',
+    distance: '255 km', duration: '5h 30m',
+    minFare: '₹580', buses: 16,
+    tag: 'Valley Express',
+    tagColor: '#056676',
+    desc: 'Direct highway connectivity to Uttarakhand capital and foothills.',
+    stops: ['Meerut', 'Muzaffarnagar', 'Roorkee'],
   },
   {
     from: 'Jaipur', to: 'Delhi',
@@ -53,27 +88,36 @@ const POPULAR_ROUTES = [
     stops: ['Shahpura', 'Behror', 'Rewari'],
   },
   {
-    from: 'Hyderabad', to: 'Bengaluru',
-    distance: '570 km', duration: '8h 30m',
-    minFare: '₹699', buses: 20,
-    tag: 'Overnight',
-    tagColor: '#8e44ad',
-    desc: 'Tech corridor overnight express between two major IT cities.',
-    stops: ['Kurnool', 'Anantapur'],
+    from: 'Kolkata', to: 'Siliguri',
+    distance: '560 km', duration: '12h 30m',
+    minFare: '₹950', buses: 14,
+    tag: 'North Bengal',
+    tagColor: '#2c3e50',
+    desc: 'Gateway to Darjeeling and Northeast India with luxury sleepers.',
+    stops: ['Malda', 'Raiganj', 'Kishanganj'],
   },
   {
-    from: 'Chennai', to: 'Coimbatore',
-    distance: '500 km', duration: '7h',
-    minFare: '₹599', buses: 12,
-    tag: 'Sleeper',
-    tagColor: '#16a085',
-    desc: 'Comfortable overnight sleeper service connecting South TN.',
-    stops: ['Salem', 'Erode'],
+    from: 'Ahmedabad', to: 'Surat',
+    distance: '265 km', duration: '4h 30m',
+    minFare: '₹360', buses: 20,
+    tag: 'Diamond Hub',
+    tagColor: '#d35400',
+    desc: 'Gujarat commercial artery connecting textile and diamond centers.',
+    stops: ['Nadiad', 'Anand', 'Vadodara', 'Bharuch'],
+  },
+  {
+    from: 'Bhopal', to: 'Indore',
+    distance: '195 km', duration: '3h 30m',
+    minFare: '₹320', buses: 26,
+    tag: 'Malwa Express',
+    tagColor: '#27ae60',
+    desc: 'MP express corridor connecting the capital to Cleanest City Indore.',
+    stops: ['Sehore', 'Ashta', 'Dewas'],
   },
   {
     from: 'Lucknow', to: 'Varanasi',
     distance: '320 km', duration: '5h',
-    minFare: '₹449', buses: 10,
+    minFare: '₹449', buses: 12,
     tag: 'Pilgrimage',
     tagColor: '#c0392b',
     desc: 'Sacred corridor to the Ghats of Varanasi from Lucknow.',
@@ -86,7 +130,7 @@ const POPULAR_ROUTES = [
     tag: 'Volvo AC',
     tagColor: '#1a1a2e',
     desc: 'Premium Volvo fleet on the NH44 — smooth & punctual.',
-    stops: ['Ambala'],
+    stops: ['Panipat', 'Karnal', 'Ambala'],
   },
 ];
 
@@ -103,8 +147,6 @@ const STATS = [
 ═══════════════════════════════════════════════════════════ */
 const Home = () => {
   const navigate  = useNavigate();
-  const fromRef   = useRef(null);
-  const toRef     = useRef(null);
 
   const [from, setFrom]       = useState('');
   const [to, setTo]           = useState('');
@@ -112,8 +154,6 @@ const Home = () => {
   const [ampm, setAmpm]       = useState('');
   const [passengers, setPassengers] = useState(1);
   const [errorMsg, setErrorMsg]     = useState('');
-  const [fromSuggestions, setFromSuggestions] = useState([]);
-  const [toSuggestions, setToSuggestions]     = useState([]);
   const [expandedRoute, setExpandedRoute]     = useState(null);
   const [filterTag, setFilterTag]             = useState('All');
 
@@ -128,27 +168,11 @@ const Home = () => {
 
   const todayStr = new Date().toISOString().split('T')[0];
 
-  /* Close suggestions on outside click */
-  useEffect(() => {
-    const h = (e) => {
-      if (fromRef.current && !fromRef.current.contains(e.target)) setFromSuggestions([]);
-      if (toRef.current   && !toRef.current.contains(e.target))   setToSuggestions([]);
-    };
-    document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
-  }, []);
-
-  const getSuggestions = (val) =>
-    val.length < 1 ? []
-    : CITIES.filter(c => c.toLowerCase().startsWith(val.toLowerCase())).slice(0, 6);
-
   const handleSwap = () => { setFrom(to); setTo(from); };
 
   const handlePopularRoute = (route) => {
     setFrom(route.from);
     setTo(route.to);
-    setFromSuggestions([]);
-    setToSuggestions([]);
     
     // Immediately navigate to available buses for instant booking
     navigate('/available-buses', {
@@ -207,50 +231,40 @@ const Home = () => {
 
           {/* From / Swap / To */}
           <div className={styles.routeRow}>
-            <div className={styles.inputWrapper} ref={fromRef}>
-              <label className={styles.inputLabel}>From</label>
-              <input
-                className={styles.cityInput}
-                type="text"
-                placeholder="Departure city"
+            <div className={styles.inputWrapper}>
+              <label className={styles.inputLabel}>Leaving From</label>
+              <AlphabeticalCityPicker
+                label="Leaving From"
                 value={from}
-                autoComplete="off"
-                onChange={e => { setFrom(e.target.value); setFromSuggestions(getSuggestions(e.target.value)); }}
+                onChange={(val) => { setFrom(val); setErrorMsg(''); }}
+                opposingValue={to}
+                onSameCitySelected={(cityName) => {
+                  setErrorMsg(`Origin and Destination cannot both be "${cityName}".`);
+                  setTo('');
+                }}
+                icon="🟢"
+                placeholder="Departure city"
+                theme="light"
               />
-              {fromSuggestions.length > 0 && (
-                <div className={styles.suggestions}>
-                  {fromSuggestions.map(c => (
-                    <div key={c} className={styles.suggestion}
-                      onMouseDown={() => { setFrom(c); setFromSuggestions([]); }}>
-                      {c}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
 
-            <button className={styles.swapBtn} onClick={handleSwap} title="Swap cities">⇄</button>
+            <button className={styles.swapBtn} onClick={handleSwap} title="Swap cities" type="button">⇄</button>
 
-            <div className={styles.inputWrapper} ref={toRef}>
-              <label className={styles.inputLabel}>To</label>
-              <input
-                className={styles.cityInput}
-                type="text"
-                placeholder="Destination city"
+            <div className={styles.inputWrapper}>
+              <label className={styles.inputLabel}>Going To</label>
+              <AlphabeticalCityPicker
+                label="Going To"
                 value={to}
-                autoComplete="off"
-                onChange={e => { setTo(e.target.value); setToSuggestions(getSuggestions(e.target.value)); }}
+                onChange={(val) => { setTo(val); setErrorMsg(''); }}
+                opposingValue={from}
+                onSameCitySelected={(cityName) => {
+                  setErrorMsg(`Origin and Destination cannot both be "${cityName}".`);
+                  setFrom('');
+                }}
+                icon="🔴"
+                placeholder="Destination city"
+                theme="light"
               />
-              {toSuggestions.length > 0 && (
-                <div className={styles.suggestions}>
-                  {toSuggestions.map(c => (
-                    <div key={c} className={styles.suggestion}
-                      onMouseDown={() => { setTo(c); setToSuggestions([]); }}>
-                      {c}
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 

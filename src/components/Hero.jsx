@@ -1,68 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthModal from './AuthModal';
+import AlphabeticalCityPicker from './AlphabeticalCityPicker';
 import styles from '../styles/hero.module.css';
-
-const ALL_INDIAN_CITIES = [
-  { city: 'Chennai', state: 'Tamil Nadu' },
-  { city: 'Goa', state: 'Goa' },
-  { city: 'Vijayawada', state: 'Andhra Pradesh' },
-  { city: 'Nellore', state: 'Andhra Pradesh' },
-  { city: 'Jaipur', state: 'Rajasthan' },
-  { city: 'Mangalore', state: 'Karnataka' },
-  { city: 'Visakhapatnam', state: 'Andhra Pradesh' },
-  { city: 'Kanpur', state: 'Uttar Pradesh' },
-  { city: 'Delhi', state: 'Delhi' },
-  { city: 'Lucknow', state: 'Uttar Pradesh' },
-  { city: 'Varanasi', state: 'Uttar Pradesh' },
-  { city: 'Bangalore', state: 'Karnataka' },
-  { city: 'Hyderabad', state: 'Telangana' },
-  { city: 'Mumbai', state: 'Maharashtra' },
-  { city: 'Pune', state: 'Maharashtra' },
-  { city: 'Ahmedabad', state: 'Gujarat' },
-  { city: 'Surat', state: 'Gujarat' },
-  { city: 'Kolkata', state: 'West Bengal' },
-  { city: 'Agra', state: 'Uttar Pradesh' },
-  { city: 'Coimbatore', state: 'Tamil Nadu' },
-  { city: 'Madurai', state: 'Tamil Nadu' },
-  { city: 'Kochi', state: 'Kerala' },
-  { city: 'Trivandrum', state: 'Kerala' },
-  { city: 'Kozhikode', state: 'Kerala' },
-  { city: 'Indore', state: 'Madhya Pradesh' },
-  { city: 'Bhopal', state: 'Madhya Pradesh' },
-  { city: 'Patna', state: 'Bihar' },
-  { city: 'Chandigarh', state: 'Punjab' },
-  { city: 'Amritsar', state: 'Punjab' },
-  { city: 'Ludhiana', state: 'Punjab' },
-  { city: 'Dehradun', state: 'Uttarakhand' },
-  { city: 'Rishikesh', state: 'Uttarakhand' },
-  { city: 'Shimla', state: 'Himachal Pradesh' },
-  { city: 'Manali', state: 'Himachal Pradesh' },
-  { city: 'Guwahati', state: 'Assam' },
-  { city: 'Bhubaneswar', state: 'Odisha' },
-  { city: 'Cuttack', state: 'Odisha' },
-  { city: 'Raipur', state: 'Chhattisgarh' },
-  { city: 'Nagpur', state: 'Maharashtra' },
-  { city: 'Nashik', state: 'Maharashtra' },
-  { city: 'Vadodara', state: 'Gujarat' },
-  { city: 'Rajkot', state: 'Gujarat' },
-  { city: 'Udaipur', state: 'Rajasthan' },
-  { city: 'Jodhpur', state: 'Rajasthan' },
-  { city: 'Kota', state: 'Rajasthan' },
-  { city: 'Gwalior', state: 'Madhya Pradesh' },
-  { city: 'Jabalpur', state: 'Madhya Pradesh' },
-  { city: 'Tirupati', state: 'Andhra Pradesh' },
-  { city: 'Kakinada', state: 'Andhra Pradesh' },
-  { city: 'Rajahmundry', state: 'Andhra Pradesh' },
-  { city: 'Guntur', state: 'Andhra Pradesh' },
-  { city: 'Mysore', state: 'Karnataka' },
-  { city: 'Hubli', state: 'Karnataka' },
-  { city: 'Belgaum', state: 'Karnataka' },
-  { city: 'Salem', state: 'Tamil Nadu' },
-  { city: 'Tiruchirappalli', state: 'Tamil Nadu' },
-  { city: 'Tirunelveli', state: 'Tamil Nadu' },
-  { city: 'Pondicherry', state: 'Puducherry' },
-];
 
 const RECENT_SEARCHES = [
   { from: 'Pune',      to: 'Goa',         date: 'Weekend',         icon: '🌊', price: '₹699', badge: '🌴 Beach' },
@@ -112,13 +52,8 @@ const Hero = () => {
   const [returnDate, setReturnDate] = useState('');
   const [isSwapping, setIsSwapping] = useState(false);
   const [errorMsg, setErrorMsg]     = useState('');
-  const [showFromDropdown, setShowFromDropdown] = useState(false);
-  const [showToDropdown, setShowToDropdown]     = useState(false);
+  const [toastMsg, setToastMsg]     = useState('');
 
-  const fromRef           = useRef(null);
-  const toRef             = useRef(null);
-  const fromInputRef      = useRef(null);
-  const toInputRef        = useRef(null);
   const departureInputRef = useRef(null);
   const returnInputRef    = useRef(null);
 
@@ -130,19 +65,23 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (fromRef.current && !fromRef.current.contains(e.target)) setShowFromDropdown(false);
-      if (toRef.current   && !toRef.current.contains(e.target))   setShowToDropdown(false);
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  const handleSameCityFrom = (cityName) => {
+    setToastMsg(`Destination cleared: Origin and Destination cannot both be "${cityName}".`);
+    setTo('');
+    setTimeout(() => setToastMsg(''), 4500);
+  };
+
+  const handleSameCityTo = (cityName) => {
+    setToastMsg(`Origin cleared: Origin and Destination cannot both be "${cityName}".`);
+    setFrom('');
+    setTimeout(() => setToastMsg(''), 4500);
+  };
 
   const handleSwap = () => {
     setIsSwapping(true);
+    const temp = from;
     setFrom(to);
-    setTo(from);
+    setTo(temp);
     setTimeout(() => setIsSwapping(false), 400);
   };
 
@@ -218,13 +157,6 @@ const Hero = () => {
     setErrorMsg('');
   };
 
-  const filteredFromCities = ALL_INDIAN_CITIES.filter(
-    (c) => c.city.toLowerCase().includes(from.toLowerCase()) || c.state.toLowerCase().includes(from.toLowerCase())
-  );
-  const filteredToCities = ALL_INDIAN_CITIES.filter(
-    (c) => c.city.toLowerCase().includes(to.toLowerCase()) || c.state.toLowerCase().includes(to.toLowerCase())
-  );
-
   const todayISO = new Date().toISOString().split('T')[0];
 
   return (
@@ -290,46 +222,46 @@ const Hero = () => {
         {/* ── Glowing Floating Search Card (Exact match to reference pic) ── */}
         <div className={styles.widgetWrapper}>
           <div className={styles.searchCard}>
+            {/* Toast Warning for Same City Selection */}
+            {toastMsg && (
+              <div className={styles.toastBanner}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className={styles.toastIcon}>⚠️</span>
+                  <span>{toastMsg}</span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.closeToastBtn}
+                  onClick={() => setToastMsg('')}
+                  title="Close message"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
             {/* Validation Error Banner */}
             {errorMsg && (
               <div className={styles.errorBanner}>
                 ⚠️ {errorMsg}
               </div>
             )}
+
             <form onSubmit={handleSearchSubmit} className={styles.searchFormRow}>
 
-              {/* 1. Leaving From */}
-              <div className={`${styles.fieldCol} ${showFromDropdown ? styles.fieldColOpen : ''}`} ref={fromRef}>
+              {/* 1. Leaving From (Origin) — Alphabetical A to Z Grouped */}
+              <div className={styles.fieldCol}>
                 <label className={styles.fieldLabel}>Leaving From</label>
-                <div 
-                  className={styles.fieldBox}
-                  onClick={() => { fromInputRef.current?.focus(); setShowFromDropdown(true); }}
-                >
-                  <input
-                    ref={fromInputRef}
-                    type="text"
-                    placeholder="Select departure"
-                    value={from}
-                    onFocus={() => setShowFromDropdown(true)}
-                    onChange={(e) => { setFrom(e.target.value); setShowFromDropdown(true); }}
-                    className={styles.fieldInput}
-                  />
-                  <span className={styles.chevronIcon}>⌵</span>
-                </div>
-                {showFromDropdown && (
-                  <div className={styles.cityDropdownMenu}>
-                    {filteredFromCities.length > 0 ? filteredFromCities.map((item, idx) => (
-                      <div key={idx} className={styles.cityDropdownItem}
-                        onClick={() => { setFrom(item.city); setShowFromDropdown(false); }}>
-                        <div className={styles.cityBuildingIcon}>🏢</div>
-                        <div className={styles.cityInfo}>
-                          <div className={styles.cityName}>{item.city}</div>
-                          <div className={styles.stateName}>{item.state}</div>
-                        </div>
-                      </div>
-                    )) : <div className={styles.noCityFound}>No city found</div>}
-                  </div>
-                )}
+                <AlphabeticalCityPicker
+                  label="Leaving From"
+                  value={from}
+                  onChange={(val) => { setFrom(val); setErrorMsg(''); }}
+                  opposingValue={to}
+                  onSameCitySelected={handleSameCityFrom}
+                  icon="🟢"
+                  placeholder="From city"
+                  theme="dark"
+                />
               </div>
 
               {/* Swap button between From & To */}
@@ -338,42 +270,24 @@ const Hero = () => {
                 className={`${styles.swapBtnInline} ${isSwapping ? styles.swapSpin : ''}`}
                 onClick={handleSwap}
                 title="Swap origin & destination"
+                aria-label="Swap cities"
               >
                 ⇄
               </button>
 
-              {/* 2. Destination */}
-              <div className={`${styles.fieldCol} ${showToDropdown ? styles.fieldColOpen : ''}`} ref={toRef}>
-                <label className={styles.fieldLabel}>Destination</label>
-                <div 
-                  className={styles.fieldBox}
-                  onClick={() => { toInputRef.current?.focus(); setShowToDropdown(true); }}
-                >
-                  <input
-                    ref={toInputRef}
-                    type="text"
-                    placeholder="Select destination"
-                    value={to}
-                    onFocus={() => setShowToDropdown(true)}
-                    onChange={(e) => { setTo(e.target.value); setShowToDropdown(true); }}
-                    className={styles.fieldInput}
-                  />
-                  <span className={styles.chevronIcon}>⌵</span>
-                </div>
-                {showToDropdown && (
-                  <div className={styles.cityDropdownMenu}>
-                    {filteredToCities.length > 0 ? filteredToCities.map((item, idx) => (
-                      <div key={idx} className={styles.cityDropdownItem}
-                        onClick={() => { setTo(item.city); setShowToDropdown(false); }}>
-                        <div className={styles.cityBuildingIcon}>🏢</div>
-                        <div className={styles.cityInfo}>
-                          <div className={styles.cityName}>{item.city}</div>
-                          <div className={styles.stateName}>{item.state}</div>
-                        </div>
-                      </div>
-                    )) : <div className={styles.noCityFound}>No city found</div>}
-                  </div>
-                )}
+              {/* 2. Destination (Going To) — Alphabetical A to Z Grouped */}
+              <div className={styles.fieldCol}>
+                <label className={styles.fieldLabel}>Going To</label>
+                <AlphabeticalCityPicker
+                  label="Going To"
+                  value={to}
+                  onChange={(val) => { setTo(val); setErrorMsg(''); }}
+                  opposingValue={from}
+                  onSameCitySelected={handleSameCityTo}
+                  icon="🔴"
+                  placeholder="To city"
+                  theme="dark"
+                />
               </div>
 
               {/* 3. Departure Date */}
@@ -430,10 +344,12 @@ const Hero = () => {
                 </div>
               </div>
 
-              {/* 5. Search Buses button */}
+              {/* 5. Search Buses Button — Central Visual Focus */}
               <div className={styles.buttonCol}>
-                <button type="submit" className={styles.searchBusesButton}>
-                  Search Buses
+                <button type="submit" className={styles.searchBusesButton} id="search-buses-cta">
+                  <span className={styles.btnBusIcon}>🚌</span>
+                  <span className={styles.btnText}>SEARCH BUSES</span>
+                  <span className={styles.btnArrow}>➔</span>
                 </button>
               </div>
 

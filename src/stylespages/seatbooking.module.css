@@ -47,6 +47,7 @@
   text-align: left;
   border: 1.5px solid #bce0ff;
   box-sizing: border-box;
+  overflow: visible;
 }
 
 /* Row 1: FROM → SWAP → TO */
@@ -56,12 +57,19 @@
   align-items: flex-end;
   margin-bottom: 1.2rem;
   flex-wrap: wrap;
+  overflow: visible;
 }
 
 .inputWrapper {
   flex: 1;
   position: relative;
   min-width: 160px;
+  overflow: visible;
+  z-index: 10;
+}
+
+.inputWrapper:focus-within {
+  z-index: 60;
 }
 
 .inputLabel {
@@ -152,7 +160,8 @@
 }
 
 .suggestion:hover {
-  background: #e6f2ff;
+  background: #028090;
+  color: #ffffff !important;
 }
 
 /* Row 2: TRAVEL DATE | TIME PREFERENCE | PASSENGERS */
@@ -300,8 +309,13 @@
 
 .busTypeCard:hover {
   border-color: #028090;
-  background: #e6f7f5;
+  background: #028090;
   transform: translateY(-1px);
+}
+
+.busTypeCard:hover .busTypeIcon,
+.busTypeCard:hover .busTypeLabel {
+  color: #ffffff !important;
 }
 
 .busTypeCardActive {
@@ -339,28 +353,47 @@
 /* Full Width Solid Teal Button (Exact Match) */
 .searchBtn {
   width: 100%;
-  padding: 1.05rem;
-  background: #028090;
+  padding: 1.15rem;
+  background: linear-gradient(135deg, #ff5722 0%, #ff6d00 45%, #e65100 100%);
   color: #ffffff !important;
-  border: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
   border-radius: 16px;
   font-size: 1.05rem;
   font-weight: 800;
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
-  letter-spacing: 0.5px;
-  transition: transform 0.2s, background 0.2s;
-  box-shadow: 0 6px 18px rgba(2, 128, 144, 0.25);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 6px 22px rgba(255, 87, 34, 0.5), 0 0 20px rgba(255, 109, 0, 0.3);
+  animation: searchBtnPulse 3s infinite ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
+}
+
+@keyframes searchBtnPulse {
+  0%, 100% {
+    box-shadow: 0 6px 22px rgba(255, 87, 34, 0.45), 0 0 16px rgba(255, 109, 0, 0.25);
+    transform: translateY(0);
+  }
+  50% {
+    box-shadow: 0 10px 30px rgba(255, 87, 34, 0.75), 0 0 32px rgba(255, 109, 0, 0.55);
+    transform: translateY(-2px);
+  }
 }
 
 .searchBtn:hover {
-  background: #00a896;
-  color: #ffffff;
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #ff6e40 0%, #ff7d00 45%, #f4511e 100%);
+  border-color: #ffffff;
+  color: #ffffff !important;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 34px rgba(255, 87, 34, 0.8), 0 0 36px rgba(255, 109, 0, 0.7);
+}
+
+.searchBtn:active {
+  transform: translateY(1px) scale(0.98);
 }
 
 /* ── Direct Bus Tracking Box (Exact Match to Image) ── */

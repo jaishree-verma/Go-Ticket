@@ -221,8 +221,19 @@
 }
 
 .seat:hover:not(:disabled) {
+  background: #028090;
+  border-color: #028090;
+  color: #ffffff !important;
   transform: scale(1.14);
   box-shadow: 0 8px 20px rgba(0, 168, 150, 0.3);
+}
+
+.seat:hover:not(:disabled) .seatHandle {
+  background: #ffffff !important;
+}
+
+.seat:hover:not(:disabled) .seatNum {
+  color: #ffffff !important;
 }
 
 .seat.selected {
