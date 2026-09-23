@@ -125,10 +125,13 @@ export const createTravelRequest = () => ({
  * Add new cities here to extend coverage.
  */
 export const KNOWN_CITIES = [
-  'Kanpur', 'Delhi', 'Lucknow', 'Agra', 'Jaipur', 'Mumbai',
+  'Kanpur', 'Delhi', 'New Delhi', 'Lucknow', 'Agra', 'Jaipur', 'Mumbai',
   'Pune', 'Bangalore', 'Bengaluru', 'Hyderabad', 'Chennai',
   'Kolkata', 'Dehradun', 'Chandigarh', 'Ahmedabad', 'Surat',
-  'Varanasi', 'Goa', 'Bhopal', 'Indore', 'Patna', 'Ranchi',
+  'Varanasi', 'Prayagraj', 'Haridwar', 'Amritsar', 'Vadodara',
+  'Nashik', 'Indore', 'Bhopal', 'Kochi', 'Coimbatore', 'Mysuru',
+  'Madurai', 'Vijayawada', 'Patna', 'Ranchi', 'Bhubaneswar',
+  'Guwahati', 'Nagpur', 'Raipur', 'Jabalpur', 'Goa',
 ];
 
 /**
@@ -182,6 +185,55 @@ export const CITY_ALIASES = Object.freeze({
   // Kolkata
   'calcutta': 'Kolkata',
   'cal': 'Kolkata',
+
+  // Prayagraj / Allahabad
+  'allahabad': 'Prayagraj',
+  'prayag': 'Prayagraj',
+
+  // Varanasi / Banaras / Kashi
+  'banaras': 'Varanasi',
+  'kashi': 'Varanasi',
+
+  // Vadodara / Baroda
+  'baroda': 'Vadodara',
+
+  // Nashik
+  'nasik': 'Nashik',
+
+  // Kochi / Cochin
+  'cochin': 'Kochi',
+
+  // Mysuru / Mysore
+  'mysore': 'Mysuru',
+
+  // Bhubaneswar
+  'bhubaneshwar': 'Bhubaneswar',
+  'bbs': 'Bhubaneswar',
+
+  // Guwahati
+  'gauhati': 'Guwahati',
+  'ghy': 'Guwahati',
+
+  // Amritsar
+  'asr': 'Amritsar',
+
+  // Coimbatore
+  'cbe': 'Coimbatore',
+
+  // Madurai
+  'mdu': 'Madurai',
+
+  // Vijayawada
+  'bza': 'Vijayawada',
+
+  // Nagpur
+  'ngp': 'Nagpur',
+
+  // Raipur
+  'rpr': 'Raipur',
+
+  // Jabalpur
+  'jbp': 'Jabalpur',
 });
 
 // =============================================================================
@@ -214,11 +266,17 @@ export const BUS_TYPE_ALIASES = Object.freeze({
 
   // Sleeper variants
   'sleeper': 'Sleeper',
+  'sleeper bus': 'Sleeper',
+  'prefer sleeper': 'Sleeper',
+  'sleeper seats': 'Sleeper',
   'sleeping': 'Sleeper',
   'sleep bus': 'Sleeper',
 
   // Seater variants
   'seater': 'Seater',
+  'seater bus': 'Seater',
+  'prefer seater': 'Seater',
+  'seater seats': 'Seater',
   'seated': 'Seater',
   'sitting': 'Seater',
   'sit bus': 'Seater',

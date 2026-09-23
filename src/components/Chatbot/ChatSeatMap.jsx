@@ -19,6 +19,7 @@ export default function ChatSeatMap({
     selectedSeats = [],
     recommendedSeats = [],
     rows = [],
+    passengers = 1,
   } = seatMap;
 
   const fareNum = typeof fare === 'number' ? fare : parseInt(String(fare).replace(/[^\d]/g, ''), 10) || 599;
@@ -136,10 +137,10 @@ export default function ChatSeatMap({
         <div className="seatmap-summary-text">
           {selectedSeats.length > 0 ? (
             <>
-              Selected: <strong>{selectedSeats.join(', ')}</strong> • Total: <strong>₹{totalAmount}</strong>
+              Selected: <strong>{selectedSeats.join(', ')} ({selectedSeats.length}/{passengers} seat{passengers > 1 ? 's' : ''})</strong> • Total: <strong>₹{totalAmount}</strong>
             </>
           ) : (
-            <span style={{ color: '#64748b' }}>Click any available seat to select</span>
+            <span style={{ color: '#64748b' }}>Please select {passengers} seat{passengers > 1 ? 's' : ''} on the map</span>
           )}
         </div>
 
@@ -147,9 +148,21 @@ export default function ChatSeatMap({
           <button
             type="button"
             className="seatmap-confirm-btn"
-            onClick={() => onConfirmSeats(selectedSeats)}
+            disabled={selectedSeats.length !== passengers}
+            style={
+              selectedSeats.length !== passengers
+                ? { opacity: 0.6, cursor: 'not-allowed' }
+                : undefined
+            }
+            onClick={() => {
+              if (selectedSeats.length === passengers) {
+                onConfirmSeats(selectedSeats);
+              }
+            }}
           >
-            Confirm Seats ({selectedSeats.length}) ⚡
+            {selectedSeats.length === passengers
+              ? `Confirm ${selectedSeats.length} Seat${selectedSeats.length > 1 ? 's' : ''} ⚡`
+              : `Select ${passengers - selectedSeats.length} more seat${passengers - selectedSeats.length > 1 ? 's' : ''}`}
           </button>
         )}
       </div>

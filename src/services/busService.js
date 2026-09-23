@@ -4,6 +4,17 @@
 // Future: Will replace internal mock query with FastAPI HTTP request (e.g., fetch('/api/buses/search'))
 
 import { MOCK_BUSES } from '../data/mockBuses.js';
+import { CITY_ALIASES } from './intentDefinitions.js';
+
+const normalizeCity = (c = '') => {
+  const s = (c || '').trim().toLowerCase();
+  if (!s) return '';
+  if (CITY_ALIASES[s]) return CITY_ALIASES[s].toLowerCase();
+  for (const [alias, canonical] of Object.entries(CITY_ALIASES)) {
+    if (s === alias || s.includes(alias)) return canonical.toLowerCase();
+  }
+  return s;
+};
 
 /**
  * Searches for buses matching the requested criteria.
@@ -29,16 +40,18 @@ export const searchBuses = ({
     // Artificial 500ms delay to simulate network latency and test loading states
     setTimeout(() => {
       try {
-        const cleanSource = source.trim().toLowerCase();
-        const cleanDestination = destination.trim().toLowerCase();
+        const normSource = normalizeCity(source);
+        const normDest = normalizeCity(destination);
 
-        if (!cleanSource || !cleanDestination) {
+        if (!normSource || !normDest) {
           return resolve([]);
         }
 
         let results = MOCK_BUSES.filter((bus) => {
-          const matchSource = bus.source.toLowerCase() === cleanSource;
-          const matchDest = bus.destination.toLowerCase() === cleanDestination;
+          const busSource = normalizeCity(bus.source);
+          const busDest = normalizeCity(bus.destination);
+          const matchSource = busSource === normSource;
+          const matchDest = busDest === normDest;
 
           let matchPrice = true;
           if (maxPrice) {
@@ -47,14 +60,14 @@ export const searchBuses = ({
 
           let matchType = true;
           if (busType) {
-            matchType = bus.busType.toLowerCase().includes(busType.toLowerCase());
+            matchType = (bus.busType || '').toLowerCase().includes(busType.toLowerCase());
           }
 
           return matchSource && matchDest && matchPrice && matchType;
         });
 
         if (preferredTime && results.length > 0) {
-          const strictTimeMatches = results.filter(b => b.departureTime.includes(preferredTime));
+          const strictTimeMatches = results.filter(b => b.departureTime && b.departureTime.includes(preferredTime));
           if (strictTimeMatches.length > 0) {
             results = strictTimeMatches;
           }

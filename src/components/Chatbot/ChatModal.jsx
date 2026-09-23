@@ -125,6 +125,8 @@ export default function ChatModal({ onClose, onMinimize }) {
         statusTrace: response.statusTrace || [],
         chips: response.chips || [],
         seatMap: response.seatMap || null,
+        ticketCard: response.ticketCard || null,
+        busCards: response.busCards || (response.searchResults && response.searchResults.length > 0 && response.agentState?.state === 'WAITING_FOR_BUS_SELECTION' ? response.searchResults.slice(0, 4) : null),
         actionCard: response.actionCard
           ? {
               title: response.actionCard.title,
@@ -241,6 +243,34 @@ export default function ChatModal({ onClose, onMinimize }) {
 
             <div style={{ whiteSpace: 'pre-line' }}>{m.text}</div>
 
+            {/* Interactive Visual Bus Cards */}
+            {m.busCards && m.busCards.length > 0 && (
+              <div className="chat-bus-list">
+                <div className="chat-bus-list-title">🚌 Available Buses (Tap to Select):</div>
+                {m.busCards.map((bus) => (
+                  <div key={bus.id} className="chat-bus-item">
+                    <div className="chat-bus-item-header">
+                      <div className="chat-bus-name">{bus.operator} - {bus.busName}</div>
+                      <div className="chat-bus-price">₹{bus.price}</div>
+                    </div>
+                    <div className="chat-bus-item-sub">
+                      <span>🕒 {bus.departureTime} → {bus.arrivalTime}</span>
+                      <span className="chat-bus-type">{bus.busType}</span>
+                    </div>
+                    <div className="chat-bus-item-footer">
+                      <span className="chat-bus-rating">⭐ {bus.rating || 4.5}</span>
+                      <button
+                        className="chat-bus-select-btn"
+                        onClick={() => handleSend(`Select ${bus.busName}`)}
+                      >
+                        Select Bus 🪑
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Interactive Visual Seat Map */}
             {m.seatMap && (
               <ChatSeatMap
@@ -250,8 +280,54 @@ export default function ChatModal({ onClose, onMinimize }) {
               />
             )}
 
+            {/* Rich Ticket Confirmation Card */}
+            {m.ticketCard && (
+              <div className="chat-ticket-card">
+                <div className="chat-ticket-header">
+                  <div className="chat-ticket-badge">✅ BOOKING CONFIRMED</div>
+                  <div className="chat-ticket-id">#{m.ticketCard.ticketId}</div>
+                </div>
+                <div className="chat-ticket-route">
+                  <span className="route-city">{m.ticketCard.source}</span>
+                  <span className="route-arrow">➔</span>
+                  <span className="route-city">{m.ticketCard.destination}</span>
+                </div>
+                <div className="chat-ticket-details">
+                  <div className="chat-ticket-row">
+                    <span className="ticket-label">🚌 Bus:</span>
+                    <span className="ticket-val">{m.ticketCard.busName || m.ticketCard.operator}</span>
+                  </div>
+                  <div className="chat-ticket-row">
+                    <span className="ticket-label">📅 Date & Time:</span>
+                    <span className="ticket-val">{m.ticketCard.date} • {m.ticketCard.time}</span>
+                  </div>
+                  <div className="chat-ticket-row">
+                    <span className="ticket-label">💺 Seats:</span>
+                    <span className="ticket-val-seats">{Array.isArray(m.ticketCard.seats) ? m.ticketCard.seats.join(', ') : m.ticketCard.seats}</span>
+                  </div>
+                  <div className="chat-ticket-row">
+                    <span className="ticket-label">👤 Passenger:</span>
+                    <span className="ticket-val">{m.ticketCard.passengerName}</span>
+                  </div>
+                  <div className="chat-ticket-row">
+                    <span className="ticket-label">💰 Fare Paid:</span>
+                    <span className="ticket-val-fare">₹{m.ticketCard.totalFare} <span className="paid-tag">(PAID)</span></span>
+                  </div>
+                </div>
+                <button
+                  className="chat-ticket-btn"
+                  onClick={() => {
+                    onClose();
+                    navigate('/eticket', { state: { ticket: m.ticketCard } });
+                  }}
+                >
+                  🎟️ Open E-Ticket &amp; Download Pass
+                </button>
+              </div>
+            )}
+
             {/* Action Trigger Card */}
-            {m.actionCard && (
+            {m.actionCard && !m.ticketCard && (
               <div className="chat-action-card">
                 <div className="chat-action-title">{m.actionCard.title}</div>
                 <button
