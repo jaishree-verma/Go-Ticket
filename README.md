@@ -1,23 +1,7 @@
 
 # GoTicket — AI-Agent-Based Intercity Bus Booking Platform
 
-> **Final-Year B.Tech AI & ML Capstone Project**  
 > An autonomous conversational AI travel concierge alongside an end-to-end manual bus reservation and live tracking web platform.
-
----
-
-## 📚 Complete Project Documentation Suite
-
-Comprehensive academic and engineering documentation has been compiled in the [`docs/`](./docs/) directory:
-
-* 📄 **[Master Project Report (`docs/PROJECT_REPORT.md`)](./docs/PROJECT_REPORT.md)** — Comprehensive final-year academic report covering abstract, problem statement, architecture, tech stack, recommendation algorithms, state machines, and testing.
-* 🛠️ **[Technical & Developer Documentation (`docs/TECHNICAL_DOCUMENTATION.md`)](./docs/TECHNICAL_DOCUMENTATION.md)** — Service-layer API reference, data schemas, React lifecycle, and backend migration blueprint.
-* 🏗️ **[System Architecture & Diagrams (`docs/ARCHITECTURE.md`)](./docs/ARCHITECTURE.md)** — Mermaid sequence diagrams, state transition models, telemetry flow, and component hierarchy.
-* 🎓 **[Viva Examination Guide (`docs/VIVA_QUESTIONS.md`)](./docs/VIVA_QUESTIONS.md)** — 35+ technical questions and authoritative answers across React 19, NLU, FSM, and MCDA scoring.
-* 🎬 **[Project Demonstration Script (`docs/DEMO_SCRIPT.md`)](./docs/DEMO_SCRIPT.md)** — 7-to-10 minute presentation and live demonstration script with spoken cues.
-* 👥 **[Team Contribution Matrix (`docs/TEAM_CONTRIBUTION.md`)](./docs/TEAM_CONTRIBUTION.md)** — Detailed 4-member workload and module ownership matrix.
-
----
 
 ## 🌟 Key Highlights & Features
 
