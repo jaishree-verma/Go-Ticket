@@ -396,3 +396,226 @@
 .chat-send-btn:hover {
   background: linear-gradient(135deg, #00a896 0%, #028090 100%);
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Ticket Confirmation Card in Chat
+═══════════════════════════════════════════════════════════ */
+.chat-ticket-card {
+  background: #ffffff;
+  border: 2px solid #00a896;
+  border-radius: 16px;
+  padding: 1rem 1.1rem;
+  margin-top: 0.8rem;
+  box-shadow: 0 8px 24px rgba(0, 168, 150, 0.15);
+}
+
+.chat-ticket-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px dashed #cbd5e1;
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.chat-ticket-badge {
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.chat-ticket-id {
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: #028090;
+}
+
+.chat-ticket-route {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 1rem;
+  color: #0f172a;
+  margin: 0.5rem 0 0.8rem 0;
+  background: #f8fafc;
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+.route-arrow {
+  color: #00a896;
+  font-weight: 900;
+}
+
+.chat-ticket-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  margin-bottom: 0.8rem;
+}
+
+.chat-ticket-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticket-label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.ticket-val {
+  color: #1e293b;
+  font-weight: 700;
+  text-align: right;
+}
+
+.ticket-val-seats {
+  background: #f0fdfa;
+  color: #028090;
+  border: 1px solid #99f6e4;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+.ticket-val-fare {
+  font-size: 0.95rem;
+  color: #047857;
+  font-weight: 800;
+}
+
+.paid-tag {
+  font-size: 0.72rem;
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.chat-ticket-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #028090 0%, #00a896 100%);
+  color: #ffffff !important;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.chat-ticket-btn:hover {
+  background: linear-gradient(135deg, #00a896 0%, #028090 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(2, 128, 144, 0.35);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Interactive Bus Cards in Chat
+═══════════════════════════════════════════════════════════ */
+.chat-bus-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+
+.chat-bus-list-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #028090;
+}
+
+.chat-bus-item {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.7rem 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.chat-bus-item:hover {
+  border-color: #00a896;
+  background: #f0fdfa;
+}
+
+.chat-bus-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.chat-bus-name {
+  font-weight: 800;
+  font-size: 0.84rem;
+  color: #0f172a;
+}
+
+.chat-bus-price {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: #028090;
+}
+
+.chat-bus-item-sub {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+}
+
+.chat-bus-type {
+  background: #e2e8f0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.chat-bus-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.4rem;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.chat-bus-rating {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #d97706;
+}
+
+.chat-bus-select-btn {
+  padding: 0.35rem 0.8rem;
+  background: #028090;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chat-bus-select-btn:hover {
+  background: #00a896;
+  transform: translateY(-1px);
+}
+

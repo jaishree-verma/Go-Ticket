@@ -572,39 +572,61 @@ const extractPassengers = (q) => {
     'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
   };
 
-  // "2 passengers", "3 seats", "for 2 people", "booking for 2"
-  const numericMatch = q.match(/\b(\d+)\s*(?:passenger|seat|person|people|adult|travell?er)/i);
-  if (numericMatch) return parseInt(numericMatch[1], 10);
+  // 0. Bare number or number word (e.g. user replies "2" or "two" when asked for passengers)
+  const bareMatch = q.trim().match(/^(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)$/i);
+  if (bareMatch) {
+    const raw = bareMatch[1].toLowerCase();
+    const val = wordToNum[raw] || parseInt(raw, 10);
+    if (!isNaN(val) && val >= 1 && val <= 20) return val;
+  }
 
-  // "for two people", "we are three"
-  const wordMatch = q.match(/\b(one|two|three|four|five|six|seven|eight|nine|ten)\s*(?:passenger|seat|person|people|adult|travell?er)?/i);
+  // 1. "travelling with 2" / "traveling with 2 people"
+  const travelWithMatch = q.match(/\btravell?ing with\s+(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b/i);
+  if (travelWithMatch) {
+    const raw = travelWithMatch[1].toLowerCase();
+    const val = wordToNum[raw] || parseInt(raw, 10);
+    if (!isNaN(val) && val >= 1 && val <= 40) return val;
+  }
+
+  // 2. Numeric with optional modifiers: "2 sleeper seats", "2 seater seats", "3 AC seats", "2 passengers", "for 2 people", "I need 3 seats"
+  const numericMatch = q.match(/\b(\d+)\s+(?:sleeper|seater|ac|non-ac|luxury)?\s*(?:passenger|seat|person|people|adult|travell?er|ticket)s?\b/i) ||
+                       q.match(/\b(\d+)\s*(?:passenger|seat|person|people|adult|travell?er|ticket)s?\b/i);
+  if (numericMatch) {
+    const num = parseInt(numericMatch[1], 10);
+    if (num >= 1 && num <= 40) return num;
+  }
+
+  // 3. Word numbers with optional modifiers: "two sleeper seats", "three seats", "for two people", "two passengers"
+  const wordMatch = q.match(/\b(one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:sleeper|seater|ac|non-ac|luxury)?\s*(?:passenger|seat|person|people|adult|travell?er|ticket)s?\b/i) ||
+                    q.match(/\b(one|two|three|four|five|six|seven|eight|nine|ten)\s*(?:passenger|seat|person|people|adult|travell?er|ticket)s?\b/i);
   if (wordMatch) {
     const num = wordToNum[wordMatch[1].toLowerCase()];
     if (num) return num;
   }
 
-  // "me and my friend" → 2, "me and two friends" → 3
+  // 4. "for 2" or "for two" (when not followed by pm/am/hours/days/in the/o'clock/currency)
+  const forMatch = q.match(/\bfor\s+(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b(?!\s*(?:pm|am|hours?|days?|in\s+the|o'?clock|rupees?|rs|inr|\/|-))/i);
+  if (forMatch) {
+    const raw = forMatch[1].toLowerCase();
+    const val = wordToNum[raw] || parseInt(raw, 10);
+    if (!isNaN(val) && val >= 1 && val <= 10) return val;
+  }
+
+  // 5. "me and my friend" → 2, "me and two friends" → 3
   if (/\bme and my (friend|colleague|partner|wife|husband|brother|sister)\b/i.test(q)) return 2;
   const meAndFriends = q.match(/\bme and\s+(\w+)\s+(?:friends?|colleagues?|people)\b/i);
   if (meAndFriends) {
     const n = wordToNum[meAndFriends[1].toLowerCase()];
     if (n) return n + 1;
     const d = parseInt(meAndFriends[1], 10);
-    if (!isNaN(d)) return d + 1;
+    if (!isNaN(d) && d <= 10) return d + 1;
   }
 
-  // "we are three" / "we are 3"
+  // 6. "we are three" / "we are 3"
   const weAreMatch = q.match(/\bwe are\s+(\w+)\b/i);
   if (weAreMatch) {
     const n = wordToNum[weAreMatch[1].toLowerCase()] || parseInt(weAreMatch[1], 10);
-    if (!isNaN(n)) return n;
-  }
-
-  // "for two" (with no other context for the word)
-  const forWordMatch = q.match(/\bfor\s+(two|three|four|five|six)\b/i);
-  if (forWordMatch) {
-    const n = wordToNum[forWordMatch[1].toLowerCase()];
-    if (n) return n;
+    if (!isNaN(n) && n >= 1 && n <= 40) return n;
   }
 
   return null;
@@ -698,10 +720,13 @@ const detectMissing = (entities, constraints, intent, context) => {
   // Resolve against context (context values fill gaps, but NLU doesn't mutate context)
   const effectiveSource = entities.source || context.source;
   const effectiveDestination = entities.destination || context.destination;
+  const effectiveDate = entities.date || context.date;
+  const effectivePassengers = entities.passengers || context.passengers;
 
   if (!effectiveSource) missing.push('source');
   if (!effectiveDestination) missing.push('destination');
-  // date is optional — agent will default to today if missing
+  if (!effectiveDate) missing.push('date');
+  if (!effectivePassengers) missing.push('passengers');
 
   return missing;
 };

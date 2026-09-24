@@ -1,6 +1,17 @@
 // GoTicket Bus Search Service — Live API Integration
 import axios from 'axios';
 import { MOCK_BUSES } from '../data/mockBuses.js';
+import { CITY_ALIASES } from './intentDefinitions.js';
+
+const normalizeCity = (c = '') => {
+  const s = (c || '').trim().toLowerCase();
+  if (!s) return '';
+  if (CITY_ALIASES[s]) return CITY_ALIASES[s].toLowerCase();
+  for (const [alias, canonical] of Object.entries(CITY_ALIASES)) {
+    if (s === alias || s.includes(alias)) return canonical.toLowerCase();
+  }
+  return s;
+};
 
 export const getApiBaseUrl = () => {
   if (process.env.REACT_APP_API_BASE_URL) {
@@ -32,10 +43,12 @@ export const searchBuses = async ({
   maxPrice = null,
   busType = null
 }) => {
+  const normSource = normalizeCity(source);
+  const normDest = normalizeCity(destination);
   const cleanSource = (source || '').trim();
   const cleanDest = (destination || '').trim();
 
-  if (!cleanSource || !cleanDest) {
+  if (!normSource && !cleanSource && !normDest && !cleanDest) {
     return [];
   }
 
@@ -43,7 +56,7 @@ export const searchBuses = async ({
   try {
     const apiBase = getApiBaseUrl();
     const res = await axios.get(`${apiBase}/api/buses/search`, {
-      params: { source: cleanSource, destination: cleanDest, date },
+      params: { source: cleanSource || normSource, destination: cleanDest || normDest, date },
       timeout: 3500
     });
 
@@ -55,12 +68,12 @@ export const searchBuses = async ({
       }
       if (busType) {
         liveResults = liveResults.filter((b) =>
-          b.busType.toLowerCase().includes(busType.toLowerCase())
+          (b.busType || '').toLowerCase().includes(busType.toLowerCase())
         );
       }
       if (preferredTime) {
         const timeFiltered = liveResults.filter((b) =>
-          b.departureTime.includes(preferredTime)
+          b.departureTime && b.departureTime.includes(preferredTime)
         );
         if (timeFiltered.length > 0) liveResults = timeFiltered;
       }
@@ -71,17 +84,30 @@ export const searchBuses = async ({
     console.warn('Live API search warning, falling back to local registry:', err.message);
   }
 
-  // 2. Fallback to local verified registry
+  // 2. Fallback to local verified registry with alias normalization
   const lowerSource = cleanSource.toLowerCase();
   const lowerDest = cleanDest.toLowerCase();
 
   let matches = MOCK_BUSES.filter((bus) => {
-    const matchSource = bus.source.toLowerCase() === lowerSource;
-    const matchDest = bus.destination.toLowerCase() === lowerDest;
+    const busSource = normalizeCity(bus.source);
+    const busDest = normalizeCity(bus.destination);
+    const rawBusSource = (bus.source || '').toLowerCase();
+    const rawBusDest = (bus.destination || '').toLowerCase();
+
+    const matchSource = (normSource && busSource === normSource) || (lowerSource && rawBusSource === lowerSource);
+    const matchDest = (normDest && busDest === normDest) || (lowerDest && rawBusDest === lowerDest);
     const matchPrice = maxPrice ? bus.price <= maxPrice : true;
-    const matchType = busType ? bus.busType.toLowerCase().includes(busType.toLowerCase()) : true;
+    const matchType = busType ? (bus.busType || '').toLowerCase().includes(busType.toLowerCase()) : true;
+
     return matchSource && matchDest && matchPrice && matchType;
   });
+
+  if (preferredTime && matches.length > 0) {
+    const strictTimeMatches = matches.filter(b => b.departureTime && b.departureTime.includes(preferredTime));
+    if (strictTimeMatches.length > 0) {
+      matches = strictTimeMatches;
+    }
+  }
 
   // 3. Dynamic generator for all A-Z Indian routes if not explicitly hardcoded
   if (matches.length === 0 && cleanSource && cleanDest) {
