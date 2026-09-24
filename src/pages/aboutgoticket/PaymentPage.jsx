@@ -6,872 +6,872 @@ import { fetchLiveSeatLayout } from '../../services/seatService';
 import styles from '../../stylespages/payment.module.css';
 
 const generateTicketId = () =>
- 'GT' + Math.random().toString(36).substring(2, 8).toUpperCase();
+  'GT' + Math.random().toString(36).substring(2, 8).toUpperCase();
 
 const PROMO_OFFERS = [
- { code: 'FIRSTGO', text: 'Flat 20% OFF (Up to ₹150)', discount: 150 },
- { code: 'GTWEEKEND', text: 'Weekend Saver ₹200 OFF', discount: 200 },
- { code: 'UPIPAY', text: 'UPI Cashback ₹50 OFF', discount: 50 }
+  { code: 'FIRSTGO', text: 'Flat 20% OFF (Up to ₹150)', discount: 150 },
+  { code: 'GTWEEKEND', text: 'Weekend Saver ₹200 OFF', discount: 200 },
+  { code: 'UPIPAY', text: 'UPI Cashback ₹50 OFF', discount: 50 }
 ];
 
 /* ── Empty passenger template ───────────────────────────── */
 const emptyPassenger = () => ({
- id: Date.now() + Math.random(),
- fullName: '',
- mobile: '',
- email: '',
- aadhaar: '',
- gender: '',
- age: '',
- otpSent: false,
- otpValue: '',
- otpInput: '',
- mobileVerified: false,
- otpError: '',
- otpTimer: 0,
+  id: Date.now() + Math.random(),
+  fullName: '',
+  mobile: '',
+  email: '',
+  aadhaar: '',
+  gender: '',
+  age: '',
+  otpSent: false,
+  otpValue: '',
+  otpInput: '',
+  mobileVerified: false,
+  otpError: '',
+  otpTimer: 0,
 });
 
 /* ── Step indicator ─────────────────────────────────────── */
 const StepBar = ({ current }) => {
- const steps = [
- { id: 'summary', label: 'Summary' },
- { id: 'details', label: 'Passenger' },
- { id: 'payment', label: 'Payment' },
- { id: 'confirmed', label: 'Done' },
- ];
- const order = steps.map((s) => s.id);
- const currentIdx = order.indexOf(current);
+  const steps = [
+    { id: 'summary',   label: 'Summary' },
+    { id: 'details',   label: 'Passenger' },
+    { id: 'payment',   label: 'Payment' },
+    { id: 'confirmed', label: 'Done' },
+  ];
+  const order      = steps.map((s) => s.id);
+  const currentIdx = order.indexOf(current);
 
- return (
- <div className={styles.stepIndicator}>
- {steps.map((s, i) => {
- const idx = order.indexOf(s.id);
- const isDone = idx < currentIdx;
- const isActive = idx === currentIdx;
- return (
- <React.Fragment key={s.id}>
- <div
- className={`${styles.stepDot} ${isDone ? styles.done : ''} ${
- isActive ? styles.active : ''
- }`}
- >
- <div className={styles.stepCircle}>{isDone ? '' : i + 1}</div>
- <span>{s.label}</span>
- </div>
- {i < steps.length - 1 && (
- <div
- className={`${styles.stepLine} ${idx < currentIdx ? styles.done : ''}`}
- />
- )}
- </React.Fragment>
- );
- })}
- </div>
- );
+  return (
+    <div className={styles.stepIndicator}>
+      {steps.map((s, i) => {
+        const idx      = order.indexOf(s.id);
+        const isDone   = idx < currentIdx;
+        const isActive = idx === currentIdx;
+        return (
+          <React.Fragment key={s.id}>
+            <div
+              className={`${styles.stepDot} ${isDone ? styles.done : ''} ${
+                isActive ? styles.active : ''
+              }`}
+            >
+              <div className={styles.stepCircle}>{isDone ? '✓' : i + 1}</div>
+              <span>{s.label}</span>
+            </div>
+            {i < steps.length - 1 && (
+              <div
+                className={`${styles.stepLine} ${idx < currentIdx ? styles.done : ''}`}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
 };
 
 /* ── Single Passenger Card ──────────────────────────────── */
 const PassengerCard = ({ pax, index, total, onChange, onRemove }) => {
- const timerRef = useRef(null);
+  const timerRef = useRef(null);
 
- const sendOtp = () => {
- if (!/^[6-9]\d{9}$/.test(pax.mobile)) {
- onChange(index, 'otpError', 'Enter a valid 10-digit mobile first.');
- return;
- }
- const code = Math.floor(100000 + Math.random() * 900000).toString();
- onChange(index, 'otpValue', code);
- onChange(index, 'otpSent', true);
- onChange(index, 'otpError', '');
- onChange(index, 'mobileVerified', false);
- onChange(index, 'otpInput', '');
- let t = 30;
- onChange(index, 'otpTimer', t);
- clearInterval(timerRef.current);
- timerRef.current = setInterval(() => {
- t -= 1;
- onChange(index, 'otpTimer', t);
- if (t <= 0) clearInterval(timerRef.current);
- }, 1000);
+  const sendOtp = () => {
+    if (!/^[6-9]\d{9}$/.test(pax.mobile)) {
+      onChange(index, 'otpError', 'Enter a valid 10-digit mobile first.');
+      return;
+    }
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    onChange(index, 'otpValue', code);
+    onChange(index, 'otpSent', true);
+    onChange(index, 'otpError', '');
+    onChange(index, 'mobileVerified', false);
+    onChange(index, 'otpInput', '');
+    let t = 30;
+    onChange(index, 'otpTimer', t);
+    clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      t -= 1;
+      onChange(index, 'otpTimer', t);
+      if (t <= 0) clearInterval(timerRef.current);
+    }, 1000);
 
- alert(` OTP sent to ${pax.mobile}: ${code}\n(Demo mode — OTP shown in alert)`);
- };
+    alert(`📲 OTP sent to ${pax.mobile}: ${code}\n(Demo mode — OTP shown in alert)`);
+  };
 
- const verifyOtp = () => {
- if (pax.otpInput === pax.otpValue) {
- onChange(index, 'mobileVerified', true);
- onChange(index, 'otpError', '');
- } else {
- onChange(index, 'otpError', 'Incorrect OTP. Please try again.');
- }
- };
+  const verifyOtp = () => {
+    if (pax.otpInput === pax.otpValue) {
+      onChange(index, 'mobileVerified', true);
+      onChange(index, 'otpError', '');
+    } else {
+      onChange(index, 'otpError', 'Incorrect OTP. Please try again.');
+    }
+  };
 
- return (
- <div className={styles.passengerCardBox}>
- <div className={styles.passengerCardHeader}>
- <span className={styles.passengerCardTitle}>
- Passenger {index + 1}
- {index === 0 && (
- <span className={styles.primaryBadge}> PRIMARY</span>
- )}
- </span>
- {total > 1 && index > 0 && (
- <button
- className={styles.removePassengerBtn}
- onClick={() => onRemove(index)}
- title="Remove passenger"
- >
- Remove
- </button>
- )}
- </div>
+  return (
+    <div className={styles.passengerCardBox}>
+      <div className={styles.passengerCardHeader}>
+        <span className={styles.passengerCardTitle}>
+          👤 Passenger {index + 1}
+          {index === 0 && (
+            <span className={styles.primaryBadge}> PRIMARY</span>
+          )}
+        </span>
+        {total > 1 && index > 0 && (
+          <button
+            className={styles.removePassengerBtn}
+            onClick={() => onRemove(index)}
+            title="Remove passenger"
+          >
+            ✕ Remove
+          </button>
+        )}
+      </div>
 
- <div className={styles.formGroup}>
- <label className={styles.label}>Full Name *</label>
- <input
- type="text"
- className={styles.input}
- placeholder="As per Aadhaar card"
- value={pax.fullName}
- onChange={(e) => onChange(index, 'fullName', e.target.value)}
- />
- </div>
+      <div className={styles.formGroup}>
+        <label className={styles.label}>Full Name *</label>
+        <input
+          type="text"
+          className={styles.input}
+          placeholder="As per Aadhaar card"
+          value={pax.fullName}
+          onChange={(e) => onChange(index, 'fullName', e.target.value)}
+        />
+      </div>
 
- <div className={styles.formRow}>
- <div className={styles.formGroup}>
- <label className={styles.label}>Gender *</label>
- <div className={styles.genderRow}>
- {['Male', 'Female', 'Other'].map((g) => (
- <label key={g} className={styles.genderOption}>
- <input
- type="radio"
- name={`gender-${index}`}
- value={g}
- checked={pax.gender === g}
- onChange={() => onChange(index, 'gender', g)}
- />
- {g}
- </label>
- ))}
- </div>
- </div>
- <div className={styles.formGroup}>
- <label className={styles.label}>Age *</label>
- <input
- type="number"
- className={styles.input}
- placeholder="e.g. 28"
- min={1}
- max={99}
- value={pax.age}
- onChange={(e) => onChange(index, 'age', e.target.value)}
- />
- </div>
- </div>
+      <div className={styles.formRow}>
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Gender *</label>
+          <div className={styles.genderRow}>
+            {['Male', 'Female', 'Other'].map((g) => (
+              <label key={g} className={styles.genderOption}>
+                <input
+                  type="radio"
+                  name={`gender-${index}`}
+                  value={g}
+                  checked={pax.gender === g}
+                  onChange={() => onChange(index, 'gender', g)}
+                />
+                {g}
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Age *</label>
+          <input
+            type="number"
+            className={styles.input}
+            placeholder="e.g. 28"
+            min={1}
+            max={99}
+            value={pax.age}
+            onChange={(e) => onChange(index, 'age', e.target.value)}
+          />
+        </div>
+      </div>
 
- <div className={styles.formGroup}>
- <label className={styles.label}>Mobile Number *</label>
- <div className={styles.mobileOtpRow}>
- <input
- type="tel"
- className={`${styles.input} ${styles.mobileInput}`}
- placeholder="10-digit Indian mobile"
- maxLength={10}
- value={pax.mobile}
- disabled={pax.mobileVerified}
- onChange={(e) => {
- onChange(index, 'mobile', e.target.value.replace(/\D/g, '').slice(0, 10));
- onChange(index, 'mobileVerified', false);
- onChange(index, 'otpSent', false);
- }}
- />
- {pax.mobileVerified ? (
- <span className={styles.mobileVerifiedBadge}> Verified</span>
- ) : (
- <button
- className={styles.sendOtpBtn}
- onClick={sendOtp}
- disabled={pax.otpTimer > 0}
- >
- {pax.otpTimer > 0 ? `Resend (${pax.otpTimer}s)` : pax.otpSent ? ' Resend OTP' : ' Send OTP'}
- </button>
- )}
- </div>
- {!pax.mobileVerified && (
- <p className={styles.fieldHint}> E-ticket will be sent to this number via SMS</p>
- )}
- </div>
+      <div className={styles.formGroup}>
+        <label className={styles.label}>Mobile Number *</label>
+        <div className={styles.mobileOtpRow}>
+          <input
+            type="tel"
+            className={`${styles.input} ${styles.mobileInput}`}
+            placeholder="10-digit Indian mobile"
+            maxLength={10}
+            value={pax.mobile}
+            disabled={pax.mobileVerified}
+            onChange={(e) => {
+              onChange(index, 'mobile', e.target.value.replace(/\D/g, '').slice(0, 10));
+              onChange(index, 'mobileVerified', false);
+              onChange(index, 'otpSent', false);
+            }}
+          />
+          {pax.mobileVerified ? (
+            <span className={styles.mobileVerifiedBadge}>✅ Verified</span>
+          ) : (
+            <button
+              className={styles.sendOtpBtn}
+              onClick={sendOtp}
+              disabled={pax.otpTimer > 0}
+            >
+              {pax.otpTimer > 0 ? `Resend (${pax.otpTimer}s)` : pax.otpSent ? '🔄 Resend OTP' : '📲 Send OTP'}
+            </button>
+          )}
+        </div>
+        {!pax.mobileVerified && (
+          <p className={styles.fieldHint}>📲 E-ticket will be sent to this number via SMS</p>
+        )}
+      </div>
 
- {pax.otpSent && !pax.mobileVerified && (
- <div className={styles.formGroup}>
- <label className={styles.label}>Enter OTP *</label>
- <div className={styles.mobileOtpRow}>
- <input
- type="text"
- className={`${styles.input} ${styles.mobileInput}`}
- placeholder="6-digit OTP"
- maxLength={6}
- value={pax.otpInput}
- onChange={(e) =>
- onChange(index, 'otpInput', e.target.value.replace(/\D/g, '').slice(0, 6))
- }
- />
- <button
- className={`${styles.sendOtpBtn} ${styles.verifyOtpBtn}`}
- onClick={verifyOtp}
- >
- Verify
- </button>
- </div>
- {pax.otpError && (
- <p className={styles.otpErrorMsg}> {pax.otpError}</p>
- )}
- </div>
- )}
+      {pax.otpSent && !pax.mobileVerified && (
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Enter OTP *</label>
+          <div className={styles.mobileOtpRow}>
+            <input
+              type="text"
+              className={`${styles.input} ${styles.mobileInput}`}
+              placeholder="6-digit OTP"
+              maxLength={6}
+              value={pax.otpInput}
+              onChange={(e) =>
+                onChange(index, 'otpInput', e.target.value.replace(/\D/g, '').slice(0, 6))
+              }
+            />
+            <button
+              className={`${styles.sendOtpBtn} ${styles.verifyOtpBtn}`}
+              onClick={verifyOtp}
+            >
+              ✅ Verify
+            </button>
+          </div>
+          {pax.otpError && (
+            <p className={styles.otpErrorMsg}>⚠️ {pax.otpError}</p>
+          )}
+        </div>
+      )}
 
- <div className={styles.formGroup}>
- <label className={styles.label}>Email Address *</label>
- <input
- type="email"
- className={styles.input}
- placeholder="example@email.com"
- value={pax.email}
- onChange={(e) => onChange(index, 'email', e.target.value)}
- />
- <p className={styles.fieldHint}> PDF ticket will be sent to this email</p>
- </div>
+      <div className={styles.formGroup}>
+        <label className={styles.label}>Email Address *</label>
+        <input
+          type="email"
+          className={styles.input}
+          placeholder="example@email.com"
+          value={pax.email}
+          onChange={(e) => onChange(index, 'email', e.target.value)}
+        />
+        <p className={styles.fieldHint}>📧 PDF ticket will be sent to this email</p>
+      </div>
 
- <div className={styles.sectionDivider}> Aadhaar Verification</div>
- <div className={styles.formGroup}>
- <label className={styles.label}>Aadhaar Card Number *</label>
- <div className={styles.aadhaarWrapper}>
- <input
- type="text"
- className={styles.input}
- placeholder="12-digit Aadhaar number"
- maxLength={12}
- value={pax.aadhaar}
- onChange={(e) =>
- onChange(index, 'aadhaar', e.target.value.replace(/\D/g, '').slice(0, 12))
- }
- />
- {pax.aadhaar.length === 12 && (
- <span className={styles.aadhaarVerified}> Verified</span>
- )}
- </div>
- <p className={styles.fieldHint}> Stored securely — used only for boarding verification</p>
- </div>
- </div>
- );
+      <div className={styles.sectionDivider}>🪪 Aadhaar Verification</div>
+      <div className={styles.formGroup}>
+        <label className={styles.label}>Aadhaar Card Number *</label>
+        <div className={styles.aadhaarWrapper}>
+          <input
+            type="text"
+            className={styles.input}
+            placeholder="12-digit Aadhaar number"
+            maxLength={12}
+            value={pax.aadhaar}
+            onChange={(e) =>
+              onChange(index, 'aadhaar', e.target.value.replace(/\D/g, '').slice(0, 12))
+            }
+          />
+          {pax.aadhaar.length === 12 && (
+            <span className={styles.aadhaarVerified}>✅ Verified</span>
+          )}
+        </div>
+        <p className={styles.fieldHint}>🔒 Stored securely — used only for boarding verification</p>
+      </div>
+    </div>
+  );
 };
 
 /* ══════════════════════════════════════════════════════════
- Main PaymentPage Component
+   Main PaymentPage Component
 ══════════════════════════════════════════════════════════ */
 const PaymentPage = () => {
- const { state } = useLocation();
- const navigate = useNavigate();
+  const { state }   = useLocation();
+  const navigate    = useNavigate();
 
- // Retrieve bookingData from router state or fallback to pendingBooking in localStorage
- const bookingData = state?.bookingData || (() => {
- try {
- const stored = localStorage.getItem('pendingBooking');
- return stored ? JSON.parse(stored) : {};
- } catch {
- return {};
- }
- })();
+  // Retrieve bookingData from router state or fallback to pendingBooking in localStorage
+  const bookingData = state?.bookingData || (() => {
+    try {
+      const stored = localStorage.getItem('pendingBooking');
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  })();
 
- const [step, setStep] = useState('summary');
- const [method, setMethod] = useState('');
+  const [step, setStep]     = useState('summary');
+  const [method, setMethod] = useState('');
 
- /* Offer / Coupon State */
- const [appliedCoupon, setAppliedCoupon] = useState(bookingData.appliedCoupon || '');
- const [discountAmount, setDiscountAmount] = useState(bookingData.discountAmount || 0);
+  /* Offer / Coupon State */
+  const [appliedCoupon, setAppliedCoupon]   = useState(bookingData.appliedCoupon || '');
+  const [discountAmount, setDiscountAmount] = useState(bookingData.discountAmount || 0);
 
- /* Auto load coupon from localStorage if applied from gift banner (and not already set) */
- useEffect(() => {
- if (!appliedCoupon) {
- const stored = localStorage.getItem('appliedCoupon');
- if (stored) {
- try {
- const c = JSON.parse(stored);
- if (c?.code) {
- setAppliedCoupon(c.code);
- setDiscountAmount(150);
- }
- } catch (e) {}
- }
- }
- }, [appliedCoupon]);
+  /* Auto load coupon from localStorage if applied from gift banner (and not already set) */
+  useEffect(() => {
+    if (!appliedCoupon) {
+      const stored = localStorage.getItem('appliedCoupon');
+      if (stored) {
+        try {
+          const c = JSON.parse(stored);
+          if (c?.code) {
+            setAppliedCoupon(c.code);
+            setDiscountAmount(150);
+          }
+        } catch (e) {}
+      }
+    }
+  }, [appliedCoupon]);
 
- /* Payment fields */
- const [upiId, setUpiId] = useState('');
- const [cardNum, setCardNum] = useState('');
- const [cardName, setCardName] = useState('');
- const [expiry, setExpiry] = useState('');
- const [cvv, setCvv] = useState('');
+  /* Payment fields */
+  const [upiId, setUpiId]       = useState('');
+  const [cardNum, setCardNum]   = useState('');
+  const [cardName, setCardName] = useState('');
+  const [expiry, setExpiry]     = useState('');
+  const [cvv, setCvv]           = useState('');
 
- const [passengers, setPassengers] = useState(() => {
- if (bookingData.passengers && bookingData.passengers.length > 0) {
- return bookingData.passengers.map(p => ({
- ...emptyPassenger(),
- fullName: p.fullName || '',
- email: p.email || '',
- mobile: p.mobile || '',
- gender: p.gender || 'Male',
- age: p.age || '25',
- aadhaar: p.aadhaar || '123456789012',
- mobileVerified: true
- }));
- }
- if (bookingData.passenger && bookingData.passenger.fullName) {
- return [{
- ...emptyPassenger(),
- fullName: bookingData.passenger.fullName || '',
- email: bookingData.passenger.email || '',
- mobile: bookingData.passenger.mobile || '',
- gender: bookingData.passenger.gender || 'Male',
- age: bookingData.passenger.age || '25',
- aadhaar: bookingData.passenger.aadhaar || '123456789012',
- mobileVerified: true
- }];
- }
- return [emptyPassenger()];
- });
+  const [passengers, setPassengers] = useState(() => {
+    if (bookingData.passengers && bookingData.passengers.length > 0) {
+      return bookingData.passengers.map(p => ({
+        ...emptyPassenger(),
+        fullName: p.fullName || '',
+        email: p.email || '',
+        mobile: p.mobile || '',
+        gender: p.gender || 'Male',
+        age: p.age || '25',
+        aadhaar: p.aadhaar || '123456789012',
+        mobileVerified: true
+      }));
+    }
+    if (bookingData.passenger && bookingData.passenger.fullName) {
+      return [{
+        ...emptyPassenger(),
+        fullName: bookingData.passenger.fullName || '',
+        email: bookingData.passenger.email || '',
+        mobile: bookingData.passenger.mobile || '',
+        gender: bookingData.passenger.gender || 'Male',
+        age: bookingData.passenger.age || '25',
+        aadhaar: bookingData.passenger.aadhaar || '123456789012',
+        mobileVerified: true
+      }];
+    }
+    return [emptyPassenger()];
+  });
 
- const [errorMsg, setErrorMsg] = useState('');
- const [isProcessing, setIsProcessing] = useState(false);
- const [ticketId] = useState(generateTicketId());
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [ticketId]              = useState(generateTicketId());
 
- const farePerSeat = bookingData.fare
- ? parseInt(String(bookingData.fare).replace(/[^\d]/g, ''), 10)
- : (bookingData.price || 0);
+  const farePerSeat = bookingData.fare
+    ? parseInt(String(bookingData.fare).replace(/[^\d]/g, ''), 10)
+    : (bookingData.price || 0);
 
- const seatCount = bookingData.seats?.length || 1;
- const subTotal = bookingData.baseFare || (farePerSeat ? farePerSeat * seatCount : (bookingData.totalFare || 0));
- const totalFare = Math.max(0, subTotal - discountAmount);
+  const seatCount = bookingData.seats?.length || 1;
+  const subTotal = bookingData.baseFare || (farePerSeat ? farePerSeat * seatCount : (bookingData.totalFare || 0));
+  const totalFare = Math.max(0, subTotal - discountAmount);
 
- const applyPromo = (code, amount) => {
- setAppliedCoupon(code);
- setDiscountAmount(amount);
- };
+  const applyPromo = (code, amount) => {
+    setAppliedCoupon(code);
+    setDiscountAmount(amount);
+  };
 
- const removePromo = () => {
- setAppliedCoupon('');
- setDiscountAmount(0);
- localStorage.removeItem('appliedCoupon');
- };
+  const removePromo = () => {
+    setAppliedCoupon('');
+    setDiscountAmount(0);
+    localStorage.removeItem('appliedCoupon');
+  };
 
- const updatePassenger = (idx, field, value) => {
- setPassengers((prev) =>
- prev.map((p, i) => (i === idx ? { ...p, [field]: value } : p))
- );
- };
+  const updatePassenger = (idx, field, value) => {
+    setPassengers((prev) =>
+      prev.map((p, i) => (i === idx ? { ...p, [field]: value } : p))
+    );
+  };
 
- const addPassenger = () => {
- setPassengers((prev) => [...prev, emptyPassenger()]);
- };
+  const addPassenger = () => {
+    setPassengers((prev) => [...prev, emptyPassenger()]);
+  };
 
- const removePassenger = (idx) => {
- setPassengers((prev) => prev.filter((_, i) => i !== idx));
- };
+  const removePassenger = (idx) => {
+    setPassengers((prev) => prev.filter((_, i) => i !== idx));
+  };
 
- const validateDetails = () => {
- for (let i = 0; i < passengers.length; i++) {
- const p = passengers[i];
- const nth = passengers.length > 1 ? ` (Passenger ${i + 1})` : '';
+  const validateDetails = () => {
+    for (let i = 0; i < passengers.length; i++) {
+      const p   = passengers[i];
+      const nth = passengers.length > 1 ? ` (Passenger ${i + 1})` : '';
 
- if (!p.fullName.trim() || !/^[a-zA-Z\s]{3,}$/.test(p.fullName.trim()))
- return `Enter a valid full name${nth}.`;
- if (!p.mobileVerified)
- return `Mobile number must be verified via OTP${nth}.`;
- if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email))
- return `Enter a valid email address${nth}.`;
- if (!/^\d{12}$/.test(p.aadhaar))
- return `Aadhaar must be 12 digits${nth}.`;
- if (!p.gender) return `Select gender${nth}.`;
- if (!p.age || p.age < 1 || p.age > 99)
- return `Enter valid age (1–99)${nth}.`;
- }
- return null;
- };
+      if (!p.fullName.trim() || !/^[a-zA-Z\s]{3,}$/.test(p.fullName.trim()))
+        return `Enter a valid full name${nth}.`;
+      if (!p.mobileVerified)
+        return `Mobile number must be verified via OTP${nth}.`;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email))
+        return `Enter a valid email address${nth}.`;
+      if (!/^\d{12}$/.test(p.aadhaar))
+        return `Aadhaar must be 12 digits${nth}.`;
+      if (!p.gender) return `Select gender${nth}.`;
+      if (!p.age || p.age < 1 || p.age > 99)
+        return `Enter valid age (1–99)${nth}.`;
+    }
+    return null;
+  };
 
- const validatePayment = () => {
- if (!method) return 'Please select a payment method.';
- if (method === 'upi' && !upiId.includes('@'))
- return 'Enter a valid UPI ID (e.g. name@upi).';
- if (method === 'card') {
- if (cardNum.replace(/\s/g, '').length < 16)
- return 'Enter a valid 16-digit card number.';
- if (!cardName.trim()) return 'Enter the cardholder name.';
- if (!expiry) return 'Enter card expiry.';
- if (cvv.length < 3) return 'Enter a valid CVV.';
- }
- return null;
- };
+  const validatePayment = () => {
+    if (!method) return 'Please select a payment method.';
+    if (method === 'upi' && !upiId.includes('@'))
+      return 'Enter a valid UPI ID (e.g. name@upi).';
+    if (method === 'card') {
+      if (cardNum.replace(/\s/g, '').length < 16)
+        return 'Enter a valid 16-digit card number.';
+      if (!cardName.trim()) return 'Enter the cardholder name.';
+      if (!expiry) return 'Enter card expiry.';
+      if (cvv.length < 3) return 'Enter a valid CVV.';
+    }
+    return null;
+  };
 
- const handleProceedToDetails = () => { setErrorMsg(''); setStep('details'); };
+  const handleProceedToDetails = () => { setErrorMsg(''); setStep('details'); };
 
- const handleProceedToPayment = () => {
- const err = validateDetails();
- if (err) return setErrorMsg(err);
- setErrorMsg('');
- setStep('payment');
- };
+  const handleProceedToPayment = () => {
+    const err = validateDetails();
+    if (err) return setErrorMsg(err);
+    setErrorMsg('');
+    setStep('payment');
+  };
 
- const handleConfirmPay = async () => {
- const err = validatePayment();
- if (err) return setErrorMsg(err);
- setErrorMsg('');
- setIsProcessing(true);
+  const handleConfirmPay = async () => {
+    const err = validatePayment();
+    if (err) return setErrorMsg(err);
+    setErrorMsg('');
+    setIsProcessing(true);
 
- const tripId = bookingData.tripId || bookingData.id;
- const requestedSeats = bookingData.seats || [];
- const primary = passengers[0] || {
- fullName: 'Traveler',
- mobile: '9876543210',
- email: 'traveler@example.com',
- aadhaar: '••••••••9012',
- gender: 'Male',
- age: 25
- };
+    const tripId = bookingData.tripId || bookingData.id;
+    const requestedSeats = bookingData.seats || [];
+    const primary = passengers[0] || {
+      fullName: 'Traveler',
+      mobile: '9876543210',
+      email: 'traveler@example.com',
+      aadhaar: '••••••••9012',
+      gender: 'Male',
+      age: 25
+    };
 
- const baseTicket = {
- ticketId,
- name: bookingData.name || bookingData.busName || (bookingData.busDetails?.busName || ''),
- operatorName: bookingData.operatorName || (bookingData.busDetails?.operatorName || ''),
- label: bookingData.name || bookingData.busName || (bookingData.busDetails?.busName || ''),
- id: bookingData.id || (bookingData.busDetails?.id || ''),
- tripId: tripId,
- type: bookingData.type || bookingData.busType || (bookingData.busDetails?.busType || ''),
- route: bookingData.route || `${bookingData.source || ''} => ${bookingData.destination || ''}`,
- date: bookingData.date || '',
- time: bookingData.time || bookingData.slot || (bookingData.busDetails?.departureTime || ''),
- fare: farePerSeat || (bookingData.price || 0),
- seats: requestedSeats,
- boarding: bookingData.boarding || {},
- dropping: bookingData.dropping || {},
- totalFare,
- appliedCoupon,
- discountAmount,
- paymentMethod: method,
- passenger: {
- fullName: (primary.fullName || 'Traveler').trim(),
- mobile: primary.mobile || '9876543210',
- email: (primary.email || 'traveler@example.com').toLowerCase(),
- aadhaar: primary.aadhaar ? primary.aadhaar.replace(/\d(?=\d{4})/g, '•') : '••••••••9012',
- gender: primary.gender || 'Male',
- age: parseInt(primary.age, 10) || 25,
- },
- passengers: (passengers.length > 0 ? passengers : [primary]).map((p) => ({
- fullName: (p.fullName || 'Traveler').trim(),
- mobile: p.mobile || '9876543210',
- email: (p.email || 'traveler@example.com').toLowerCase(),
- aadhaar: p.aadhaar ? p.aadhaar.replace(/\d(?=\d{4})/g, '•') : '••••••••9012',
- gender: p.gender || 'Male',
- age: parseInt(p.age, 10) || 25,
- })),
- bookedAt: new Date().toISOString(),
- };
+    const baseTicket = {
+      ticketId,
+      name:          bookingData.name        || bookingData.busName || (bookingData.busDetails?.busName || ''),
+      operatorName:  bookingData.operatorName || (bookingData.busDetails?.operatorName || ''),
+      label:         bookingData.name        || bookingData.busName || (bookingData.busDetails?.busName || ''),
+      id:            bookingData.id          || (bookingData.busDetails?.id || ''),
+      tripId:        tripId,
+      type:          bookingData.type        || bookingData.busType || (bookingData.busDetails?.busType || ''),
+      route:         bookingData.route       || `${bookingData.source || ''} => ${bookingData.destination || ''}`,
+      date:          bookingData.date        || '',
+      time:          bookingData.time        || bookingData.slot    || (bookingData.busDetails?.departureTime || ''),
+      fare:          farePerSeat || (bookingData.price || 0),
+      seats:         requestedSeats,
+      boarding:      bookingData.boarding    || {},
+      dropping:      bookingData.dropping    || {},
+      totalFare,
+      appliedCoupon,
+      discountAmount,
+      paymentMethod: method,
+      passenger: {
+        fullName: (primary.fullName || 'Traveler').trim(),
+        mobile:   primary.mobile || '9876543210',
+        email:    (primary.email || 'traveler@example.com').toLowerCase(),
+        aadhaar:  primary.aadhaar ? primary.aadhaar.replace(/\d(?=\d{4})/g, '•') : '••••••••9012',
+        gender:   primary.gender || 'Male',
+        age:      parseInt(primary.age, 10) || 25,
+      },
+      passengers: (passengers.length > 0 ? passengers : [primary]).map((p) => ({
+        fullName: (p.fullName || 'Traveler').trim(),
+        mobile:   p.mobile || '9876543210',
+        email:    (p.email || 'traveler@example.com').toLowerCase(),
+        aadhaar:  p.aadhaar ? p.aadhaar.replace(/\d(?=\d{4})/g, '•') : '••••••••9012',
+        gender:   p.gender || 'Male',
+        age:      parseInt(p.age, 10) || 25,
+      })),
+      bookedAt: new Date().toISOString(),
+    };
 
- let finalTicket = baseTicket;
+    let finalTicket = baseTicket;
 
- try {
- // 1. Re-check latest fare & seat availability before booking as required
- if (tripId) {
- try {
- const checkRes = await fetchLiveSeatLayout(tripId);
- if (checkRes && checkRes.success) {
- const latestOccupied = checkRes.occupiedSeats || [];
- const conflict = requestedSeats.filter((s) => latestOccupied.includes(s));
- if (conflict.length > 0) {
- setIsProcessing(false);
- return setErrorMsg(`Seat(s) ${conflict.join(', ')} are no longer available. Please select another seat.`);
- }
- }
- } catch (checkErr) {
- console.warn('[GoTicket Payment] Pre-booking check non-blocking warning:', checkErr);
- }
- }
+    try {
+      // 1. Re-check latest fare & seat availability before booking as required
+      if (tripId) {
+        try {
+          const checkRes = await fetchLiveSeatLayout(tripId);
+          if (checkRes && checkRes.success) {
+            const latestOccupied = checkRes.occupiedSeats || [];
+            const conflict = requestedSeats.filter((s) => latestOccupied.includes(s));
+            if (conflict.length > 0) {
+              setIsProcessing(false);
+              return setErrorMsg(`Seat(s) ${conflict.join(', ')} are no longer available. Please select another seat.`);
+            }
+          }
+        } catch (checkErr) {
+          console.warn('[GoTicket Payment] Pre-booking check non-blocking warning:', checkErr);
+        }
+      }
 
- // 2. Call authorized bus booking API to confirm booking & generate real PNR
- try {
- const apiRes = await bookTicketApi({
- tripId,
- seats: requestedSeats,
- boardingPoint: bookingData.boarding,
- droppingPoint: bookingData.dropping,
- passenger: baseTicket.passenger,
- passengers: baseTicket.passengers,
- totalFare,
- paymentMethod: method,
- holdToken: bookingData.holdToken
- });
+      // 2. Call authorized bus booking API to confirm booking & generate real PNR
+      try {
+        const apiRes = await bookTicketApi({
+          tripId,
+          seats: requestedSeats,
+          boardingPoint: bookingData.boarding,
+          droppingPoint: bookingData.dropping,
+          passenger: baseTicket.passenger,
+          passengers: baseTicket.passengers,
+          totalFare,
+          paymentMethod: method,
+          holdToken: bookingData.holdToken
+        });
 
- if (apiRes && apiRes.success && (apiRes.pnr || apiRes.ticketId)) {
- const pnrCode = apiRes.pnr || apiRes.ticketId;
- finalTicket = {
- ...baseTicket,
- pnr: pnrCode,
- ticketId: pnrCode,
- bookingId: apiRes.bookingId || pnrCode,
- status: 'CONFIRMED',
- cancellationPolicy: apiRes.cancellationPolicy,
- trackingAvailable: apiRes.trackingAvailable !== false
- };
- }
- } catch (apiErr) {
- console.warn('[GoTicket Payment] API booking confirmation fallback:', apiErr);
- }
+        if (apiRes && apiRes.success && (apiRes.pnr || apiRes.ticketId)) {
+          const pnrCode = apiRes.pnr || apiRes.ticketId;
+          finalTicket = {
+            ...baseTicket,
+            pnr: pnrCode,
+            ticketId: pnrCode,
+            bookingId: apiRes.bookingId || pnrCode,
+            status: 'CONFIRMED',
+            cancellationPolicy: apiRes.cancellationPolicy,
+            trackingAvailable: apiRes.trackingAvailable !== false
+          };
+        }
+      } catch (apiErr) {
+        console.warn('[GoTicket Payment] API booking confirmation fallback:', apiErr);
+      }
 
- saveBooking(finalTicket);
- localStorage.setItem('lastTicket', JSON.stringify(finalTicket));
- localStorage.removeItem('pendingBooking');
+      saveBooking(finalTicket);
+      localStorage.setItem('lastTicket', JSON.stringify(finalTicket));
+      localStorage.removeItem('pendingBooking');
 
- // Trigger demo notifications safely
- try {
- sendTicketEmail({ email: primary.email, ticket: finalTicket });
- sendTicketSMS({ mobile: primary.mobile, ticket: finalTicket });
- } catch (e) {}
+      // Trigger demo notifications safely
+      try {
+        sendTicketEmail({ email: primary.email, ticket: finalTicket });
+        sendTicketSMS({ mobile: primary.mobile, ticket: finalTicket });
+      } catch (e) {}
 
- setStep('confirmed');
- } catch (err) {
- console.error('[GoTicket Payment] Confirmation error:', err);
- saveBooking(finalTicket);
- localStorage.setItem('lastTicket', JSON.stringify(finalTicket));
- localStorage.removeItem('pendingBooking');
- setStep('confirmed');
- } finally {
- setIsProcessing(false);
- }
- };
+      setStep('confirmed');
+    } catch (err) {
+      console.error('[GoTicket Payment] Confirmation error:', err);
+      saveBooking(finalTicket);
+      localStorage.setItem('lastTicket', JSON.stringify(finalTicket));
+      localStorage.removeItem('pendingBooking');
+      setStep('confirmed');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
- /* ══════════════════════════════════════
- CONFIRMED SCREEN
- ══════════════════════════════════════ */
- if (step === 'confirmed') {
- const ticket = JSON.parse(localStorage.getItem('lastTicket') || '{}');
- const primary = ticket.passenger || {};
- const allPax = ticket.passengers || [primary];
- const displayPnr = ticket.pnr || ticket.ticketId || ticketId;
+  /* ══════════════════════════════════════
+     CONFIRMED SCREEN
+  ══════════════════════════════════════ */
+  if (step === 'confirmed') {
+    const ticket  = JSON.parse(localStorage.getItem('lastTicket') || '{}');
+    const primary = ticket.passenger || {};
+    const allPax  = ticket.passengers || [primary];
+    const displayPnr = ticket.pnr || ticket.ticketId || ticketId;
 
- return (
- <>
- <div className={styles.page}>
- <div className={`${styles.ticketCard} ${styles.printArea}`}>
- <div className={styles.ticketHeader}>
- <div className={styles.ticketLogo}>
- <img src="/images/logo.png" alt="Go Ticket" className={styles.ticketLogoImg} />
- </div>
- <div className={styles.ticketBadge}> CONFIRMED</div>
- </div>
+    return (
+      <>
+        <div className={styles.page}>
+          <div className={`${styles.ticketCard} ${styles.printArea}`}>
+            <div className={styles.ticketHeader}>
+              <div className={styles.ticketLogo}>
+                <img src="/images/logo.png" alt="Go Ticket" className={styles.ticketLogoImg} />
+              </div>
+              <div className={styles.ticketBadge}>✅ CONFIRMED</div>
+            </div>
 
- <h2 className={styles.ticketTitle}> Booking Confirmed!</h2>
- <p className={styles.ticketId}>PNR / Ticket ID: <strong>{displayPnr}</strong></p>
+            <h2 className={styles.ticketTitle}>🎉 Booking Confirmed!</h2>
+            <p className={styles.ticketId}>PNR / Ticket ID: <strong>{displayPnr}</strong></p>
 
- <div className={styles.deliveryNote}>
- Ticket &amp; PNR sent to <strong>{primary.mobile}</strong> &amp;{' '}
- <strong>{primary.email}</strong>
- </div>
+            <div className={styles.deliveryNote}>
+              📲 Ticket &amp; PNR sent to <strong>{primary.mobile}</strong> &amp;{' '}
+              <strong>{primary.email}</strong>
+            </div>
 
- {allPax.map((p, i) => (
- <div key={i} className={styles.passengerBanner}>
- <div className={styles.passengerBannerTitle}>
- Passenger {i + 1}{i === 0 ? ' (Primary)' : ''}
- </div>
- <div className={styles.passengerBannerRow}>
- <strong>{p.fullName}</strong>
- <span>{p.gender} · Age {p.age}</span>
- </div>
- <div className={styles.passengerBannerRow} style={{ marginTop: '0.3rem' }}>
- <span> {p.mobile}</span>
- <span> Aadhaar {p.aadhaar}</span>
- </div>
- </div>
- ))}
+            {allPax.map((p, i) => (
+              <div key={i} className={styles.passengerBanner}>
+                <div className={styles.passengerBannerTitle}>
+                  👤 Passenger {i + 1}{i === 0 ? ' (Primary)' : ''}
+                </div>
+                <div className={styles.passengerBannerRow}>
+                  <strong>{p.fullName}</strong>
+                  <span>{p.gender} · Age {p.age}</span>
+                </div>
+                <div className={styles.passengerBannerRow} style={{ marginTop: '0.3rem' }}>
+                  <span>📱 {p.mobile}</span>
+                  <span>🪪 Aadhaar {p.aadhaar}</span>
+                </div>
+              </div>
+            ))}
 
- <div className={styles.qrBox}>
- <div className={styles.qrGrid}>
- {Array.from({ length: 25 }).map((_, i) => (
- <div
- key={i}
- className={styles.qrCell}
- style={{ background: (i * 7 + 3) % 3 !== 0 ? '#333' : '#fff' }}
- />
- ))}
- </div>
- <p className={styles.qrLabel}>Scan at boarding · PNR {displayPnr}</p>
- </div>
+            <div className={styles.qrBox}>
+              <div className={styles.qrGrid}>
+                {Array.from({ length: 25 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={styles.qrCell}
+                    style={{ background: (i * 7 + 3) % 3 !== 0 ? '#333' : '#fff' }}
+                  />
+                ))}
+              </div>
+              <p className={styles.qrLabel}>Scan at boarding · PNR {displayPnr}</p>
+            </div>
 
- <div className={styles.detailGrid}>
- {[
- { label: 'PNR', val: displayPnr },
- { label: 'Bus', val: ticket.name },
- { label: 'Route', val: ticket.route },
- { label: 'Date', val: ticket.date },
- { label: 'Departure', val: ticket.time },
- { label: 'Seats', val: ticket.seats?.join(', ') || 'N/A' },
- { label: 'Boarding', val: ticket.boarding?.location },
- { label: 'Drop', val: ticket.dropping?.location },
- { label: 'Promo Code',val: ticket.appliedCoupon ? `${ticket.appliedCoupon} (-₹${ticket.discountAmount})` : 'None' },
- { label: 'Total Paid',val: `₹${ticket.totalFare}` },
- ].map(({ label, val }) => (
- <div key={label} className={styles.detailItem}>
- <span className={styles.detailLabel}>{label}</span>
- <span className={styles.detailVal}>{val || '—'}</span>
- </div>
- ))}
- </div>
+            <div className={styles.detailGrid}>
+              {[
+                { label: 'PNR',       val: displayPnr },
+                { label: 'Bus',       val: ticket.name },
+                { label: 'Route',     val: ticket.route },
+                { label: 'Date',      val: ticket.date },
+                { label: 'Departure', val: ticket.time },
+                { label: 'Seats',     val: ticket.seats?.join(', ') || 'N/A' },
+                { label: 'Boarding',  val: ticket.boarding?.location },
+                { label: 'Drop',      val: ticket.dropping?.location },
+                { label: 'Promo Code',val: ticket.appliedCoupon ? `${ticket.appliedCoupon} (-₹${ticket.discountAmount})` : 'None' },
+                { label: 'Total Paid',val: `₹${ticket.totalFare}` },
+              ].map(({ label, val }) => (
+                <div key={label} className={styles.detailItem}>
+                  <span className={styles.detailLabel}>{label}</span>
+                  <span className={styles.detailVal}>{val || '—'}</span>
+                </div>
+              ))}
+            </div>
 
- <button className={styles.downloadBtn} onClick={() => window.print()}>
- Download PDF Ticket
- </button>
+            <button className={styles.downloadBtn} onClick={() => window.print()}>
+              📄 Download PDF Ticket
+            </button>
 
- <div className={styles.ticketActions}>
- <button className={styles.actionBtn} onClick={() => navigate('/eticket')}>
- View E-Ticket
- </button>
- <button
- className={styles.actionBtn}
- onClick={() => navigate('/live-tracking', { state: { busNo: ticket.id || ticket.pnr } })}
- >
- Track Bus
- </button>
- <button
- className={`${styles.actionBtn} ${styles.homeBtn}`}
- onClick={() => navigate('/')}
- >
- Back to Home
- </button>
- </div>
- </div>
- </div>
- <footer className={styles.copyrightBar}>
- <p>© 2026 Go Ticket India. All rights reserved.</p>
- </footer>
- </>
- );
- }
+            <div className={styles.ticketActions}>
+              <button className={styles.actionBtn} onClick={() => navigate('/eticket')}>
+                🎫 View E-Ticket
+              </button>
+              <button
+                className={styles.actionBtn}
+                onClick={() => navigate('/live-tracking', { state: { busNo: ticket.id || ticket.pnr } })}
+              >
+                📍 Track Bus
+              </button>
+              <button
+                className={`${styles.actionBtn} ${styles.homeBtn}`}
+                onClick={() => navigate('/')}
+              >
+                🏠 Back to Home
+              </button>
+            </div>
+          </div>
+        </div>
+        <footer className={styles.copyrightBar}>
+          <p>© 2026 Go Ticket India. All rights reserved.</p>
+        </footer>
+      </>
+    );
+  }
 
- /* ══════════════════════════════════════
- MAIN FLOW STEPS
- ══════════════════════════════════════ */
- return (
- <>
- <div className={styles.page}>
+  /* ══════════════════════════════════════
+     MAIN FLOW STEPS
+  ══════════════════════════════════════ */
+  return (
+    <>
+      <div className={styles.page}>
 
- {/* ── STEP 1: Booking Summary ──────────────────────── */}
- {step === 'summary' && (
- <div className={styles.card}>
- <StepBar current="summary" />
- <h2 className={styles.heading}><u>Booking Summary</u></h2>
+        {/* ── STEP 1: Booking Summary ──────────────────────── */}
+        {step === 'summary' && (
+          <div className={styles.card}>
+            <StepBar current="summary" />
+            <h2 className={styles.heading}><u>Booking Summary</u></h2>
 
- <div className={styles.summaryGrid}>
- {[
- { label: 'Bus', val: bookingData.name },
- { label: 'Route', val: bookingData.route },
- { label: 'Date', val: bookingData.date },
- { label: 'Departure', val: bookingData.time },
- { label: 'Bus Type', val: bookingData.type },
- { label: 'Seats', val: bookingData.seats?.join(', ') || 'N/A' },
- { label: 'Boarding', val: bookingData.boarding?.location },
- { label: 'Drop', val: bookingData.dropping?.location },
- { label: 'Subtotal', val: `₹${subTotal}` },
- ].map(({ label, val }) => (
- <div key={label} className={styles.summaryItem}>
- <span className={styles.summaryLabel}>{label}</span>
- <span className={styles.summaryVal}>{val}</span>
- </div>
- ))}
- </div>
+            <div className={styles.summaryGrid}>
+              {[
+                { label: 'Bus',        val: bookingData.name },
+                { label: 'Route',      val: bookingData.route },
+                { label: 'Date',       val: bookingData.date },
+                { label: 'Departure',  val: bookingData.time },
+                { label: 'Bus Type',   val: bookingData.type },
+                { label: 'Seats',      val: bookingData.seats?.join(', ') || 'N/A' },
+                { label: 'Boarding',   val: bookingData.boarding?.location },
+                { label: 'Drop',       val: bookingData.dropping?.location },
+                { label: 'Subtotal',   val: `₹${subTotal}` },
+              ].map(({ label, val }) => (
+                <div key={label} className={styles.summaryItem}>
+                  <span className={styles.summaryLabel}>{label}</span>
+                  <span className={styles.summaryVal}>{val}</span>
+                </div>
+              ))}
+            </div>
 
- {/* REALISTIC PROMO & COUPON OFFERS SECTION */}
- <div className={styles.promoSection}>
- <div className={styles.promoTitle}> Apply Promo Code &amp; Offers</div>
+            {/* REALISTIC PROMO & COUPON OFFERS SECTION */}
+            <div className={styles.promoSection}>
+              <div className={styles.promoTitle}>🎁 Apply Promo Code &amp; Offers</div>
 
- {appliedCoupon ? (
- <div className={styles.appliedPromoBadge}>
- <span> Coupon <strong>{appliedCoupon}</strong> Applied! (Saved ₹{discountAmount})</span>
- <button className={styles.removePromoBtn} onClick={removePromo}>Remove</button>
- </div>
- ) : (
- <div className={styles.promoChipsRow}>
- {PROMO_OFFERS.map((offer) => (
- <button
- key={offer.code}
- type="button"
- className={styles.promoChip}
- onClick={() => applyPromo(offer.code, offer.discount)}
- >
- {offer.code} - {offer.text}
- </button>
- ))}
- </div>
- )}
- </div>
+              {appliedCoupon ? (
+                <div className={styles.appliedPromoBadge}>
+                  <span>🎉 Coupon <strong>{appliedCoupon}</strong> Applied! (Saved ₹{discountAmount})</span>
+                  <button className={styles.removePromoBtn} onClick={removePromo}>Remove</button>
+                </div>
+              ) : (
+                <div className={styles.promoChipsRow}>
+                  {PROMO_OFFERS.map((offer) => (
+                    <button
+                      key={offer.code}
+                      type="button"
+                      className={styles.promoChip}
+                      onClick={() => applyPromo(offer.code, offer.discount)}
+                    >
+                      🏷️ {offer.code} - {offer.text}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
- {/* Final Total Amount Display */}
- <div className={styles.finalTotalBox}>
- <div>
- <span>Total Amount to Pay</span>
- {discountAmount > 0 && <small>(After ₹{discountAmount} Instant Discount)</small>}
- </div>
- <span className={styles.totalFare}>₹{totalFare}</span>
- </div>
+            {/* Final Total Amount Display */}
+            <div className={styles.finalTotalBox}>
+              <div>
+                <span>Total Amount to Pay</span>
+                {discountAmount > 0 && <small>(After ₹{discountAmount} Instant Discount)</small>}
+              </div>
+              <span className={styles.totalFare}>₹{totalFare}</span>
+            </div>
 
- <button className={styles.proceedBtn} onClick={handleProceedToDetails}>
- <b> Enter Passenger Details →</b>
- </button>
- </div>
- )}
+            <button className={styles.proceedBtn} onClick={handleProceedToDetails}>
+              <b>👤 Enter Passenger Details →</b>
+            </button>
+          </div>
+        )}
 
- {/* ── STEP 2: Passenger Details ────────────────────── */}
- {step === 'details' && (
- <div className={styles.card}>
- <StepBar current="details" />
- <h2 className={styles.heading}><u>Passenger Details</u></h2>
+        {/* ── STEP 2: Passenger Details ────────────────────── */}
+        {step === 'details' && (
+          <div className={styles.card}>
+            <StepBar current="details" />
+            <h2 className={styles.heading}><u>Passenger Details</u></h2>
 
- <div className={styles.detailsStepInfo}>
- <strong> Indian Citizen Verification Required</strong>
- Aadhaar number and mobile OTP verification are mandatory. Ticket will
- be delivered via SMS and email after successful payment.
- </div>
+            <div className={styles.detailsStepInfo}>
+              <strong>🇮🇳 Indian Citizen Verification Required</strong>
+              Aadhaar number and mobile OTP verification are mandatory. Ticket will
+              be delivered via SMS and email after successful payment.
+            </div>
 
- {errorMsg && <div className={styles.errorMsg}> {errorMsg}</div>}
+            {errorMsg && <div className={styles.errorMsg}>⚠️ {errorMsg}</div>}
 
- {passengers.map((pax, idx) => (
- <PassengerCard
- key={pax.id}
- pax={pax}
- index={idx}
- total={passengers.length}
- onChange={updatePassenger}
- onRemove={removePassenger}
- />
- ))}
+            {passengers.map((pax, idx) => (
+              <PassengerCard
+                key={pax.id}
+                pax={pax}
+                index={idx}
+                total={passengers.length}
+                onChange={updatePassenger}
+                onRemove={removePassenger}
+              />
+            ))}
 
- <button className={styles.addPassengerBtn} onClick={addPassenger}>
- ＋ Add Another Passenger
- </button>
+            <button className={styles.addPassengerBtn} onClick={addPassenger}>
+              ＋ Add Another Passenger
+            </button>
 
- <div className={styles.payBtnRow}>
- <button className={styles.backBtn} onClick={() => setStep('summary')}>← Back</button>
- <button className={styles.proceedBtn} onClick={handleProceedToPayment}>
- <b> Proceed to Pay ₹{totalFare}</b>
- </button>
- </div>
- </div>
- )}
+            <div className={styles.payBtnRow}>
+              <button className={styles.backBtn} onClick={() => setStep('summary')}>← Back</button>
+              <button className={styles.proceedBtn} onClick={handleProceedToPayment}>
+                <b>💳 Proceed to Pay ₹{totalFare}</b>
+              </button>
+            </div>
+          </div>
+        )}
 
- {/* ── STEP 3: Payment ──────────────────────────────── */}
- {step === 'payment' && (
- <div className={styles.card}>
- <StepBar current="payment" />
- <h2 className={styles.heading}><u>Choose Payment Method</u></h2>
+        {/* ── STEP 3: Payment ──────────────────────────────── */}
+        {step === 'payment' && (
+          <div className={styles.card}>
+            <StepBar current="payment" />
+            <h2 className={styles.heading}><u>Choose Payment Method</u></h2>
 
- {errorMsg && <div className={styles.errorMsg}> {errorMsg}</div>}
+            {errorMsg && <div className={styles.errorMsg}>⚠️ {errorMsg}</div>}
 
- <div className={styles.methodRow}>
- {['upi', 'card', 'cod'].map((m) => (
- <button
- key={m}
- className={`${styles.methodBtn} ${method === m ? styles.methodActive : ''}`}
- onClick={() => setMethod(m)}
- >
- {m === 'upi' && ' UPI'}
- {m === 'card' && ' Card'}
- {m === 'cod' && ' Cash'}
- </button>
- ))}
- </div>
+            <div className={styles.methodRow}>
+              {['upi', 'card', 'cod'].map((m) => (
+                <button
+                  key={m}
+                  className={`${styles.methodBtn} ${method === m ? styles.methodActive : ''}`}
+                  onClick={() => setMethod(m)}
+                >
+                  {m === 'upi'  && '📱 UPI'}
+                  {m === 'card' && '💳 Card'}
+                  {m === 'cod'  && '💵 Cash'}
+                </button>
+              ))}
+            </div>
 
- {method === 'upi' && (
- <div className={styles.formGroup}>
- <label className={styles.label}>UPI ID</label>
- <input
- type="text"
- className={styles.input}
- placeholder="yourname@upi"
- value={upiId}
- onChange={(e) => setUpiId(e.target.value)}
- />
- </div>
- )}
+            {method === 'upi' && (
+              <div className={styles.formGroup}>
+                <label className={styles.label}>UPI ID</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  placeholder="yourname@upi"
+                  value={upiId}
+                  onChange={(e) => setUpiId(e.target.value)}
+                />
+              </div>
+            )}
 
- {method === 'card' && (
- <>
- <div className={styles.formGroup}>
- <label className={styles.label}>Card Number</label>
- <input
- type="text"
- className={styles.input}
- placeholder="1234 5678 9012 3456"
- maxLength={19}
- value={cardNum}
- onChange={(e) => {
- const v = e.target.value.replace(/\D/g, '').slice(0, 16);
- setCardNum(v.replace(/(.{4})/g, '$1 ').trim());
- }}
- />
- </div>
- <div className={styles.formGroup}>
- <label className={styles.label}>Cardholder Name</label>
- <input
- type="text"
- className={styles.input}
- placeholder="Name on card"
- value={cardName}
- onChange={(e) => setCardName(e.target.value)}
- />
- </div>
- <div className={styles.formRow}>
- <div className={styles.formGroup}>
- <label className={styles.label}>Expiry</label>
- <input
- type="month"
- className={styles.input}
- value={expiry}
- onChange={(e) => setExpiry(e.target.value)}
- />
- </div>
- <div className={styles.formGroup}>
- <label className={styles.label}>CVV</label>
- <input
- type="password"
- className={styles.input}
- placeholder="•••"
- maxLength={3}
- value={cvv}
- onChange={(e) => setCvv(e.target.value.replace(/\D/g, ''))}
- />
- </div>
- </div>
- </>
- )}
+            {method === 'card' && (
+              <>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Card Number</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    placeholder="1234 5678 9012 3456"
+                    maxLength={19}
+                    value={cardNum}
+                    onChange={(e) => {
+                      const v = e.target.value.replace(/\D/g, '').slice(0, 16);
+                      setCardNum(v.replace(/(.{4})/g, '$1 ').trim());
+                    }}
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Cardholder Name</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    placeholder="Name on card"
+                    value={cardName}
+                    onChange={(e) => setCardName(e.target.value)}
+                  />
+                </div>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>Expiry</label>
+                    <input
+                      type="month"
+                      className={styles.input}
+                      value={expiry}
+                      onChange={(e) => setExpiry(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.label}>CVV</label>
+                    <input
+                      type="password"
+                      className={styles.input}
+                      placeholder="•••"
+                      maxLength={3}
+                      value={cvv}
+                      onChange={(e) => setCvv(e.target.value.replace(/\D/g, ''))}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
 
- {method === 'cod' && (
- <p className={styles.codNote}>
- You will pay ₹{totalFare} in cash to the bus conductor before departure.
- </p>
- )}
+            {method === 'cod' && (
+              <p className={styles.codNote}>
+                💵 You will pay ₹{totalFare} in cash to the bus conductor before departure.
+              </p>
+            )}
 
- <div className={styles.payBtnRow}>
- <button className={styles.backBtn} onClick={() => setStep('details')}>← Back</button>
- <button className={styles.proceedBtn} disabled={isProcessing} onClick={handleConfirmPay}>
- <b>{isProcessing ? '⏳ Confirming with Bus API...' : ` Confirm & Pay ₹${totalFare}`}</b>
- </button>
- </div>
- </div>
- )}
- </div>
+            <div className={styles.payBtnRow}>
+              <button className={styles.backBtn} onClick={() => setStep('details')}>← Back</button>
+              <button className={styles.proceedBtn} disabled={isProcessing} onClick={handleConfirmPay}>
+                <b>{isProcessing ? '⏳ Confirming with Bus API...' : `✅ Confirm & Pay ₹${totalFare}`}</b>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
- {/* Copyright Bar */}
- <footer className={styles.copyrightBar}>
- <p>© 2026 Go Ticket India. All rights reserved.</p>
- </footer>
- </>
- );
+      {/* Copyright Bar */}
+      <footer className={styles.copyrightBar}>
+        <p>© 2026 Go Ticket India. All rights reserved.</p>
+      </footer>
+    </>
+  );
 };
 
 export default PaymentPage;

@@ -53,10 +53,12 @@ const Header = () => {
 
             {/* Golden Laurel Trust Badge */}
             <div className={styles.trustLaurelBadge}>
+              <span className={styles.laurelIcon}>🌾</span>
               <div className={styles.trustTextCol}>
                 <span className={styles.trustSubtitle}>Trusted by</span>
                 <strong className={styles.trustMainTitle}>Indian Customers</strong>
               </div>
+              <span className={styles.laurelIcon}>🌾</span>
             </div>
 
             <div className={styles.categoryGroup}>
@@ -64,6 +66,7 @@ const Header = () => {
                 to="/"
                 className={`${styles.categoryItem} ${location.pathname === '/' || location.pathname === '/available-buses' ? styles.activeCategory : ''}`}
               >
+                <span className={styles.categoryIcon}>🚌</span>
                 <span className={styles.categoryLabel}>Bus tickets</span>
               </Link>
 
@@ -71,6 +74,7 @@ const Header = () => {
                 to="/livetracking"
                 className={`${styles.categoryItem} ${location.pathname === '/livetracking' ? styles.activeCategory : ''}`}
               >
+                <span className={styles.categoryIcon}>📍</span>
                 <span className={styles.categoryLabel}>Bus tracking</span>
               </Link>
 
@@ -78,6 +82,7 @@ const Header = () => {
                 to="/eticket"
                 className={`${styles.categoryItem} ${location.pathname === '/eticket' ? styles.activeCategory : ''}`}
               >
+                <span className={styles.categoryIcon}>📄</span>
                 <span className={styles.categoryLabel}>E-Ticket</span>
               </Link>
 
@@ -85,6 +90,7 @@ const Header = () => {
                 to="/home"
                 className={`${styles.categoryItem} ${location.pathname === '/home' ? styles.activeCategory : ''}`}
               >
+                <span className={styles.categoryIcon}>🗺️</span>
                 <span className={styles.categoryLabel}>Routes</span>
               </Link>
             </div>
@@ -93,16 +99,19 @@ const Header = () => {
           {/* Right Action Options */}
           <div className={styles.rightNav}>
             <Link to="/seatbooking" className={styles.actionItem}>
+              <span className={styles.actionIcon}>📋</span>
               <span className={styles.actionLabel}>Bookings</span>
             </Link>
 
             <Link to="/contact" className={styles.actionItem}>
+              <span className={styles.actionIcon}>❓</span>
               <span className={styles.actionLabel}>Help</span>
             </Link>
 
             {isAuthenticated ? (
               <div className={styles.userSection}>
                 <span className={styles.actionItem}>
+                  <span className={styles.actionIcon}>👤</span>
                   <span className={styles.actionLabel}>{displayName}</span>
                 </span>
                 <button onClick={handleLogout} className={styles.logoutBtn}>
@@ -116,6 +125,7 @@ const Header = () => {
                 role="button"
                 tabIndex={0}
               >
+                <span className={styles.actionIcon}>👤</span>
                 <span className={styles.actionLabel}>Account</span>
               </div>
             )}
@@ -136,18 +146,18 @@ const Header = () => {
 
       {/* Mobile Drawer */}
       <div className={`${styles.mobileMenu} ${mobileOpen ? styles.mobileMenuOpen : ''}`}>
-        <Link to="/" className={styles.mobileNavLink}>Bus Tickets</Link>
-        <Link to="/livetracking" className={styles.mobileNavLink}>Bus Tracking</Link>
-        <Link to="/eticket" className={styles.mobileNavLink}>E-Ticket</Link>
-        <Link to="/home" className={styles.mobileNavLink}>Routes</Link>
-        <Link to="/seatbooking" className={styles.mobileNavLink}>Bookings</Link>
-        <Link to="/contact" className={styles.mobileNavLink}>Help &amp; Support</Link>
+        <Link to="/" className={styles.mobileNavLink}>🚌 Bus Tickets</Link>
+        <Link to="/livetracking" className={styles.mobileNavLink}>📍 Bus Tracking</Link>
+        <Link to="/eticket" className={styles.mobileNavLink}>📄 E-Ticket</Link>
+        <Link to="/home" className={styles.mobileNavLink}>🗺️ Routes</Link>
+        <Link to="/seatbooking" className={styles.mobileNavLink}>📋 Bookings</Link>
+        <Link to="/contact" className={styles.mobileNavLink}>❓ Help &amp; Support</Link>
 
         {isAuthenticated ? (
           <button onClick={handleLogout} className={styles.mobileLogoutBtn}>Logout ({displayName})</button>
         ) : (
           <button onClick={() => { setMobileOpen(false); setShowAuth(true); }} className={styles.mobileNavLink}>
-            Account (Login / Signup)
+            👤 Account (Login / Signup)
           </button>
         )}
       </div>
