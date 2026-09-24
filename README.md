@@ -1,21 +1,21 @@
 
-# GoTicket — AI-Agent-Based Intercity Bus Booking Platform
+# GoTicket AI-Agent-Based Intercity Bus Booking Platform
 
 > An autonomous conversational AI travel concierge alongside an end-to-end manual bus reservation and live tracking web platform.
 
-## 🌟 Key Highlights & Features
+## Key Highlights & Features
 
-### ⚡ Core Features Successfully Built & Tested
+### Core Features Successfully Built & Tested
 
 | Feature | Architectural Implementation & Capabilities | Verification Status |
 | :--- | :--- | :---: |
-| **🔍 Smart Route Search** | Supports multi-city corridor filtering (50+ Indian cities), relative/absolute date picking, departure time slots, and deterministic 5-factor ranking for sub-second route discovery. | `✓ TESTED & VERIFIED` |
-| **💺 Interactive Seat Picker** | Dual-layout interactive canvas supporting both **Seater (2+2)** and **Sleeper (Upper/Lower berths)** with real-time selection, atomic collision checks, and live fare updates. | `✓ TESTED & VERIFIED` |
-| **🏷️ Automated Discounts** | Intelligent checkout promo validation engine that evaluates eligible coupons (`FIRSTGO`, `GTWEEKEND`, `UPIPAY`) with instantaneous total recomputation. | `✓ TESTED & VERIFIED` |
-| **📍 Live Bus Tracking** | Real-time vehicle telemetry rendered on OpenStreetMap with waypoint interpolation, driver details, and browser Geolocation distance calculations using the **Haversine formula**. | `✓ TESTED & VERIFIED` |
-| **🎫 Digital QR Tickets** | Instant paperless pass generation featuring scannable high-resolution digital QR codes, unique booking references (`GTXXXXXX`), and one-click print/download capabilities. | `✓ TESTED & VERIFIED` |
+| **Smart Route Search** | Supports multi-city corridor filtering (50+ Indian cities), relative/absolute date picking, departure time slots, and deterministic 5-factor ranking for sub-second route discovery. | `✓ TESTED & VERIFIED` |
+| **Interactive Seat Picker** | Dual-layout interactive canvas supporting both **Seater (2+2)** and **Sleeper (Upper/Lower berths)** with real-time selection, atomic collision checks, and live fare updates. | `✓ TESTED & VERIFIED` |
+| **Automated Discounts** | Intelligent checkout promo validation engine that evaluates eligible coupons (`FIRSTGO`, `GTWEEKEND`, `UPIPAY`) with instantaneous total recomputation. | `✓ TESTED & VERIFIED` |
+| **Live Bus Tracking** | Real-time vehicle telemetry rendered on OpenStreetMap with waypoint interpolation, driver details, and browser Geolocation distance calculations using the **Haversine formula**. | `✓ TESTED & VERIFIED` |
+| **Digital QR Tickets** | Instant paperless pass generation featuring scannable high-resolution digital QR codes, unique booking references (`GTXXXXXX`), and one-click print/download capabilities. | `✓ TESTED & VERIFIED` |
 
-### 1. 🤖 Tixie — Autonomous Conversational AI Travel Agent
+### 1. Tixie — Autonomous Conversational AI Travel Agent
 * **Natural Language Route Search:** Recognizes 22+ Indian cities, relative dates (*"tomorrow"*, *"next Friday"*, *"day after tomorrow"*), and departure preferences (*"evening"*, *"around 9 PM"*, *"cheapest"*, *"fastest"*).
 * **Deterministic Multi-Criteria Ranking:** Ranks search results using a 5-factor scoring engine (Time fit: 30%, Price: 25%, Duration: 20%, Availability: 15%, Operator rating: 10%).
 * **Atomic Seat Selection & Validation:** Validates seat requests against occupied seat maps (rejects conflicts like `S7` atomically without partial state corruption).
@@ -24,7 +24,7 @@
 * **Strict Explicit Confirmation Gate:** **Tixie NEVER finalizes a booking until the user explicitly approves the final booking summary** (e.g., *"Yes, confirm"*, *"Confirm booking"*, *"Book it"*). Non-committal phrases (*"maybe"*, *"what is the bus type?"*) and inline modifications (*"change seat to S5"*, *"change email"*) preserve conversational state without committing.
 * **In-Flight Duplicate Guard:** Prevents rapid double-clicks or multiple simultaneous confirmation submissions from creating duplicate tickets.
 
-### 2. 💺 End-to-End Manual Booking Workflow
+### 2. End-to-End Manual Booking Workflow
 * **Hero Search Widget:** Source and destination city selectors with date pickers and auto-suggestions for 50+ Indian corridors.
 * **Available Buses Listing:** Filter and sort by operator, price, time slot, and bus type (AC Sleeper, Volvo Multi-Axle, AC Seater).
 * **Interactive Seat Map:** Visual 40-seat bus layout (2 Left + Aisle + 2 Right) with occupied seat locks and live pricing.
@@ -32,12 +32,12 @@
 * **Checkout & Simulated Payment:** Net Banking, UPI, and Card options with simulated 6-digit mobile OTP verification and coupon discounting (`FIRSTGO`, `GTWEEKEND`, `UPIPAY`).
 * **Digital E-Ticket Generation:** Instant pass with QR verification code, ticket reference ID (`GTXXXXXX`), passenger details, and print/download capabilities.
 
-### 3. 📡 Live Bus Telemetry & Tracking
+### 3. Live Bus Telemetry & Tracking
 * Visual OpenStreetMap embed with waypoint interpolation, simulated vehicle speed, driver details, and browser Geolocation distance calculation via the **Haversine formula**.
 
 ---
 
-## 🏗️ Architecture & State Machine
+## Architecture & State Machine
 
 ### Conversational State Machine (`travelAgent.js`)
 
@@ -83,7 +83,7 @@
 
 ---
 
-## 💡 Demo Mode & Simulation Disclosures
+## Demo Mode & Simulation Disclosures
 
 To run self-contained in any environment without requiring external credentials or paid APIs:
 * **Authentication:** Use demo credentials `demo@goticket.in` / `demo123` or register a local profile.
@@ -94,7 +94,7 @@ To run self-contained in any environment without requiring external credentials 
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 * Node.js (v18.0 or higher recommended)
@@ -126,7 +126,7 @@ To run self-contained in any environment without requiring external credentials 
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 Go-Ticket/
