@@ -20,6 +20,7 @@
     "dev": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:workflow": "node src/services/conversationalWorkflow.test.js",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
