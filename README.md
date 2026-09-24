@@ -28,6 +28,90 @@ graph TD
 
 ---
 
+## 🤖 Tixie AI Agent Workflows & Flowcharts
+
+### 1. Multi-Turn Conversational State Machine (`travelAgent.js`)
+Demonstrates how Tixie handles the conversational lifecycle, collects required travel parameters, gracefully adapts to midway user changes, and enforces validation gates.
+
+```mermaid
+graph TD
+    S1["Step 1: IDLE / User Message Ingested"] --> S2{"Step 2: Are Mandatory Parameters Complete?"}
+    S2 -- "Missing Route, Date, or Count" --> S3["Step 3: State COLLECTING_INFORMATION<br/>Prompt for Specific Missing Entity"]
+    S3 --> S1
+    S2 -- "Source, Destination, Date & Count Present" --> S4["Step 4: Execute 5-Factor Ranking Search<br/>State WAITING_FOR_BUS_SELECTION"]
+    
+    S4 --> S5{"Step 5: Bus Option Selected?"}
+    S5 -- "Picks Option 1, Lowest Price, or Name" --> S6["Step 6: Display Interactive Seat Grid<br/>State WAITING_FOR_SEAT_SELECTION"]
+    
+    S6 --> S7{"Step 7: Seat Selection Validated?"}
+    S7 -- "Partial Seat Count e.g. 1 of 2 seats" --> S8["Step 8: Retain Partial Hold<br/>Prompt for Remaining Seat"]
+    S8 --> S6
+    S7 -- "Seats Match Passenger Count Exactly" --> S9["Step 9: State COLLECTING_PASSENGER_INFO<br/>Collect Full Name, Phone, Email"]
+    
+    S9 --> S10["Step 10: Compile Itemized BOOKING_SUMMARY"]
+    S10 --> S11{"Step 11: Explicit Confirmation Gate"}
+    S11 -- "Question, Maybe, or Casual Chat" --> S12["Step 12: Maintain Summary State<br/>Answer Question & Re-prompt Confirmation"]
+    S12 --> S10
+    S11 -- "Inline Edit e.g. Change Seat to S5" --> S13["Step 13: Update Specific Entity<br/>Recalculate Summary"]
+    S13 --> S10
+    S11 -- "Route or Date Changed Midway" --> S14["Step 14: Invalidate Previous Search & Seats<br/>Restart Search for New Route"]
+    S14 --> S4
+    S11 -- "Explicit Approval e.g. Yes confirm / Book it" --> S15["Step 15: State PAYMENT_PENDING<br/>Secure Handoff to /payment"]
+    S15 --> S16["Step 16: User Finalizes Payment -> State CONFIRMED"]
+```
+
+### 2. NLU Intent Classification & Entity Extraction Pipeline (`nluService.js`)
+Illustrates how Tixie cleans raw user text, identifies user intent, extracts travel entities, and manages dialogue context across conversational turns.
+
+```mermaid
+graph TD
+    N1["Step 1: Raw Natural Language Input"] --> N2["Step 2: Sanitization & Alias Normalization<br/>Maps BOM to Mumbai, BLR to Bangalore"]
+    N2 --> N3["Step 3: Multi-Intent Pattern Scoring<br/>SEARCH_BUSES, SELECT_SEAT, PROVIDE_INFO, CONFIRM, CANCEL"]
+    N3 --> N4["Step 4: Specialized Entity Extractors"]
+    
+    subgraph Extractors ["Entity Extraction Engine"]
+        E1["Origin & Destination Cities"]
+        E2["Travel Date: Relative or Absolute"]
+        E3["Passenger Count: Digits & Words"]
+        E4["Filters: Budget, Sleeper, AC, Timing"]
+        E5["Seat IDs: S1..S40 Regex Matcher"]
+        E6["Passenger Data: Name, 10-Digit Mobile, Email"]
+    end
+    
+    N4 --> Extractors
+    Extractors --> N5["Step 5: Context Manager Merge & Diff Evaluation"]
+    N5 --> N6{"Step 6: Did Travel Corridor or Date Change?"}
+    N6 -- "Yes" --> N7["Step 7: Clear Cached Results & Invalidate Seats"]
+    N6 -- "No" --> N8["Step 8: Merge New Entities into Active Session"]
+    N7 --> N9["Step 9: Dispatch Structured Request to Agent Tool Handlers"]
+    N8 --> N9
+```
+
+### 3. Atomic Seat Allocation & Confirmation Gate Architecture (`seatService.js`)
+Depicts how Tixie guarantees seat inventory integrity, detects double-booking collisions, suggests adjacent alternatives, and protects travelers from accidental checkout.
+
+```mermaid
+graph TD
+    A1["Step 1: Traveler Selects Seats via Chat e.g. S3, S4"] --> A2["Step 2: Inspect Live Occupied Map & Active Hold Cache"]
+    A2 --> A3{"Step 3: Atomic Collision Check"}
+    
+    A3 -- "ANY Requested Seat is Occupied" --> A4["Step 4: Atomic Rollback<br/>Reject Full Request Without Partial Allocation"]
+    A4 --> A5["Step 5: Locate Adjacent Available Seats e.g. S1 and S2"]
+    A5 --> A1
+    
+    A3 -- "ALL Requested Seats are Open" --> A6{"Step 6: Passenger-to-Seat Ratio Check"}
+    A6 -- "Selected Count Exceeds Passenger Count" --> A7["Step 7: Reject Excess Seats with Ratio Guidance"]
+    A6 -- "Selected Count Matches Passenger Count" --> A8["Step 8: Issue 10-Minute Atomic Hold Token LCK_..."]
+    
+    A8 --> A9["Step 9: Render Transparent Booking Overview"]
+    A9 --> A10{"Step 10: Confirmation Security Gate"}
+    A10 -- "Ambiguous Text e.g. What is the operator? / Ok" --> A11["Step 11: Block Checkout Handoff<br/>Preserve State & Require Affirmative Response"]
+    A10 -- "Explicit Affirmative e.g. Confirm Booking / Proceed" --> A12["Step 12: Commit Pending Reservation to Storage"]
+    A12 --> A13["Step 13: Forward Booking Payload to /payment Gateway"]
+```
+
+---
+
 ## Step-by-Step Guide
 
 ### Step 1: Search & Route Discovery
