@@ -49,20 +49,20 @@ const SelectSeats = () => {
     let holdToken = null;
 
     // Call API to lock seats atomically for 10 minutes
-    if (tripId) {
-      try {
+    try {
+      if (tripId) {
         const holdRes = await holdSeatsApi(tripId, selectedSeats);
         if (holdRes && holdRes.success) {
-          holdToken = holdRes.holdToken;
+          holdToken = holdRes.holdToken || holdRes.lockId;
           setHoldInfo(holdRes);
         }
-      } catch (err) {
-        console.warn('[GoTicket SelectSeats] Hold seats API non-blocking warning:', err);
       }
+    } catch (err) {
+      console.warn('[GoTicket SelectSeats] Hold seats API non-blocking warning:', err);
+    } finally {
+      setIsHolding(false);
+      setShowTerms(false);
     }
-
-    setIsHolding(false);
-    setShowTerms(false);
 
     const defaultBoarding = [
       {

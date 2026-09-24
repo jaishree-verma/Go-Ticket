@@ -220,7 +220,16 @@ const LiveTracking = () => {
     if (!found) {
       // 1. Check live Indian Bus API backend telemetry proxy first
       try {
-        const apiRes = await fetch(`/api/buses/track/${encodeURIComponent(query)}`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const apiBase = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+          ? 'http://localhost:5002'
+          : '';
+
+        const apiRes = await fetch(`${apiBase}/api/buses/track/${encodeURIComponent(query)}`, {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
         if (apiRes.ok) {
           const trackData = await apiRes.json();
           if (trackData.trackingAvailable && trackData.latitude && trackData.longitude) {

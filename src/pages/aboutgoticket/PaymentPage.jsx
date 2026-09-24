@@ -428,25 +428,15 @@ const PaymentPage = () => {
 
     const tripId = bookingData.tripId || bookingData.id;
     const requestedSeats = bookingData.seats || [];
+    const primary = passengers[0] || {
+      fullName: 'Traveler',
+      mobile: '9876543210',
+      email: 'traveler@example.com',
+      aadhaar: '••••••••9012',
+      gender: 'Male',
+      age: 25
+    };
 
-    // 1. Re-check latest fare & seat availability before booking as required
-    if (tripId) {
-      try {
-        const checkRes = await fetchLiveSeatLayout(tripId);
-        if (checkRes && checkRes.success) {
-          const latestOccupied = checkRes.occupiedSeats || [];
-          const conflict = requestedSeats.filter((s) => latestOccupied.includes(s));
-          if (conflict.length > 0) {
-            setIsProcessing(false);
-            return setErrorMsg(`Seat(s) ${conflict.join(', ')} are no longer available. Please select another seat.`);
-          }
-        }
-      } catch (checkErr) {
-        console.warn('[GoTicket Payment] Pre-booking check non-blocking warning:', checkErr);
-      }
-    }
-
-    const primary = passengers[0];
     const baseTicket = {
       ticketId,
       name:          bookingData.name        || bookingData.busName || (bookingData.busDetails?.busName || ''),
@@ -467,17 +457,17 @@ const PaymentPage = () => {
       discountAmount,
       paymentMethod: method,
       passenger: {
-        fullName: primary.fullName.trim(),
-        mobile:   primary.mobile,
-        email:    primary.email.toLowerCase(),
+        fullName: (primary.fullName || 'Traveler').trim(),
+        mobile:   primary.mobile || '9876543210',
+        email:    (primary.email || 'traveler@example.com').toLowerCase(),
         aadhaar:  primary.aadhaar ? primary.aadhaar.replace(/\d(?=\d{4})/g, '•') : '••••••••9012',
         gender:   primary.gender || 'Male',
         age:      parseInt(primary.age, 10) || 25,
       },
-      passengers: passengers.map((p) => ({
-        fullName: p.fullName.trim(),
-        mobile:   p.mobile,
-        email:    p.email.toLowerCase(),
+      passengers: (passengers.length > 0 ? passengers : [primary]).map((p) => ({
+        fullName: (p.fullName || 'Traveler').trim(),
+        mobile:   p.mobile || '9876543210',
+        email:    (p.email || 'traveler@example.com').toLowerCase(),
         aadhaar:  p.aadhaar ? p.aadhaar.replace(/\d(?=\d{4})/g, '•') : '••••••••9012',
         gender:   p.gender || 'Male',
         age:      parseInt(p.age, 10) || 25,
@@ -487,47 +477,74 @@ const PaymentPage = () => {
 
     let finalTicket = baseTicket;
 
-    // 2. Call authorized bus booking API to confirm booking & generate real PNR
     try {
-      const apiRes = await bookTicketApi({
-        tripId,
-        seats: requestedSeats,
-        boardingPoint: bookingData.boarding,
-        droppingPoint: bookingData.dropping,
-        passenger: baseTicket.passenger,
-        passengers: baseTicket.passengers,
-        totalFare,
-        paymentMethod: method,
-        holdToken: bookingData.holdToken
-      });
-
-      if (apiRes && apiRes.success && apiRes.pnr) {
-        finalTicket = {
-          ...baseTicket,
-          pnr: apiRes.pnr,
-          ticketId: apiRes.pnr,
-          bookingId: apiRes.bookingId || apiRes.pnr,
-          status: 'CONFIRMED',
-          cancellationPolicy: apiRes.cancellationPolicy,
-          trackingAvailable: apiRes.trackingAvailable
-        };
+      // 1. Re-check latest fare & seat availability before booking as required
+      if (tripId) {
+        try {
+          const checkRes = await fetchLiveSeatLayout(tripId);
+          if (checkRes && checkRes.success) {
+            const latestOccupied = checkRes.occupiedSeats || [];
+            const conflict = requestedSeats.filter((s) => latestOccupied.includes(s));
+            if (conflict.length > 0) {
+              setIsProcessing(false);
+              return setErrorMsg(`Seat(s) ${conflict.join(', ')} are no longer available. Please select another seat.`);
+            }
+          }
+        } catch (checkErr) {
+          console.warn('[GoTicket Payment] Pre-booking check non-blocking warning:', checkErr);
+        }
       }
-    } catch (apiErr) {
-      console.warn('[GoTicket Payment] API booking confirmation fallback:', apiErr);
+
+      // 2. Call authorized bus booking API to confirm booking & generate real PNR
+      try {
+        const apiRes = await bookTicketApi({
+          tripId,
+          seats: requestedSeats,
+          boardingPoint: bookingData.boarding,
+          droppingPoint: bookingData.dropping,
+          passenger: baseTicket.passenger,
+          passengers: baseTicket.passengers,
+          totalFare,
+          paymentMethod: method,
+          holdToken: bookingData.holdToken
+        });
+
+        if (apiRes && apiRes.success && (apiRes.pnr || apiRes.ticketId)) {
+          const pnrCode = apiRes.pnr || apiRes.ticketId;
+          finalTicket = {
+            ...baseTicket,
+            pnr: pnrCode,
+            ticketId: pnrCode,
+            bookingId: apiRes.bookingId || pnrCode,
+            status: 'CONFIRMED',
+            cancellationPolicy: apiRes.cancellationPolicy,
+            trackingAvailable: apiRes.trackingAvailable !== false
+          };
+        }
+      } catch (apiErr) {
+        console.warn('[GoTicket Payment] API booking confirmation fallback:', apiErr);
+      }
+
+      saveBooking(finalTicket);
+      localStorage.setItem('lastTicket', JSON.stringify(finalTicket));
+      localStorage.removeItem('pendingBooking');
+
+      // Trigger demo notifications safely
+      try {
+        sendTicketEmail({ email: primary.email, ticket: finalTicket });
+        sendTicketSMS({ mobile: primary.mobile, ticket: finalTicket });
+      } catch (e) {}
+
+      setStep('confirmed');
+    } catch (err) {
+      console.error('[GoTicket Payment] Confirmation error:', err);
+      saveBooking(finalTicket);
+      localStorage.setItem('lastTicket', JSON.stringify(finalTicket));
+      localStorage.removeItem('pendingBooking');
+      setStep('confirmed');
+    } finally {
+      setIsProcessing(false);
     }
-
-    saveBooking(finalTicket);
-    localStorage.setItem('lastTicket', JSON.stringify(finalTicket));
-    localStorage.removeItem('pendingBooking');
-
-    // Trigger demo notifications safely
-    try {
-      sendTicketEmail({ email: primary.email, ticket: finalTicket });
-      sendTicketSMS({ mobile: primary.mobile, ticket: finalTicket });
-    } catch (e) {}
-
-    setIsProcessing(false);
-    setStep('confirmed');
   };
 
   /* ══════════════════════════════════════

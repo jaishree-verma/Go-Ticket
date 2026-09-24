@@ -13,7 +13,7 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.BACKEND_PORT || 5002;
 
 // Body parser
 app.use(express.json());

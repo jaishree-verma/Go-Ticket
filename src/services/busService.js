@@ -2,6 +2,16 @@
 import axios from 'axios';
 import { MOCK_BUSES } from '../data/mockBuses.js';
 
+export const getApiBaseUrl = () => {
+  if (process.env.REACT_APP_API_BASE_URL) {
+    return process.env.REACT_APP_API_BASE_URL;
+  }
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    return 'http://localhost:5002';
+  }
+  return '';
+};
+
 /**
  * Searches for real-time buses from the authorized backend GDS proxy.
  * 
@@ -31,9 +41,10 @@ export const searchBuses = async ({
 
   // 1. Live Authorized Backend Call
   try {
-    const res = await axios.get('/api/buses/search', {
+    const apiBase = getApiBaseUrl();
+    const res = await axios.get(`${apiBase}/api/buses/search`, {
       params: { source: cleanSource, destination: cleanDest, date },
-      timeout: 6000
+      timeout: 3500
     });
 
     if (Array.isArray(res.data) && res.data.length > 0) {
@@ -176,7 +187,8 @@ export const searchBuses = async ({
  */
 export const getLiveTripDetails = async (tripId) => {
   try {
-    const res = await axios.get(`/api/buses/trip/${encodeURIComponent(tripId)}`, { timeout: 6000 });
+    const apiBase = getApiBaseUrl();
+    const res = await axios.get(`${apiBase}/api/buses/trip/${encodeURIComponent(tripId)}`, { timeout: 3500 });
     return res.data;
   } catch (err) {
     console.warn(`Live trip details fetch error for ${tripId}:`, err.message);
