@@ -28,7 +28,7 @@ graph TD
 
 ---
 
-## 🤖 Tixie AI Agent Workflows & Flowcharts
+## Tixie AI Agent Workflows & Flowcharts
 
 ### 1. Multi-Turn Conversational State Machine (`travelAgent.js`)
 Demonstrates how Tixie handles the conversational lifecycle, collects required travel parameters, gracefully adapts to midway user changes, and enforces validation gates.

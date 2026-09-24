@@ -77,7 +77,7 @@ export const fetchLiveDelhiBuses = async (limit = 25) => {
     {
       id: 'DL51EV9092',
       registration: 'DL51EV9092',
-      route: 'Route 534 (Mehrauli ➔ Anand Vihar)',
+      route: 'Route 534 (Mehrauli → Anand Vihar)',
       latitude: 28.5903,
       longitude: 77.0866,
       speedKmH: 42,
@@ -88,7 +88,7 @@ export const fetchLiveDelhiBuses = async (limit = 25) => {
     {
       id: 'DL1PD8698',
       registration: 'DL1PD8698',
-      route: 'Route 419 (Ambedkar Nagar ➔ Old Delhi)',
+      route: 'Route 419 (Ambedkar Nagar → Old Delhi)',
       latitude: 28.5381,
       longitude: 77.2916,
       speedKmH: 38,
